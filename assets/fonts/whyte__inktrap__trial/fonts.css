@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'WhyteTrail-Book';
+    src:  url('WhyteTrial-Book.woff2') format('woff2'),
+          url('WhyteTrial-Book.woff') format('woff');
+}
+@font-face {
+    font-family: 'WhyteTrail-Medium';
+    src:  url('WhyteTrial-Medium.woff2') format('woff2'),
+          url('WhyteTrial-Medium.woff') format('woff');
+}
+@font-face {
+    font-family: 'WhyteTrail-Bold';
+    src:  url('WhyteTrial-Bold.woff2') format('woff2'),
+          url('WhyteTrial-Bold.woff') format('woff');
+}

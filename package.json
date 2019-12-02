@@ -1,0 +1,21 @@
+{
+  "name": "parcel-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "gsap": "^3.0.1",
+    "import-jquery": "^1.0.1",
+    "jquery": "^3.4.1",
+    "jquery-ui-dist": "^1.12.1",
+    "main.css": "^2.0.0",
+    "scrollmagic": "^2.0.7"
+  }
+}

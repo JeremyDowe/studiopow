@@ -1,0 +1,1 @@
+{"version":3,"sources":["work.css"],"names":[],"mappings":"AAAA,YACI,YAAa,CACb,kBACJ","file":"work.ec5bd8b0.css","sourceRoot":"..","sourcesContent":[".page__work {\n    height: 100vh;\n    background: rgb(36,36,36);\n}"]}

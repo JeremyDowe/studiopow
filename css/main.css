@@ -1,0 +1,55 @@
+@import './reset.css';
+@import '../assets/fonts/whyte__inktrap__trial/fonts.css';
+@import './nav.css';
+@import './footer.css';
+
+body {
+    font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+}
+header {
+    position: fixed;
+    top: 10px;
+    z-index: 2;
+    display: grid;
+    max-width: 100%;
+    width: 100%;
+    grid-auto-columns: auto;
+    grid-auto-rows: auto;
+    grid-template-areas: 'left right';
+}
+#logo {
+    font-family: 'WhyteTrail-Medium', 'Work Sans', sans-serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.02rem;
+    position: relative;
+    top: 20px;
+    left: 0px;
+    max-height: 72px;
+    display: inline;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: -webkit-baseline-middle;
+    padding: 0.85rem 0 0 12.5%;
+}
+#logo .desktop {
+    font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.02rem;
+    text-transform: lowercase;    
+}
+#logo.normal {
+    color: rgba(26,26,26,1);
+}
+#logo.invert {
+    color: rgba(255,255,255,1);
+}
+main {
+    background: white;
+    display: grid;
+    grid-auto-columns: auto;
+    grid-auto-rows: auto;
+    position: relative;
+}

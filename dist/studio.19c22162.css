@@ -1,0 +1,18 @@
+/* Update header colors */
+body.studio header #logo {
+    color: rgb(36,36,36);
+}
+body.studio header ul li a {
+    color: rgb(36,36,36);
+}
+body.studio header ul li a span.line {
+    background-color: rgb(36,36,36);
+}
+
+.page__studio {
+    background: #d2d2d2;
+    height: 100vh;
+}
+
+
+/*# sourceMappingURL=/studio.19c22162.css.map */

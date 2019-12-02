@@ -1,0 +1,89 @@
+nav {
+    min-height: 4rem;
+    margin: 0rem;
+    padding: 0rem;
+    text-align: right;
+    padding-right: 2.5rem;
+}
+
+nav ul {
+    height: 4rem;
+    margin: 0rem;
+    padding: 0rem;
+}
+nav ul li {
+    position: relative;
+    list-style: none;
+    vertical-align: -webkit-baseline-middle;
+    display: inline-block;
+    padding: 0.709rem 0.8rem;
+    line-height: 250%;
+}
+nav ul li a {
+    vertical-align: middle;
+    font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.01rem;
+    line-height: 250%;
+    color: rgb(22,22,22);
+    display: inline-block;
+    list-style: none;
+    text-decoration: none;
+    padding: 0.709rem 0.8rem;
+}
+
+nav ul li.normal a span.line {
+    height: 4px;
+    background: rgb(22,22,22);
+    width: 0;
+    display: inline-block;
+    position: absolute;
+    left: 18px;
+    right: 0;
+    bottom: 24px;
+    transition: all .2s ease-in-out;
+}
+
+nav ul li.normal:nth-child(1) a:hover span.line {
+    width: 69%;
+}
+
+nav ul li.normal:nth-child(2) a:hover span.line {
+    width: 70%;
+}
+
+nav ul li.normal:nth-child(3) a:hover span.line {
+    width: 74%;
+}
+
+nav ul li.invert a span.line {
+    height: 4px;
+    background: white;
+    width: 0;
+    display: inline-block;
+    position: absolute;
+    left: 18px;
+    right: 0;
+    bottom: 24px;
+    transition: all .2s ease-in-out;
+}
+
+nav ul li.invert:nth-child(1) a:hover span.line {
+    width: 69%;
+}
+
+nav ul li.invert:nth-child(2) a:hover span.line {
+    width: 70%;
+}
+
+nav ul li.invert:nth-child(3) a:hover span.line {
+    width: 74%;
+}
+
+nav ul li.normal a {
+    color: rgb(22,22,22);
+}
+
+nav ul li.invert a {
+    color: rgb(255,255,255);
+}
