@@ -22,6 +22,11 @@
     /*transition: top .3s ease-in-out;*/
 }
 
+.page__work h2.work__title > a {
+    text-decoration: none;
+    color: rgb(255,255,255);
+}
+
 .page__work .work__piece {
     height: 50vh;
     width: 50vw;
