@@ -52,9 +52,11 @@ $(function(){
         const height = Math.max( body.scrollHeight, body.offsetHeight, 
                         html.clientHeight, html.scrollHeight, html.offsetHeight );
         // Math recipes
-        const paddingScroll = (height / $(this).scrollTop()) * 1450;
-        const opacityScroll = Math.sqrt(height / $(this).scrollTop()) - 2;
-        const scroll = Math.sqrt($(this).scrollTop() / height) + 1;
+        const paddingScroll = (height / 3) * scrolling;
+        const opacityScroll = Math.sqrt(scrolling / height) - 2;
+        const scroll = Math.sqrt(scrolling / height) + 1;
+        const axisScroll = Math.atan(scrolling/height) * Math.tan(scrolling/height) * 1000;
+        const cosScroll = Math.acos(scrolling/height) * Math.cos(scrolling/height);
         // scrolling behaviour logo / menu
         if ( $('.page__part__two').height() !== this.undefined || $('.page__part__three').height() !== this.undefined ) {
             if (
@@ -74,8 +76,8 @@ $(function(){
                 (scrolling > offset) && 
                 (scrolling < $('.page__part__two').position().top - offset)
             ){
-                $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll) + 'px)');
-                $('.center').css('opacity', Math.sqrt(opacityScroll));
+                $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.2) + 'px)');
+                $('.center').css('opacity', '-'+Math.sqrt(opacityScroll*0.4));
                 $('.background__wrapper').css('opacity', Math.sqrt(opacityScroll*0.1));
                 $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
             }
@@ -95,17 +97,28 @@ $(function(){
             }
         }
         if ($('.piece').height() !== this.undefined){
+            $('.piece').each(function(){
+                $(this).css('height', $(window).height());
+            });
             // work section scroll
-            if (scrolling > lastScrollPos && scrolling > offset) {
+            if (scrolling > lastScrollPos) {
                 // downscroll code
-                
+                $('.work__piece').css('transform', 'translateY( ' + axisScroll + 'px )');
+                $('.work__piece').css('top', (cosScroll + 150) + 'px');
+                // title
+                $('.work__title').css('transform', 'translateY( ' + (axisScroll + cosScroll) + 'px )');
+                $('.work__title').css('top', (axisScroll + cosScroll)+150 + 'px');
                 //console.log('down');
-             } else {
+            } else {
                 // upscroll code
-                
+                $('.work__piece').css('transform', 'translateY( ' + axisScroll + 'px )');
+                $('.work__piece').css('top', (cosScroll + 150) + 'px');
+                // title
+                $('.work__title').css('transform', 'translateY( ' + (axisScroll + cosScroll) + 'px )');
+                $('.work__title').css('top', (axisScroll + cosScroll)+150 + 'px');
                 //console.log('up');
-             }
-             lastScrollPos = scrolling;
+            }
+            lastScrollPos = scrolling;
         }
         return true;
      });

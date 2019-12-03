@@ -1,5 +1,5 @@
 .page__work {
-    height: 300vh;
+    height: 480vh;
     background: rgb(36,36,36);
 }
 
@@ -25,9 +25,27 @@
 .page__work .work__piece {
     height: 50vh;
     width: 50vw;
-    background-color: rgb(66,66,66);
+    background-color: rgb(55,55,55);
     position: absolute;
     right: 100px;
-    top: 100px;
-    z-index: 0;
+    top: 150px;
+    transform: translateY(0px);
+}
+
+.page__work .work__letts {
+    background: url('../assets/img/work_piece_letts.jpg') center center no-repeat;
+    background-size: cover;
+    opacity: 0.5;
+}
+
+.page__work .work__moody {
+    background: url('../assets/img/work_piece_moody.jpg') center center no-repeat;
+    background-size: cover;
+    opacity: 0.5;
+}
+
+.page__work .work__atar {
+    background: url('../assets/img/work_piece_atar.jpg') center center no-repeat;
+    background-size: cover;
+    opacity: 0.5;
 }
