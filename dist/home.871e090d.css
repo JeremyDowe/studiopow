@@ -11,7 +11,7 @@
 .page__part__two {
     display: grid;
     width: -webkit-fill-available;
-    height: 100vh;
+    height: 125vh;
     position: relative;
     top: auto;
     z-index: 1;
@@ -48,7 +48,7 @@
 }
 .background__wrapper {
     background-color: rgb(26,26,26);
-    background-image: url('/unsplash__bg__2.88a8c962.jpg');
+    background-image: url('/podcast-art-instagram-angle-grid.711c35e2.jpg');
     background-blend-mode: screen;
     background-position-x: center;
     background-position-y: top;
@@ -95,14 +95,14 @@
     font-size: 14px;
 }
 .page__part__one .middle h1 {
-    font-family: 'WhyteTrail-Medium', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     color: rgba(255,255,255,1);
     font-size: 4.2vw;
-    letter-spacing: -0.2vw;
+    letter-spacing: -0.02vw;
     font-weight: 500;
     padding: 20px 50px 30px 50px;
     margin: 0;
-    transform: translate(-100px, 0px);
+    transform: translate(-100px, 30px);
     top: 0;
     display: block;
     user-select: none;
@@ -112,18 +112,18 @@
     height: 6px;
     background-color: white;
     display: inline-block;
-    transform: translate(-100px, 0px);
+    transform: translate(-100px, 50px);
     margin-bottom: 30px;
 }
 .page__part__one .middle h2 {
-    font-family: 'WhyteTrail-Medium', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     color: rgba(255,255,255,1);
     font-size: 4.2vw;
-    letter-spacing: -0.2vw;
+    letter-spacing: -0.02vw;
     font-weight: 500;
     padding: 0px;
     margin: 0;
-    transform: translate(-100px, 0px);
+    transform: translate(-100px, 50px);
     top: 0;
     display: block;
     user-select: none;
@@ -136,7 +136,7 @@
     font-weight: 400;
     padding: 30px 0 0 0;
     margin: 0;
-    transform: translate(-100px, 0px);
+    transform: translate(-100px, 70px);
     top: 0;
     display: block;
     user-select: none;
@@ -154,6 +154,8 @@ aside.right {
     grid-area: 'right';
     z-index: 1;
     width: 100%;
+    opacity: 0;
+    transform: translate(-110px, 0px);
     position: relative;
     overflow: hidden;
 }
@@ -197,6 +199,11 @@ aside.right {
     background: url('/circle_solutions.a75f58cd.svg') center center no-repeat;
     background-size: 60%;
 }
+
+.page__part__two .process-tween {
+    opacity: 0;
+}
+
 .page__part__two .right {
     /* right column styles */
     background: #ffffff;
@@ -391,10 +398,11 @@ aside.right {
 /* Mobile */
 @media only screen 
   and (min-width: 375px) 
-  and (max-width: 812px)
+  and (max-width: 640px)
   and (orientation: portrait) {
     header #logo {
         padding-left: 1.5rem;
+        transform: translateY(-15px);
     }
     header #logo .desktop {
         display: none;

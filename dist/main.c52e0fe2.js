@@ -194,7 +194,7 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./WhyteTrial-Book.woff2":[["WhyteTrial-Book.1720be2d.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"./WhyteTrial-Book.woff":[["WhyteTrial-Book.f69972d9.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"./WhyteTrial-Medium.woff2":[["WhyteTrial-Medium.2af7a86f.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"./WhyteTrial-Medium.woff":[["WhyteTrial-Medium.cea8d04d.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"./WhyteTrial-Bold.woff2":[["WhyteTrial-Bold.7ff82244.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"./WhyteTrial-Bold.woff":[["WhyteTrial-Bold.6e856098.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/nav.css":[function(require,module,exports) {
+},{"./WhyteTrial-Book.woff2":[["WhyteTrial-Book.1720be2d.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"./WhyteTrial-Book.woff":[["WhyteTrial-Book.f69972d9.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"./WhyteTrial-Medium.woff2":[["WhyteTrial-Medium.2af7a86f.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"./WhyteTrial-Medium.woff":[["WhyteTrial-Medium.cea8d04d.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"./WhyteTrial-Bold.woff2":[["WhyteTrial-Bold.7ff82244.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"./WhyteTrial-Bold.woff":[["WhyteTrial-Bold.6e856098.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"./WhyteTrial-Light.woff2":[["WhyteTrial-Light.7d4f3c39.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"./WhyteTrial-Light.woff":[["WhyteTrial-Light.d1461e83.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/nav.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -237,7 +237,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49676" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60565" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

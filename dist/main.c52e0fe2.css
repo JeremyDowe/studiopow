@@ -379,6 +379,11 @@ textarea {
     src:  url('/WhyteTrial-Bold.7ff82244.woff2') format('woff2'),
           url('/WhyteTrial-Bold.6e856098.woff') format('woff');
 }
+@font-face {
+    font-family: 'WhyteTrail-Light';
+    src:  url('/WhyteTrial-Light.7d4f3c39.woff2') format('woff2'),
+          url('/WhyteTrial-Light.d1461e83.woff') format('woff');
+}
 nav {
     min-height: 4rem;
     margin: 0rem;
@@ -392,6 +397,7 @@ nav ul {
     margin: 0rem;
     padding: 0rem;
 }
+
 nav ul li {
     position: relative;
     list-style: none;
@@ -400,6 +406,7 @@ nav ul li {
     padding: 0.709rem 0.8rem;
     line-height: 250%;
 }
+
 nav ul li a {
     vertical-align: middle;
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
@@ -414,7 +421,7 @@ nav ul li a {
 }
 
 nav ul li.normal a span.line {
-    height: 4px;
+    height: 2px;
     background: rgb(22,22,22);
     width: 0;
     display: inline-block;
@@ -438,7 +445,7 @@ nav ul li.normal:nth-child(3) a:hover span.line {
 }
 
 nav ul li.invert a span.line {
-    height: 4px;
+    height: 2px;
     background: white;
     width: 0;
     display: inline-block;
@@ -468,13 +475,51 @@ nav ul li.normal a {
 nav ul li.invert a {
     color: rgb(255,255,255);
 }
+
+@media only screen 
+  and (min-width: 375px) 
+  and (max-width: 640px) 
+  and (orientation: portrait) {
+
+    nav ul li.normal a span.line,
+    nav ul li.invert a span.line {
+        height: 2px;
+        bottom: 18px;
+        left: 16px;
+    }
+
+    nav ul li.normal:nth-child(1) a:hover span.line {
+        width: 50%;
+    }
+    
+    nav ul li.normal:nth-child(2) a:hover span.line {
+        width: 54%;
+    }
+    
+    nav ul li.normal:nth-child(3) a:hover span.line {
+        width: 58%;
+    }
+
+    nav ul li.invert:nth-child(1) a:hover span.line {
+        width: 50%;
+    }
+    
+    nav ul li.invert:nth-child(2) a:hover span.line {
+        width: 54%;
+    }
+    
+    nav ul li.invert:nth-child(3) a:hover span.line {
+        width: 58%;
+    }
+
+}
 footer {
     display: grid;
     grid-template-columns: repeat(2, span);
     grid-template-rows: repeat(2, span);
     width: -webkit-fill-available;
     background: #d2d2d2;
-    padding: 0 5rem;
+    padding: 3rem 5rem;
     margin: 0;
 }
 
@@ -535,7 +580,7 @@ footer .right table td a:hover {
 
 @media only screen 
   and (min-width: 375px) 
-  and (max-width: 812px) 
+  and (max-width: 640px) 
   and (orientation: portrait) {
     footer {
         display: flex;
@@ -588,6 +633,7 @@ header {
     user-select: none;
     vertical-align: -webkit-baseline-middle;
     padding: 0.85rem 0 0 12.5%;
+    transform: translateY(-5px);
 }
 #logo .desktop {
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;

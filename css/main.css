@@ -33,6 +33,7 @@ header {
     user-select: none;
     vertical-align: -webkit-baseline-middle;
     padding: 0.85rem 0 0 12.5%;
+    transform: translateY(-5px);
 }
 #logo .desktop {
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;

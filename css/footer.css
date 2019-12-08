@@ -4,7 +4,7 @@ footer {
     grid-template-rows: repeat(2, span);
     width: -webkit-fill-available;
     background: #d2d2d2;
-    padding: 0 5rem;
+    padding: 3rem 5rem;
     margin: 0;
 }
 
@@ -65,7 +65,7 @@ footer .right table td a:hover {
 
 @media only screen 
   and (min-width: 375px) 
-  and (max-width: 812px) 
+  and (max-width: 640px) 
   and (orientation: portrait) {
     footer {
         display: flex;

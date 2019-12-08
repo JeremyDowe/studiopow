@@ -84,6 +84,26 @@ $(function(){
             // scrolling to work section
             if (
                 (scrolling > offset) &&
+                (scrolling > $('.page__part__two').position().top - offset)
+            )
+            {
+                // animate in gsap
+                gsap.to(
+                '.process-tween',
+                { 
+                    y: "-100px",
+                    duration: 1,
+                    opacity: 1,
+                    stagger: {
+                        amount: 1,
+                        from: "screenLeft",
+                        grid: "auto"
+                    }
+                });
+            }
+            // scrolling to work section
+            if (
+                (scrolling > offset) &&
                 (scrolling > $('.page__part__three').position().top - offset)
             )
             {
