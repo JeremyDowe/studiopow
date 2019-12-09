@@ -48,10 +48,10 @@
 }
 .background__wrapper {
     background-color: rgb(26,26,26);
-    background-image: url('../assets/img/podcast-art-instagram-angle-grid.jpg');
+    background-image: url('../assets/img/unsplash__bg__3.jpg');
     background-blend-mode: screen;
     background-position-x: center;
-    background-position-y: top;
+    background-position-y: 50%;
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;
@@ -183,7 +183,7 @@ aside.right {
     display: flex;
     vertical-align: middle;
 }
-.page__part__two .left .end__process {
+.end__process {
     width: 25vw;
     height: 100%;
     display: flex;
@@ -191,7 +191,7 @@ aside.right {
     background: url('../assets/svg/end_solution.svg') right center no-repeat;
     background-size: contain;
 }
-.page__part__two .left .circle__process {
+.circle__process {
     width: 25vw;
     height: 100%;
     display: flex;

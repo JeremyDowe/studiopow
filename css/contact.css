@@ -1,16 +1,50 @@
-.page__contact {
+body.contact {
     background: rgb(36,36,36);
-    height: 100vh;
 }
-footer {
-    background: rgb(36,36,36); 
+/* Change the logo color */
+body.contact #logo.normal {
+    color: rgb(36,36,36);
 }
-body.contact footer #logo,
-body.contact footer h3,
-body.contact footer table td a,
-body.contact footer .footer div {
-    color: rgb(236,236,236);
-}
-body.contact footer table td a:hover {
+.page__contact {
+    display: grid;
+    max-height: 100vh;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    width: -webkit-fill-available;
     color: rgb(255,255,255);
+    background: rgb(36,36,36);
+    padding: 0;
+    margin: 0;
+}
+.page__contact .left {
+    grid-area: 1 / 1 / 2 / 2;
+    order: 0;
+    height: 100%;
+    background: url('../assets/img/unsplash__bg__3.jpg') 0 0 no-repeat;
+    background-size: cover;
+}
+.page__contact .right {
+    grid-area: 1 / 2 / 2 / 3;
+    padding: 30vh 0 0 15rem;
+    height: 70vh;
+}
+.page__contact .right h3 {
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 200;
+    margin: 0;
+    padding: 0 0 4rem 0;
+}
+.page__contact .right table {
+    width: 300px;
+}
+.page__contact .right table td {
+    padding: 10px 0;
+}
+.page__contact .right table td a {
+    color: rgba(126,126,126,1);
+    text-decoration: none;
+}
+.page__contact .right table td a:hover {
+    color: rgba(226,226,226,1);
 }
