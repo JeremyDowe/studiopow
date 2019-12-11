@@ -11,9 +11,8 @@
     "yarn": "^1.19.2"
   },
   "scripts": {
-    "dev": "parcel index.html",
-    "build": "parcel build index.html",
-    "start": "parcel index.html"
+    "build": "parcel build index.js",
+    "start": "node index.js"
   },
   "dependencies": {
     "gsap": "^3.0.1",
@@ -21,6 +20,7 @@
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",
     "main.css": "^2.0.0",
-    "scrollmagic": "^2.0.7"
+    "scrollmagic": "^2.0.7",
+    "yaml": "^1.7.2"
   }
 }
