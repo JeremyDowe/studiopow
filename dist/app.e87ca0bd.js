@@ -37617,7 +37617,7 @@ $(function () {
     _gsap.gsap.to('.background__wrapper', {
       scale: "1.2",
       duration: 1,
-      opacity: 0.5,
+      opacity: 0.4,
       stagger: {
         amount: 1,
         from: "screenLeft",
@@ -37640,18 +37640,22 @@ $(function () {
     var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight); // Math recipes
 
     var paddingScroll = height / 3 * scrolling;
-    var opacityScroll = Math.sqrt(scrolling / height) - 2;
     var scroll = Math.sqrt(scrolling / height) + 1;
     var axisScroll = Math.atan(scrolling / height) * Math.tan(scrolling / height) * 1000;
     var cosScroll = Math.acos(scrolling / height) * Math.cos(scrolling / height); // scrolling behaviour logo / menu
 
+    $('#logo').addClass('normal');
+    $('nav ul li').addClass('normal');
+
     if ($('.page__part__two').height() !== this.undefined || $('.page__part__three').height() !== this.undefined) {
-      if (scrolling > $('.page__part__two').position().top - offset && scrolling < $('.page__part__three').position().top - offset) {
-        $('#logo').addClass('normal');
-        $('nav ul li').addClass('normal');
+      if (scrolling > offset && scrolling > $('.page__part__two').position().top - offset && scrolling < $('.page__part__three').position().top - offset) {
         $('#logo').removeClass('invert');
         $('nav ul li').removeClass('invert');
+        $('#logo').addClass('normal');
+        $('nav ul li').addClass('normal');
       } else {
+        $('#logo').removeClass('normal');
+        $('nav ul li').removeClass('normal');
         $('#logo').addClass('invert');
         $('nav ul li').addClass('invert');
       } // scrolling behaviour text / page
@@ -37659,8 +37663,7 @@ $(function () {
 
       if (scrolling > offset && scrolling < $('.page__part__two').position().top - offset) {
         $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.2) + 'px)');
-        $('.center').css('opacity', '-' + Math.sqrt(opacityScroll * 0.4));
-        $('.background__wrapper').css('opacity', Math.sqrt(opacityScroll * 0.1));
+        $('.page__part__one').css('opacity', Math.round(Math.sqrt(cosScroll / axisScroll) * 100) / 100);
         $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
       } // scrolling to work section
 
@@ -37744,7 +37747,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59599" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61695" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

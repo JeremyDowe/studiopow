@@ -24,7 +24,7 @@
 }
 .page__part__three {
     width: -webkit-fill-available;
-    height: 100vh;
+    height: 125vh;
 }
 /* Page One Styles */
 .page__part__one {
@@ -47,15 +47,14 @@
     overflow: hidden;
 }
 .background__wrapper {
-    background-color: rgb(26,26,26);
-    background-image: url('../assets/img/unsplash__bg__3.jpg');
+    background-color: rgb(36,36,36);
+    background-image: url('../assets/img/unsplash__bg__1.jpg');
     background-blend-mode: screen;
     background-position-x: center;
     background-position-y: 50%;
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;
-    opacity: 0.5;
     z-index: 0;
     top: 0;
     left: 0;
@@ -95,7 +94,7 @@
     font-size: 14px;
 }
 .page__part__one .middle h1 {
-    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Regular', 'Work Sans', sans-serif;
     color: rgba(255,255,255,1);
     font-size: 4.2vw;
     letter-spacing: -0.02vw;
@@ -116,7 +115,7 @@
     margin-bottom: 30px;
 }
 .page__part__one .middle h2 {
-    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Regular', 'Work Sans', sans-serif;
     color: rgba(255,255,255,1);
     font-size: 4.2vw;
     letter-spacing: -0.02vw;
@@ -129,10 +128,10 @@
     user-select: none;
 }
 .page__part__one .middle h4 {
-    font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     color: rgba(255,255,255,1);
     font-size: 1rem;
-    letter-spacing: 0.02rem;
+    letter-spacing: -0.02rem;
     font-weight: 400;
     padding: 30px 0 0 0;
     margin: 0;
@@ -275,7 +274,7 @@ aside.right {
     margin: 0 auto;
     grid-auto-columns: auto;
     grid-auto-rows: auto;
-    grid-gap: 0rem;
+    grid-gap: 2rem;
     grid-template-areas: 'a b c d e';
 }
 .works__grid .work__template {
@@ -292,8 +291,8 @@ aside.right {
 .works__grid a.display {
     overflow: hidden;
     display: inline-block;
-    width: 320px;
-    height: 450px;
+    width: 100%;
+    height: 470px;
     cursor: pointer;
 }
 .work__template {

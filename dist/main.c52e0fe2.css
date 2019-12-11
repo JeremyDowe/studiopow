@@ -370,6 +370,11 @@ textarea {
           url('/WhyteTrial-Book.f69972d9.woff') format('woff');
 }
 @font-face {
+    font-family: 'WhyteTrail-Regular';
+    src:  url('/WhyteTrial-Regular.950772fd.woff2') format('woff2'),
+          url('/WhyteTrial-Regular.99b2e2ad.woff') format('woff');
+}
+@font-face {
     font-family: 'WhyteTrail-Medium';
     src:  url('/WhyteTrial-Medium.2af7a86f.woff2') format('woff2'),
           url('/WhyteTrial-Medium.cea8d04d.woff') format('woff');
@@ -526,7 +531,7 @@ footer {
 footer .left {
     grid-area: 1 / 1 / 2 / 2;
     order: 0;
-    padding: 5rem 0 5rem 5rem;
+    padding: 5rem 0 5rem 10rem;
 }
 
 footer #logo {
@@ -539,12 +544,12 @@ footer .footer {
     order: 0;
 }
 footer .footer .allrights {
-    padding-top: 12.2rem;
     padding-left: 0;
     width: 50%;
-    padding: 5rem 0 5rem 5rem;
+    padding: 6.8rem 0 5rem 10.1rem;
     text-transform: uppercase;
-    font-size: 1rem;
+    font-size: 13px;
+    line-height: 150%;
     color: #838383;
 }
 
@@ -570,7 +575,8 @@ footer .right table td {
 }
 
 footer .right table td a {
-    color: rgba(126,126,126,1);
+    color: rgba(46,46,46,1);
+    font-size: 15px;
     text-decoration: none;
 }
 

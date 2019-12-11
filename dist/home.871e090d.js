@@ -189,7 +189,7 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./../assets/img/unsplash__bg__3.jpg":[["unsplash__bg__3.291406ec.jpg","assets/img/unsplash__bg__3.jpg"],"assets/img/unsplash__bg__3.jpg"],"./../assets/svg/scroll__arrow.svg":[["scroll__arrow.cccfdb2f.svg","assets/svg/scroll__arrow.svg"],"assets/svg/scroll__arrow.svg"],"./../assets/svg/end_solution.svg":[["end_solution.c28f192a.svg","assets/svg/end_solution.svg"],"assets/svg/end_solution.svg"],"./../assets/svg/circle_solutions.svg":[["circle_solutions.a75f58cd.svg","assets/svg/circle_solutions.svg"],"assets/svg/circle_solutions.svg"],"./../assets/img/work_display_01.jpg":[["work_display_01.7ae7f45d.jpg","assets/img/work_display_01.jpg"],"assets/img/work_display_01.jpg"],"./../assets/img/work_display_02.jpg":[["work_display_02.3f7c7423.jpg","assets/img/work_display_02.jpg"],"assets/img/work_display_02.jpg"],"./../assets/img/work_display_03.jpg":[["work_display_03.9160c511.jpg","assets/img/work_display_03.jpg"],"assets/img/work_display_03.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./../assets/img/unsplash__bg__1.jpg":[["unsplash__bg__1.8a373a86.jpg","assets/img/unsplash__bg__1.jpg"],"assets/img/unsplash__bg__1.jpg"],"./../assets/svg/scroll__arrow.svg":[["scroll__arrow.cccfdb2f.svg","assets/svg/scroll__arrow.svg"],"assets/svg/scroll__arrow.svg"],"./../assets/svg/end_solution.svg":[["end_solution.c28f192a.svg","assets/svg/end_solution.svg"],"assets/svg/end_solution.svg"],"./../assets/svg/circle_solutions.svg":[["circle_solutions.a75f58cd.svg","assets/svg/circle_solutions.svg"],"assets/svg/circle_solutions.svg"],"./../assets/img/work_display_01.jpg":[["work_display_01.7ae7f45d.jpg","assets/img/work_display_01.jpg"],"assets/img/work_display_01.jpg"],"./../assets/img/work_display_02.jpg":[["work_display_02.3f7c7423.jpg","assets/img/work_display_02.jpg"],"assets/img/work_display_02.jpg"],"./../assets/img/work_display_03.jpg":[["work_display_03.9160c511.jpg","assets/img/work_display_03.jpg"],"assets/img/work_display_03.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +217,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59599" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61695" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

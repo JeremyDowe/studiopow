@@ -4,6 +4,11 @@
           url('WhyteTrial-Book.woff') format('woff');
 }
 @font-face {
+    font-family: 'WhyteTrail-Regular';
+    src:  url('WhyteTrial-Regular.woff2') format('woff2'),
+          url('WhyteTrial-Regular.woff') format('woff');
+}
+@font-face {
     font-family: 'WhyteTrail-Medium';
     src:  url('WhyteTrial-Medium.woff2') format('woff2'),
           url('WhyteTrial-Medium.woff') format('woff');

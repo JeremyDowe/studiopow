@@ -1,2 +1,2 @@
-# studiopow
+# studio
  project created with parceljs
