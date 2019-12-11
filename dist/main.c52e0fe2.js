@@ -117,7 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+})({"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -149,7 +149,7 @@ function getBaseURL(url) {
 
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+},{}],"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
 var bundle = require('./bundle-url');
 
 function updateLink(link) {
@@ -184,32 +184,32 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"css/reset.css":[function(require,module,exports) {
+},{"./bundle-url":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"css/reset.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"assets/fonts/whyte__inktrap__trial/fonts.css":[function(require,module,exports) {
+},{"_css_loader":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"assets/fonts/whyte__inktrap__trial/fonts.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./WhyteTrial-Book.woff2":[["WhyteTrial-Book.1720be2d.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"./WhyteTrial-Book.woff":[["WhyteTrial-Book.f69972d9.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"./WhyteTrial-Regular.woff2":[["WhyteTrial-Regular.950772fd.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff2"],"./WhyteTrial-Regular.woff":[["WhyteTrial-Regular.99b2e2ad.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff"],"./WhyteTrial-Medium.woff2":[["WhyteTrial-Medium.2af7a86f.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"./WhyteTrial-Medium.woff":[["WhyteTrial-Medium.cea8d04d.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"./WhyteTrial-Bold.woff2":[["WhyteTrial-Bold.7ff82244.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"./WhyteTrial-Bold.woff":[["WhyteTrial-Bold.6e856098.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"./WhyteTrial-Light.woff2":[["WhyteTrial-Light.7d4f3c39.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"./WhyteTrial-Light.woff":[["WhyteTrial-Light.d1461e83.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/nav.css":[function(require,module,exports) {
+},{"./WhyteTrial-Book.woff2":[["WhyteTrial-Book.1720be2d.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff2"],"./WhyteTrial-Book.woff":[["WhyteTrial-Book.f69972d9.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Book.woff"],"./WhyteTrial-Regular.woff2":[["WhyteTrial-Regular.950772fd.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff2"],"./WhyteTrial-Regular.woff":[["WhyteTrial-Regular.99b2e2ad.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Regular.woff"],"./WhyteTrial-Medium.woff2":[["WhyteTrial-Medium.2af7a86f.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff2"],"./WhyteTrial-Medium.woff":[["WhyteTrial-Medium.cea8d04d.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Medium.woff"],"./WhyteTrial-Bold.woff2":[["WhyteTrial-Bold.7ff82244.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff2"],"./WhyteTrial-Bold.woff":[["WhyteTrial-Bold.6e856098.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Bold.woff"],"./WhyteTrial-Light.woff2":[["WhyteTrial-Light.7d4f3c39.woff2","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff2"],"./WhyteTrial-Light.woff":[["WhyteTrial-Light.d1461e83.woff","assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"assets/fonts/whyte__inktrap__trial/WhyteTrial-Light.woff"],"_css_loader":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/nav.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/footer.css":[function(require,module,exports) {
+},{"_css_loader":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/footer.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/main.css":[function(require,module,exports) {
+},{"_css_loader":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"css/main.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./reset.css":"css/reset.css","../assets/fonts/whyte__inktrap__trial/fonts.css":"assets/fonts/whyte__inktrap__trial/fonts.css","./nav.css":"css/nav.css","./footer.css":"css/footer.css","_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./reset.css":"css/reset.css","../assets/fonts/whyte__inktrap__trial/fonts.css":"assets/fonts/whyte__inktrap__trial/fonts.css","./nav.css":"css/nav.css","./footer.css":"css/footer.css","_css_loader":"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -237,7 +237,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61695" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49971" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -413,5 +413,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
+},{}]},{},["../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
 //# sourceMappingURL=/main.c52e0fe2.js.map

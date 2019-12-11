@@ -8050,7 +8050,7 @@ var MotionPathPlugin = {
 };
 exports.default = exports.MotionPathPlugin = MotionPathPlugin;
 _getGSAP() && gsap.registerPlugin(MotionPathPlugin);
-},{"./utils/paths.js":"node_modules/gsap/utils/paths.js","./utils/matrix.js":"node_modules/gsap/utils/matrix.js"}],"node_modules/process/browser.js":[function(require,module,exports) {
+},{"./utils/paths.js":"node_modules/gsap/utils/paths.js","./utils/matrix.js":"node_modules/gsap/utils/matrix.js"}],"../../../../../../usr/local/lib/node_modules/parcel-bundler/node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
@@ -18862,7 +18862,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{"process":"node_modules/process/browser.js"}],"node_modules/import-jquery/import-jquery.js":[function(require,module,exports) {
+},{"process":"../../../../../../usr/local/lib/node_modules/parcel-bundler/node_modules/process/browser.js"}],"node_modules/import-jquery/import-jquery.js":[function(require,module,exports) {
 "use strict";
 
 var _jquery = _interopRequireDefault(require("jquery"));
@@ -37719,7 +37719,7 @@ $(function () {
     return true;
   });
 });
-},{"gsap":"node_modules/gsap/index.js","gsap/PixiPlugin.js":"node_modules/gsap/PixiPlugin.js","gsap/MotionPathPlugin.js":"node_modules/gsap/MotionPathPlugin.js","import-jquery":"node_modules/import-jquery/import-jquery.js","jquery-ui-dist/jquery-ui.js":"node_modules/jquery-ui-dist/jquery-ui.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"gsap":"node_modules/gsap/index.js","gsap/PixiPlugin.js":"node_modules/gsap/PixiPlugin.js","gsap/MotionPathPlugin.js":"node_modules/gsap/MotionPathPlugin.js","import-jquery":"node_modules/import-jquery/import-jquery.js","jquery-ui-dist/jquery-ui.js":"node_modules/jquery-ui-dist/jquery-ui.js"}],"../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -37747,7 +37747,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61695" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49971" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -37923,5 +37923,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","app/app.js"], null)
+},{}]},{},["../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","app/app.js"], null)
 //# sourceMappingURL=/app.e87ca0bd.js.map
