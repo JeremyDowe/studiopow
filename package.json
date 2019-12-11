@@ -6,19 +6,16 @@
   "devDependencies": {
     "parcel-bundler": "^1.12.4"
   },
-  "engine": {
-    "npm": "^6.13.2",
-    "yarn": "^1.19.2"
-  },
   "scripts": {
     "build": "parcel build index.html",
-    "start": "parcel index.html"
+    "dev": "parcel index.html"
   },
   "dependencies": {
     "gsap": "^3.0.1",
     "import-jquery": "^1.0.1",
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",
+    "lock": "^1.1.0",
     "main.css": "^2.0.0",
     "scrollmagic": "^2.0.7",
     "yaml": "^1.7.2"
