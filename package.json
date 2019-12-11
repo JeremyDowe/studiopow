@@ -11,8 +11,8 @@
     "yarn": "^1.19.2"
   },
   "scripts": {
-    "build": "parcel build index.js",
-    "start": "node index.js"
+    "build": "parcel build index.html",
+    "start": "parcel index.html"
   },
   "dependencies": {
     "gsap": "^3.0.1",
