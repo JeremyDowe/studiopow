@@ -1,8 +1,6 @@
-import { gsap } from "gsap";
-import { PixiPlugin } from "gsap/PixiPlugin.js";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin.js";
 import "import-jquery";
 import "jquery-ui-dist/jquery-ui.js";
+const YAML = require('yaml');
 
 /* Begin jQuery */
 $(function(){

@@ -117,7992 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/gsap/gsap-core.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports._getCache = exports._getSetter = exports._missingPlugin = exports._round = exports._roundModifier = exports._config = exports._ticker = exports._plugins = exports._checkPlugin = exports._replaceRandom = exports._colorStringFilter = exports._sortPropTweensByPriority = exports._forEachName = exports._removeLinkedListItem = exports._setDefaults = exports._relExp = exports._renderComplexString = exports._isUndefined = exports._isString = exports._numExp = exports._getProperty = exports.interpolate = exports.unitize = exports.pipe = exports.mapRange = exports.toArray = exports.splitColor = exports.clamp = exports.getUnit = exports.normalize = exports.snap = exports.random = exports.distribute = exports.wrapYoyo = exports.wrap = exports.Circ = exports.Expo = exports.Sine = exports.Bounce = exports.SteppedEase = exports.Back = exports.Elastic = exports.Strong = exports.Quint = exports.Quart = exports.Cubic = exports.Quad = exports.Linear = exports.Power4 = exports.Power3 = exports.Power2 = exports.Power1 = exports.Power0 = exports.default = exports.gsap = exports.PropTween = exports.TweenLite = exports.TweenMax = exports.Tween = exports.TimelineLite = exports.TimelineMax = exports.Timeline = exports.Animation = exports.GSCache = void 0;
-
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-function _inheritsLoose(subClass, superClass) {
-  subClass.prototype = Object.create(superClass.prototype);
-  subClass.prototype.constructor = subClass;
-  subClass.__proto__ = superClass;
-}
-/*!
- * GSAP 3.0.2
- * https://greensock.com
- *
- * @license Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-
-
-var _config = {
-  autoSleep: 120,
-  force3D: "auto",
-  nullTargetWarn: 1,
-  units: {
-    lineHeight: ""
-  }
-},
-    _defaults = {
-  duration: .5,
-  overwrite: false,
-  delay: 0
-},
-    _bigNum = 1e8,
-    _tinyNum = 1 / _bigNum,
-    _2PI = Math.PI * 2,
-    _HALF_PI = _2PI / 4,
-    _gsID = 0,
-    _sqrt = Math.sqrt,
-    _cos = Math.cos,
-    _sin = Math.sin,
-    _isString = function _isString(value) {
-  return typeof value === "string";
-},
-    _isFunction = function _isFunction(value) {
-  return typeof value === "function";
-},
-    _isNumber = function _isNumber(value) {
-  return typeof value === "number";
-},
-    _isUndefined = function _isUndefined(value) {
-  return typeof value === "undefined";
-},
-    _isObject = function _isObject(value) {
-  return typeof value === "object";
-},
-    _isNotFalse = function _isNotFalse(value) {
-  return value !== false;
-},
-    _windowExists = function _windowExists() {
-  return typeof window !== "undefined";
-},
-    _isFuncOrString = function _isFuncOrString(value) {
-  return _isFunction(value) || _isString(value);
-},
-    _isArray = Array.isArray,
-    _strictNumExp = /(?:-?\.?\d|\.)+/gi,
-    //only numbers (including negatives and decimals) but NOT relative values.
-_numExp = /[-+=\.]*\d+[\.e\-\+]*\d*[e\-\+]*\d*/gi,
-    //finds any numbers, including ones that start with += or -=, negative numbers, and ones in scientific notation like 1e-8.
-_complexStringNumExp = /[-+=\.]*\d+(?:\.|e-|e)*\d*/gi,
-    //duplicate so that while we're looping through matches from exec(), it doesn't contaminate the lastIndex of _numExp which we use to search for colors too.
-_parenthesesExp = /\(([^()]+)\)/i,
-    //finds the string between parentheses.
-_relExp = /[\+-]=-?[\.\d]+/,
-    _delimitedValueExp = /[#\-+\.]*\b[a-z\d-=+%.]+/gi,
-    _globalTimeline,
-    _win,
-    _coreInitted,
-    _doc,
-    _globals = {},
-    _installScope = {},
-    _coreReady,
-    _install = function _install(scope) {
-  return (_installScope = _merge(scope, _globals)) && gsap;
-},
-    _missingPlugin = function _missingPlugin(property, value) {
-  return console.warn("Invalid property", property, "set to", value, "Missing plugin? gsap.registerPlugin()");
-},
-    _warn = function _warn(message, suppress) {
-  return !suppress && console.warn(message);
-},
-    _addGlobal = function _addGlobal(name, obj) {
-  return name && (_globals[name] = obj) && _installScope && (_installScope[name] = obj) || _globals;
-},
-    _emptyFunc = function _emptyFunc() {
-  return 0;
-},
-    _reservedProps = {},
-    _lazyTweens = [],
-    _lazyLookup = {},
-    _plugins = {},
-    _effects = {},
-    _nextGCFrame = 30,
-    _harnessPlugins = [],
-    _callbackNames = "onComplete,onUpdate,onStart,onRepeat,onReverseComplete,onInterrupt",
-    _harness = function _harness(targets) {
-  var target = targets[0],
-      harnessPlugin,
-      i;
-
-  if (!_isObject(target) && !_isFunction(target)) {
-    targets = [targets];
-  }
-
-  if (!(harnessPlugin = (target._gsap || {}).harness)) {
-    i = _harnessPlugins.length;
-
-    while (i-- && !_harnessPlugins[i].targetTest(target)) {}
-
-    harnessPlugin = _harnessPlugins[i];
-  }
-
-  i = targets.length;
-
-  while (i--) {
-    targets[i] && (targets[i]._gsap || (targets[i]._gsap = new GSCache(targets[i], harnessPlugin))) || targets.splice(i, 1);
-  }
-
-  return targets;
-},
-    _getCache = function _getCache(target) {
-  return target._gsap || _harness(toArray(target))[0]._gsap;
-},
-    _getProperty = function _getProperty(target, property) {
-  var currentValue = target[property];
-  return _isFunction(currentValue) ? target[property]() : _isUndefined(currentValue) && target.getAttribute(property) || currentValue;
-},
-    _forEachName = function _forEachName(names, func) {
-  return (names = names.split(",")).forEach(func) || names;
-},
-    //split a comma-delimited list of names into an array, then run a forEach() function and return the split array (this is just a way to consolidate/shorten some code).
-_round = function _round(value) {
-  return Math.round(value * 10000) / 10000;
-},
-    _arrayContainsAny = function _arrayContainsAny(toSearch, toFind) {
-  //searches one array to find matches for any of the items in the toFind array. As soon as one is found, it returns true. It does NOT return all the matches; it's simply a boolean search.
-  var l = toFind.length,
-      i = 0;
-
-  for (; toSearch.indexOf(toFind[i]) < 0 && ++i < l;) {}
-
-  return i < l;
-},
-    _parseVars = function _parseVars(params, type, parent) {
-  //reads the arguments passed to one of the key methods and figures out if the user is defining things with the OLD/legacy syntax where the duration is the 2nd parameter, and then it adjusts things accordingly and spits back the corrected vars object (with the duration added if necessary, as well as runBackwards or startAt or immediateRender). type 0 = to()/staggerTo(), 1 = from()/staggerFrom(), 2 = fromTo()/staggerFromTo()
-  var isLegacy = _isNumber(params[1]),
-      varsIndex = (isLegacy ? 2 : 1) + (type < 2 ? 0 : 1),
-      vars = params[varsIndex],
-      i;
-
-  if (isLegacy) {
-    vars.duration = params[1];
-  }
-
-  if (type === 1) {
-    vars.runBackwards = 1;
-    vars.immediateRender = _isNotFalse(vars.immediateRender);
-  } else if (type === 2) {
-    i = params[varsIndex - 1]; //"from" vars
-
-    vars.startAt = i;
-    vars.immediateRender = _isNotFalse(vars.immediateRender);
-  }
-
-  vars.parent = parent;
-  return vars;
-},
-    _lazyRender = function _lazyRender() {
-  var l = _lazyTweens.length,
-      a = _lazyTweens.slice(0),
-      i,
-      tween;
-
-  _lazyLookup = {};
-  _lazyTweens.length = 0;
-
-  for (i = 0; i < l; i++) {
-    tween = a[i];
-
-    if (tween && tween._lazy) {
-      tween.render(tween._lazy[0], tween._lazy[1], true)._lazy = 0;
-    }
-  }
-},
-    _lazySafeRender = function _lazySafeRender(animation, time, suppressEvents, force) {
-  if (_lazyTweens.length) {
-    _lazyRender();
-  }
-
-  animation.render(time, suppressEvents, force);
-
-  if (_lazyTweens.length) {
-    //in case rendering caused any tweens to lazy-init, we should render them because typically when someone calls seek() or time() or progress(), they expect an immediate render.
-    _lazyRender();
-  }
-},
-    _numericIfPossible = function _numericIfPossible(value) {
-  var n = parseFloat(value);
-  return n || n === 0 ? n : value;
-},
-    _passThrough = function _passThrough(p) {
-  return p;
-},
-    _setDefaults = function _setDefaults(obj, defaults) {
-  for (var p in defaults) {
-    if (!(p in obj)) {
-      obj[p] = defaults[p];
-    }
-  }
-
-  return obj;
-},
-    _setKeyframeDefaults = function _setKeyframeDefaults(obj, defaults) {
-  for (var p in defaults) {
-    if (!(p in obj) && p !== "duration" && p !== "ease") {
-      obj[p] = defaults[p];
-    }
-  }
-},
-    _merge = function _merge(base, toMerge) {
-  for (var p in toMerge) {
-    base[p] = toMerge[p];
-  }
-
-  return base;
-},
-    _mergeDeep = function _mergeDeep(base, toMerge) {
-  for (var p in toMerge) {
-    base[p] = _isObject(toMerge[p]) ? _mergeDeep(base[p] || (base[p] = {}), toMerge[p]) : toMerge[p];
-  }
-
-  return base;
-},
-    _copyExcluding = function _copyExcluding(obj, excluding) {
-  var copy = {},
-      p;
-
-  for (p in obj) {
-    if (!(p in excluding)) {
-      copy[p] = obj[p];
-    }
-  }
-
-  return copy;
-},
-    _inheritDefaults = function _inheritDefaults(vars) {
-  var parent = vars.parent || _globalTimeline,
-      func = vars.keyframes ? _setKeyframeDefaults : _setDefaults;
-
-  if (_isNotFalse(vars.inherit)) {
-    while (parent) {
-      func(vars, parent.vars.defaults);
-      parent = parent.parent;
-    }
-  }
-
-  return vars;
-},
-    _arraysMatch = function _arraysMatch(a1, a2) {
-  var i = a1.length,
-      match = i === a2.length;
-
-  while (match && i-- && a1[i] === a2[i]) {}
-
-  return i < 0;
-},
-    _addLinkedListItem = function _addLinkedListItem(parent, child, firstProp, lastProp, sortBy) {
-  if (firstProp === void 0) {
-    firstProp = "_first";
-  }
-
-  if (lastProp === void 0) {
-    lastProp = "_last";
-  }
-
-  var prev = parent[lastProp],
-      t;
-
-  if (sortBy) {
-    t = child[sortBy];
-
-    while (prev && prev[sortBy] > t) {
-      prev = prev._prev;
-    }
-  }
-
-  if (prev) {
-    child._next = prev._next;
-    prev._next = child;
-  } else {
-    child._next = parent[firstProp];
-    parent[firstProp] = child;
-  }
-
-  if (child._next) {
-    child._next._prev = child;
-  } else {
-    parent[lastProp] = child;
-  }
-
-  child._prev = prev;
-  child.parent = parent;
-  return child;
-},
-    _removeLinkedListItem = function _removeLinkedListItem(parent, child, firstProp, lastProp) {
-  if (firstProp === void 0) {
-    firstProp = "_first";
-  }
-
-  if (lastProp === void 0) {
-    lastProp = "_last";
-  }
-
-  var prev = child._prev,
-      next = child._next;
-
-  if (prev) {
-    prev._next = next;
-  } else if (parent[firstProp] === child) {
-    parent[firstProp] = next;
-  }
-
-  if (next) {
-    next._prev = prev;
-  } else if (parent[lastProp] === child) {
-    parent[lastProp] = prev;
-  }
-
-  child._dp = parent; //record the parent as _dp just so we can revert if necessary. But parent should be null to indicate the item isn't in a linked list.
-
-  child._next = child._prev = child.parent = null;
-},
-    _removeFromParent = function _removeFromParent(child, onlyIfParentHasAutoRemove) {
-  if (child.parent && (!onlyIfParentHasAutoRemove || child.parent.autoRemoveChildren)) {
-    child.parent.remove(child);
-  }
-
-  child._act = 0;
-},
-    _uncache = function _uncache(animation) {
-  var a = animation;
-
-  while (a) {
-    a._dirty = 1;
-    a = a.parent;
-  }
-
-  return animation;
-},
-    _recacheAncestors = function _recacheAncestors(animation) {
-  var parent = animation.parent;
-
-  while (parent && parent.parent) {
-    //sometimes we must force a re-sort of all children and update the duration/totalDuration of all ancestor timelines immediately in case, for example, in the middle of a render loop, one tween alters another tween's timeScale which shoves its startTime before 0, forcing the parent timeline to shift around and shiftChildren() which could affect that next tween's render (startTime). Doesn't matter for the root timeline though.
-    parent._dirty = 1;
-    parent.totalDuration();
-    parent = parent.parent;
-  }
-
-  return animation;
-},
-    _hasNoPausedAncestors = function _hasNoPausedAncestors(animation) {
-  return !animation || animation._ts && _hasNoPausedAncestors(animation.parent);
-},
-    _elapsedCycleDuration = function _elapsedCycleDuration(animation) {
-  return animation._repeat ? ~~(animation._tTime / (animation = animation.duration() + animation._rDelay)) * animation : 0;
-},
-    _parentToChildTotalTime = function _parentToChildTotalTime(parentTime, child) {
-  return child._ts > 0 ? (parentTime - child._start) * child._ts : (child._dirty ? child.totalDuration() : child._tDur) + (parentTime - child._start) * child._ts;
-},
-
-/*
-_totalTimeToTime = (clampedTotalTime, duration, repeat, repeatDelay, yoyo) => {
-	let cycleDuration = duration + repeatDelay,
-		time = _round(clampedTotalTime % cycleDuration);
-	if (time > duration) {
-		time = duration;
-	}
-	return (yoyo && (~~(clampedTotalTime / cycleDuration) & 1)) ? duration - time : time;
-},
-*/
-_addToTimeline = function _addToTimeline(timeline, child, position) {
-  child.parent && _removeFromParent(child);
-  child._start = position + child._delay;
-  child._end = child._start + (child.totalDuration() / child._ts || 0);
-
-  _addLinkedListItem(timeline, child, "_first", "_last", timeline._sort ? "_start" : 0);
-
-  timeline._recent = child;
-
-  if (child._time || !child._dur && child._initted) {
-    //in case, for example, the _start is moved on a tween that has already rendered. Imagine it's at its end state, then the startTime is moved WAY later (after the end of this timeline), it should render at its beginning.
-    var curTime = (timeline.rawTime() - child._start) * child._ts;
-
-    if (!child._dur || _clamp(0, child.totalDuration(), curTime) - child._tTime > _tinyNum) {
-      child.render(curTime, true);
-    }
-  }
-
-  _uncache(timeline); //if the timeline has already ended but the inserted tween/timeline extends the duration, we should enable this timeline again so that it renders properly. We should also align the playhead with the parent timeline's when appropriate.
-
-
-  if (timeline._dp && timeline._time >= timeline._dur && timeline._ts && timeline._dur < timeline.duration()) {
-    //in case any of the ancestors had completed but should now be enabled...
-    var tl = timeline;
-
-    while (tl._dp) {
-      tl.totalTime(tl._tTime, true); //moves the timeline (shifts its startTime) if necessary, and also enables it.
-
-      tl = tl._dp;
-    }
-  }
-
-  return timeline;
-},
-    _attemptInitTween = function _attemptInitTween(tween, totalTime, force, suppressEvents) {
-  _initTween(tween, totalTime);
-
-  if (!tween._initted) {
-    return 1;
-  }
-
-  if (!force && tween._pt && (tween._dur && tween.vars.lazy !== false || !tween._dur && tween.vars.lazy)) {
-    _lazyTweens.push(tween);
-
-    tween._lazy = [totalTime, suppressEvents];
-    return 1;
-  }
-},
-    _renderZeroDurationTween = function _renderZeroDurationTween(tween, totalTime, suppressEvents, force) {
-  var prevRatio = tween._zTime < 0 ? 0 : 1,
-      ratio = totalTime < 0 ? 0 : 1,
-      repeatDelay = tween._rDelay,
-      tTime = 0,
-      pt,
-      iteration,
-      prevIteration;
-
-  if (repeatDelay && tween._repeat) {
-    //in case there's a zero-duration tween that has a repeat with a repeatDelay
-    tTime = _clamp(0, tween._tDur, totalTime);
-    iteration = ~~(tTime / repeatDelay);
-
-    if (iteration && iteration === tTime / repeatDelay) {
-      iteration--;
-    }
-
-    prevIteration = ~~(tween._tTime / repeatDelay);
-
-    if (prevIteration && prevIteration === tween._tTime / repeatDelay) {
-      prevIteration--;
-    }
-
-    if (iteration !== prevIteration) {
-      prevRatio = 1 - ratio;
-
-      if (tween.vars.repeatRefresh && tween._initted) {
-        tween.invalidate();
-      }
-    }
-  }
-
-  if (!tween._initted && _attemptInitTween(tween, totalTime, force, suppressEvents)) {
-    //if we render the very beginning (time == 0) of a fromTo(), we must force the render (normal tweens wouldn't need to render at a time of 0 when the prevTime was also 0). This is also mandatory to make sure overwriting kicks in immediately.
-    return;
-  }
-
-  if (ratio !== prevRatio || force || tween._zTime === _tinyNum || !totalTime && tween._zTime) {
-    tween._zTime = totalTime || (suppressEvents ? _tinyNum : 0); //when the playhead arrives at EXACTLY time 0 (right on top) of a zero-duration tween, we need to discern if events are suppressed so that when the playhead moves again (next time), it'll trigger the callback. If events are NOT suppressed, obviously the callback would be triggered in this render. Basically, the callback should fire either when the playhead ARRIVES or LEAVES this exact spot, not both. Imagine doing a timeline.seek(0) and there's a callback that sits at 0. Since events are suppressed on that seek() by default, nothing will fire, but when the playhead moves off of that position, the callback should fire. This behavior is what people intuitively expect.
-
-    tween.ratio = ratio;
-
-    if (tween._from) {
-      ratio = 1 - ratio;
-    }
-
-    tween._time = 0;
-    tween._tTime = tTime;
-
-    if (!suppressEvents) {
-      _callback(tween, "onStart");
-    }
-
-    pt = tween._pt;
-
-    while (pt) {
-      pt.r(ratio, pt.d);
-      pt = pt._next;
-    }
-
-    if (!ratio && tween._startAt && !tween._onUpdate && tween._start) {
-      //if the tween is positioned at the VERY beginning (_start 0) of its parent timeline, it's illegal for the playhead to go back further, so we should not render the recorded startAt values.
-      tween._startAt.render(totalTime, true, force);
-    }
-
-    if (tween._onUpdate && !suppressEvents) {
-      _callback(tween, "onUpdate");
-    }
-
-    if (tTime && tween._repeat && !suppressEvents && tween.parent) {
-      _callback(tween, "onRepeat");
-    }
-
-    if ((totalTime >= tween._tDur || totalTime < 0) && tween.ratio === ratio) {
-      tween.ratio && _removeFromParent(tween, 1);
-
-      if (!suppressEvents) {
-        _callback(tween, tween.ratio ? "onComplete" : "onReverseComplete", true);
-
-        tween._prom && tween._prom();
-      }
-    }
-  }
-},
-    _findNextPauseTween = function _findNextPauseTween(animation, prevTime, time) {
-  var child;
-
-  if (time > prevTime) {
-    child = animation._first;
-
-    while (child && child._start <= time) {
-      if (!child._dur && child.data === "isPause" && child._start > prevTime) {
-        return child;
-      }
-
-      child = child._next;
-    }
-  } else {
-    child = animation._last;
-
-    while (child && child._start >= time) {
-      if (!child._dur && child.data === "isPause" && child._start < prevTime) {
-        return child;
-      }
-
-      child = child._prev;
-    }
-  }
-},
-    _onUpdateTotalDuration = function _onUpdateTotalDuration(animation) {
-  if (animation instanceof Timeline) {
-    return _uncache(animation);
-  }
-
-  var repeat = animation._repeat;
-  animation._tDur = !repeat ? animation._dur : repeat < 0 ? 1e20 : _round(animation._dur * (repeat + 1) + animation._rDelay * repeat);
-
-  _uncache(animation.parent); //if the tween's duration changed, the parent timeline's duration may have changed, so flag it as "dirty"
-
-
-  return animation;
-},
-    _zeroPosition = {
-  _start: 0,
-  endTime: _emptyFunc
-},
-    _parsePosition = function _parsePosition(animation, position, useBuildFrom) {
-  var labels = animation.labels,
-      recent = animation._recent || _zeroPosition,
-      clippedDuration = animation.duration() >= _bigNum ? recent.endTime(false) : animation._dur,
-      //in case there's a child that infinitely repeats, users almost never intend for the insertion point of a new child to be based on a SUPER long value like that so we clip it and assume the most recently-added child's endTime should be used instead.
-  //buildFrom = useBuildFrom ? animation._build : "auto",
-  i,
-      offset;
-
-  if (_isString(position) && (isNaN(position) || position in labels)) {
-    //if the string is a number like "1", check to see if there's a label with that name, otherwise interpret it as a number (absolute value).
-    i = position.charAt(0);
-
-    if (i === "<" || i === ">") {
-      return (i === "<" ? recent._start : recent.endTime(recent._repeat >= 0)) + (parseFloat(position.substr(1)) || 0);
-    }
-
-    i = position.indexOf("=");
-
-    if (i < 0) {
-      if (!(position in labels)) {
-        labels[position] = clippedDuration;
-      }
-
-      return labels[position];
-    }
-
-    offset = +(position.charAt(i - 1) + position.substr(i + 1));
-    return i > 1 ? _parsePosition(animation, position.substr(0, i - 1)) + offset : clippedDuration + offset;
-  }
-
-  return position == null ? clippedDuration : +position; //return (position == null) ? (isNaN(buildFrom) ? clippedDuration : buildFrom) : (buildFrom === ">>" ? clippedDuration : +buildFrom || 0) + (+position);
-},
-    _conditionalReturn = function _conditionalReturn(value, func) {
-  return value || value === 0 ? func(value) : func;
-},
-    _clamp = function _clamp(min, max, value) {
-  return value < min ? min : value > max ? max : value;
-},
-    getUnit = function getUnit(value) {
-  return (value + "").substr((parseFloat(value) + "").length);
-},
-    clamp = function clamp(min, max, value) {
-  return _conditionalReturn(value, function (v) {
-    return _clamp(min, max, v);
-  });
-},
-    _slice = [].slice,
-    _isArrayLike = function _isArrayLike(value) {
-  return value && _isObject(value) && "length" in value && value.length - 1 in value && _isObject(value[0]) && !value.nodeType && value !== _win;
-},
-    _flatten = function _flatten(ar, leaveStrings, accumulator) {
-  if (accumulator === void 0) {
-    accumulator = [];
-  }
-
-  return ar.forEach(function (value) {
-    var _accumulator;
-
-    return _isString(value) && !leaveStrings || _isArrayLike(value) ? (_accumulator = accumulator).push.apply(_accumulator, toArray(value)) : accumulator.push(value);
-  }) || accumulator;
-},
-    toArray = function toArray(value, leaveStrings) {
-  //takes any value and returns an array. If it's a string (and leaveStrings isn't true), it'll use document.querySelectorAll() and convert that to an array. It'll also accept iterables like jQuery objects.
-  return _isString(value) && !leaveStrings && (_coreInitted || !_wake()) ? _slice.call(_doc.querySelectorAll(value), 0) : _isArray(value) ? _flatten(value, leaveStrings) : _isArrayLike(value) ? _slice.call(value, 0) : value ? [value] : [];
-},
-    //for distributing values across an array. Can accept a number, a function or (most commonly) a function which can contain the following properties: {base, amount, from, ease, grid, axis, length, each}. Returns a function that expects the following parameters: index, target, array. Recognizes the following
-distribute = function distribute(v) {
-  if (_isFunction(v)) {
-    return v;
-  }
-
-  var vars = _isObject(v) ? v : {
-    each: v
-  },
-      //n:1 is just to indicate v was a number; we leverage that later to set v according to the length we get. If a number is passed in, we treat it like the old stagger value where 0.1, for example, would mean that things would be distributed with 0.1 between each element in the array rather than a total "amount" that's chunked out among them all.
-  ease = _parseEase(vars.ease),
-      from = vars.from || 0,
-      base = parseFloat(vars.base) || 0,
-      cache = {},
-      isDecimal = from > 0 && from < 1,
-      ratios = isNaN(from) || isDecimal,
-      axis = vars.axis,
-      ratioX = from,
-      ratioY = from;
-
-  if (_isString(from)) {
-    ratioX = ratioY = {
-      center: .5,
-      edges: .5,
-      end: 1
-    }[from] || 0;
-  } else if (!isDecimal && ratios) {
-    ratioX = from[0];
-    ratioY = from[1];
-  }
-
-  return function (i, target, a) {
-    var l = (a || vars).length,
-        distances = cache[l],
-        originX,
-        originY,
-        x,
-        y,
-        d,
-        j,
-        max,
-        min,
-        wrapAt;
-
-    if (!distances) {
-      wrapAt = vars.grid === "auto" ? 0 : (vars.grid || [1, _bigNum])[1];
-
-      if (!wrapAt) {
-        max = -_bigNum;
-
-        while (max < (max = a[wrapAt++].getBoundingClientRect().left) && wrapAt < l) {}
-
-        wrapAt--;
-      }
-
-      distances = cache[l] = [];
-      originX = ratios ? Math.min(wrapAt, l) * ratioX - .5 : from % wrapAt;
-      originY = ratios ? l * ratioY / wrapAt - .5 : from / wrapAt | 0;
-      max = 0;
-      min = _bigNum;
-
-      for (j = 0; j < l; j++) {
-        x = j % wrapAt - originX;
-        y = originY - (j / wrapAt | 0);
-        distances[j] = d = !axis ? _sqrt(x * x + y * y) : Math.abs(axis === "y" ? y : x);
-
-        if (d > max) {
-          max = d;
-        }
-
-        if (d < min) {
-          min = d;
-        }
-      }
-
-      distances.max = max - min;
-      distances.min = min;
-      distances.v = l = (parseFloat(vars.amount) || parseFloat(vars.each) * (wrapAt > l ? l - 1 : !axis ? Math.max(wrapAt, l / wrapAt) : axis === "y" ? l / wrapAt : wrapAt) || 0) * (from === "edges" ? -1 : 1);
-      distances.b = l < 0 ? base - l : base;
-      distances.u = getUnit(vars.amount || vars.each) || 0; //unit
-
-      ease = ease && l < 0 ? _invertEase(ease) : ease;
-    }
-
-    l = (distances[i] - distances.min) / distances.max || 0;
-    return _round(distances.b + (ease ? ease(l) : l) * distances.v) + distances.u; //round in order to work around floating point errors
-  };
-},
-    _roundModifier = function _roundModifier(v) {
-  //pass in 0.1 get a function that'll round to the nearest tenth, or 5 to round to the closest 5, or 0.001 to the closest 1000th, etc.
-  var p = v < 1 ? Math.pow(10, (v + "").length - 2) : 1; //to avoid floating point math errors (like 24 * 0.1 == 2.4000000000000004), we chop off at a specific number of decimal places (much faster than toFixed()
-
-  return function (raw) {
-    return ~~(Math.round(parseFloat(raw) / v) * v * p) / p + (_isNumber(raw) ? 0 : getUnit(raw));
-  };
-},
-    snap = function snap(snapTo, value) {
-  var isArray = _isArray(snapTo),
-      radius,
-      is2D;
-
-  if (!isArray && _isObject(snapTo)) {
-    radius = isArray = snapTo.radius || _bigNum;
-    snapTo = toArray(snapTo.values);
-
-    if (is2D = !_isNumber(snapTo[0])) {
-      radius *= radius; //performance optimization so we don't have to Math.sqrt() in the loop.
-    }
-  }
-
-  return _conditionalReturn(value, !isArray ? _roundModifier(snapTo) : function (raw) {
-    var x = parseFloat(is2D ? raw.x : raw),
-        y = parseFloat(is2D ? raw.y : 0),
-        min = _bigNum,
-        closest = 0,
-        i = snapTo.length,
-        dx,
-        dy;
-
-    while (i--) {
-      if (is2D) {
-        dx = snapTo[i].x - x;
-        dy = snapTo[i].y - y;
-        dx = dx * dx + dy * dy;
-      } else {
-        dx = Math.abs(snapTo[i] - x);
-      }
-
-      if (dx < min) {
-        min = dx;
-        closest = i;
-      }
-    }
-
-    closest = !radius || min <= radius ? snapTo[closest] : raw;
-    return is2D || closest === raw || _isNumber(raw) ? closest : closest + getUnit(raw);
-  });
-},
-    random = function random(min, max, roundingIncrement, returnFunction) {
-  return _conditionalReturn(_isArray(min) ? !max : !returnFunction, function () {
-    return _isArray(min) ? min[~~(Math.random() * min.length)] : (roundingIncrement = roundingIncrement || 1e-5) && (returnFunction = roundingIncrement < 1 ? Math.pow(10, (roundingIncrement + "").length - 2) : 1) && ~~(Math.round((min + Math.random() * (max - min)) / roundingIncrement) * roundingIncrement * returnFunction) / returnFunction;
-  });
-},
-    pipe = function pipe() {
-  for (var _len = arguments.length, functions = new Array(_len), _key = 0; _key < _len; _key++) {
-    functions[_key] = arguments[_key];
-  }
-
-  return function (value) {
-    return functions.reduce(function (v, f) {
-      return f(v);
-    }, value);
-  };
-},
-    unitize = function unitize(func, unit) {
-  return function (value) {
-    return func(parseFloat(value)) + (unit || getUnit(value));
-  };
-},
-    normalize = function normalize(min, max, value) {
-  return mapRange(min, max, 0, 1, value);
-},
-    _wrapArray = function _wrapArray(a, wrapper, value) {
-  return _conditionalReturn(value, function (index) {
-    return a[~~wrapper(index)];
-  });
-},
-    wrap = function wrap(min, max, value) {
-  // NOTE: wrap() CANNOT be an arrow function! A very odd compiling bug causes problems (unrelated to GSAP).
-  var range = max - min;
-  return _isArray(min) ? _wrapArray(min, wrap(0, min.length), max) : _conditionalReturn(value, function (value) {
-    return (range + (value - min) % range) % range + min;
-  });
-},
-    wrapYoyo = function wrapYoyo(min, max, value) {
-  var range = max - min,
-      total = range * 2;
-  return _isArray(min) ? _wrapArray(min, wrapYoyo(0, min.length - 1), max) : _conditionalReturn(value, function (value) {
-    value = (total + (value - min) % total) % total;
-    return min + (value > range ? total - value : value);
-  });
-},
-    _replaceRandom = function _replaceRandom(value) {
-  //replaces all occurrences of random(...) in a string with the calculated random value. can be a range like random(-100, 100, 5) or an array like random([0, 100, 500])
-  var prev = 0,
-      s = "",
-      i,
-      nums,
-      end,
-      isArray;
-
-  while (~(i = value.indexOf("random(", prev))) {
-    end = value.indexOf(")", i);
-    isArray = value.charAt(i + 7) === "[";
-    nums = value.substr(i + 7, end - i - 7).match(isArray ? _delimitedValueExp : _strictNumExp);
-    s += value.substr(prev, i - prev) + random(isArray ? nums : +nums[0], +nums[1], +nums[2] || 1e-5);
-    prev = end + 1;
-  }
-
-  return s + value.substr(prev, value.length - prev);
-},
-    mapRange = function mapRange(inMin, inMax, outMin, outMax, value) {
-  var inRange = inMax - inMin,
-      outRange = outMax - outMin;
-  return _conditionalReturn(value, function (value) {
-    return outMin + (value - inMin) / inRange * outRange;
-  });
-},
-    interpolate = function interpolate(start, end, progress, mutate) {
-  var func = isNaN(start + end) ? 0 : function (p) {
-    return (1 - p) * start + p * end;
-  };
-
-  if (!func) {
-    var isString = _isString(start),
-        master = {},
-        p,
-        i,
-        interpolators,
-        l,
-        il;
-
-    progress === true && (mutate = 1) && (progress = null);
-
-    if (isString) {
-      start = {
-        p: start
-      };
-      end = {
-        p: end
-      };
-    } else if (_isArray(start) && !_isArray(end)) {
-      interpolators = [];
-      l = start.length;
-      il = l - 2;
-
-      for (i = 1; i < l; i++) {
-        interpolators.push(interpolate(start[i - 1], start[i])); //build the interpolators up front as a performance optimization so that when the function is called many times, it can just reuse them.
-      }
-
-      l--;
-
-      func = function func(p) {
-        p *= l;
-        var i = Math.min(il, ~~p);
-        return interpolators[i](p - i);
-      };
-
-      progress = end;
-    } else if (!mutate) {
-      start = _merge(_isArray(start) ? [] : {}, start);
-    }
-
-    if (!interpolators) {
-      for (p in end) {
-        _addPropTween.call(master, start, p, "get", end[p]);
-      }
-
-      func = function func(p) {
-        return _renderPropTweens(p, master) || (isString ? start.p : start);
-      };
-    }
-  }
-
-  return _conditionalReturn(progress, func);
-},
-    _getLabelInDirection = function _getLabelInDirection(timeline, fromTime, backward) {
-  //used for nextLabel() and previousLabel()
-  var labels = timeline.labels,
-      min = _bigNum,
-      p,
-      distance,
-      label;
-
-  for (p in labels) {
-    distance = labels[p] - fromTime;
-
-    if (distance < 0 === !!backward && distance && min > (distance = Math.abs(distance))) {
-      label = p;
-      min = distance;
-    }
-  }
-
-  return label;
-},
-    _callback = function _callback(animation, type, executeLazyFirst) {
-  var v = animation.vars,
-      callback = v[type],
-      params,
-      scope;
-
-  if (!callback) {
-    return;
-  }
-
-  params = v[type + "Params"];
-  scope = v.callbackScope || animation;
-
-  if (executeLazyFirst && _lazyTweens.length) {
-    //in case rendering caused any tweens to lazy-init, we should render them because typically when a timeline finishes, users expect things to have rendered fully. Imagine an onUpdate on a timeline that reports/checks tweened values.
-    _lazyRender();
-  }
-
-  return params ? callback.apply(scope, params) : callback.call(scope);
-},
-    _interrupt = function _interrupt(animation) {
-  _removeFromParent(animation);
-
-  if (animation.progress() < 1) {
-    _callback(animation, "onInterrupt");
-  }
-
-  return animation;
-},
-    _quickTween,
-    _createPlugin = function _createPlugin(config) {
-  config = !config.name && config["default"] || config; //UMD packaging wraps things oddly, so for example MotionPathHelper becomes {MotionPathHelper:MotionPathHelper, default:MotionPathHelper}.
-
-  var name = config.name,
-      isFunc = _isFunction(config),
-      Plugin = name && !isFunc && config.init ? function () {
-    this._props = [];
-  } : config,
-      //in case someone passes in an object that's not a plugin, like CustomEase
-  instanceDefaults = {
-    init: _emptyFunc,
-    render: _renderPropTweens,
-    add: _addPropTween,
-    kill: _killPropTweensOf,
-    modifier: _addPluginModifier,
-    rawVars: 0
-  },
-      statics = {
-    targetTest: 0,
-    get: 0,
-    getSetter: _getSetter,
-    aliases: {},
-    register: 0
-  };
-
-  _wake();
-
-  if (config !== Plugin) {
-    if (_plugins[name]) {
-      return;
-    }
-
-    _setDefaults(Plugin, _setDefaults(_copyExcluding(config, instanceDefaults), statics)); //static methods
-
-
-    _merge(Plugin.prototype, _merge(instanceDefaults, _copyExcluding(config, statics))); //instance methods
-
-
-    _plugins[Plugin.prop = name] = Plugin;
-
-    if (config.targetTest) {
-      _harnessPlugins.push(Plugin);
-
-      _reservedProps[name] = 1;
-    }
-
-    name = (name === "css" ? "CSS" : name.charAt(0).toUpperCase() + name.substr(1)) + "Plugin"; //for the global name. "motionPath" should become MotionPathPlugin
-  }
-
-  _addGlobal(name, Plugin);
-
-  if (config.register) {
-    config.register(gsap, Plugin, PropTween);
-  }
-},
-
-/*
- * --------------------------------------------------------------------------------------
- * COLORS
- * --------------------------------------------------------------------------------------
- */
-_255 = 255,
-    _colorLookup = {
-  aqua: [0, _255, _255],
-  lime: [0, _255, 0],
-  silver: [192, 192, 192],
-  black: [0, 0, 0],
-  maroon: [128, 0, 0],
-  teal: [0, 128, 128],
-  blue: [0, 0, _255],
-  navy: [0, 0, 128],
-  white: [_255, _255, _255],
-  olive: [128, 128, 0],
-  yellow: [_255, _255, 0],
-  orange: [_255, 165, 0],
-  gray: [128, 128, 128],
-  purple: [128, 0, 128],
-  green: [0, 128, 0],
-  red: [_255, 0, 0],
-  pink: [_255, 192, 203],
-  cyan: [0, _255, _255],
-  transparent: [_255, _255, _255, 0]
-},
-    _hue = function _hue(h, m1, m2) {
-  h = h < 0 ? h + 1 : h > 1 ? h - 1 : h;
-  return (h * 6 < 1 ? m1 + (m2 - m1) * h * 6 : h < .5 ? m2 : h * 3 < 2 ? m1 + (m2 - m1) * (2 / 3 - h) * 6 : m1) * _255 + .5 | 0;
-},
-    splitColor = function splitColor(v, toHSL) {
-  var a = !v ? _colorLookup.black : _isNumber(v) ? [v >> 16, v >> 8 & _255, v & _255] : 0,
-      r,
-      g,
-      b,
-      h,
-      s,
-      l,
-      max,
-      min,
-      d,
-      wasHSL;
-
-  if (!a) {
-    if (v.substr(-1) === ",") {
-      //sometimes a trailing comma is included and we should chop it off (typically from a comma-delimited list of values like a textShadow:"2px 2px 2px blue, 5px 5px 5px rgb(255,0,0)" - in this example "blue," has a trailing comma. We could strip it out inside parseComplex() but we'd need to do it to the beginning and ending values plus it wouldn't provide protection from other potential scenarios like if the user passes in a similar value.
-      v = v.substr(0, v.length - 1);
-    }
-
-    if (_colorLookup[v]) {
-      a = _colorLookup[v];
-    } else if (v.charAt(0) === "#") {
-      if (v.length === 4) {
-        //for shorthand like #9F0
-        r = v.charAt(1);
-        g = v.charAt(2);
-        b = v.charAt(3);
-        v = "#" + r + r + g + g + b + b;
-      }
-
-      v = parseInt(v.substr(1), 16);
-      a = [v >> 16, v >> 8 & _255, v & _255];
-    } else if (v.substr(0, 3) === "hsl") {
-      a = wasHSL = v.match(_strictNumExp);
-
-      if (!toHSL) {
-        h = +a[0] % 360 / 360;
-        s = +a[1] / 100;
-        l = +a[2] / 100;
-        g = l <= .5 ? l * (s + 1) : l + s - l * s;
-        r = l * 2 - g;
-
-        if (a.length > 3) {
-          a[3] *= 1; //cast as number
-        }
-
-        a[0] = _hue(h + 1 / 3, r, g);
-        a[1] = _hue(h, r, g);
-        a[2] = _hue(h - 1 / 3, r, g);
-      } else if (~v.indexOf("=")) {
-        //if relative values are found, just return the raw strings with the relative prefixes in place.
-        return v.match(_numExp);
-      }
-    } else {
-      a = v.match(_strictNumExp) || _colorLookup.transparent;
-    }
-
-    a = a.map(Number);
-  }
-
-  if (toHSL && !wasHSL) {
-    r = a[0] / _255;
-    g = a[1] / _255;
-    b = a[2] / _255;
-    max = Math.max(r, g, b);
-    min = Math.min(r, g, b);
-    l = (max + min) / 2;
-
-    if (max === min) {
-      h = s = 0;
-    } else {
-      d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-      h *= 60;
-    }
-
-    a[0] = h + .5 | 0;
-    a[1] = s * 100 + .5 | 0;
-    a[2] = l * 100 + .5 | 0;
-  }
-
-  return a;
-},
-    _formatColors = function _formatColors(s, toHSL) {
-  var colors = (s + "").match(_colorExp),
-      charIndex = 0,
-      parsed = "",
-      i,
-      color,
-      temp;
-
-  if (!colors) {
-    return s;
-  }
-
-  for (i = 0; i < colors.length; i++) {
-    color = colors[i];
-    temp = s.substr(charIndex, s.indexOf(color, charIndex) - charIndex);
-    charIndex += temp.length + color.length;
-    color = splitColor(color, toHSL);
-
-    if (color.length === 3) {
-      color.push(1);
-    }
-
-    parsed += temp + (toHSL ? "hsla(" + color[0] + "," + color[1] + "%," + color[2] + "%," + color[3] : "rgba(" + color.join(",")) + ")";
-  }
-
-  return parsed + s.substr(charIndex);
-},
-    _colorExp = function () {
-  var s = "(?:\\b(?:(?:rgb|rgba|hsl|hsla)\\(.+?\\))|\\B#(?:[0-9a-f]{3}){1,2}\\b",
-      //we'll dynamically build this Regular Expression to conserve file size. After building it, it will be able to find rgb(), rgba(), # (hexadecimal), and named color values like red, blue, purple, etc.,
-  p;
-
-  for (p in _colorLookup) {
-    s += "|" + p + "\\b";
-  }
-
-  return new RegExp(s + ")", "gi");
-}(),
-    _hslExp = /hsl[a]?\(/,
-    _colorStringFilter = function _colorStringFilter(a) {
-  var combined = a.join(" "),
-      toHSL;
-  _colorExp.lastIndex = 0;
-
-  if (_colorExp.test(combined)) {
-    toHSL = _hslExp.test(combined);
-    a[0] = _formatColors(a[0], toHSL);
-    a[1] = _formatColors(a[1], toHSL);
-  }
-},
-
-/*
- * --------------------------------------------------------------------------------------
- * TICKER
- * --------------------------------------------------------------------------------------
- */
-_tickerActive,
-    _ticker = function () {
-  var _getTime = Date.now,
-      _lagThreshold = 500,
-      _adjustedLag = 33,
-      _startTime = _getTime(),
-      _lastUpdate = _startTime,
-      _gap = 1 / 60,
-      _nextTime = _gap,
-      _listeners = [],
-      _id,
-      _req,
-      _raf,
-      _self,
-      _tick = function _tick(v) {
-    var elapsed = _getTime() - _lastUpdate,
-        manual = v === true,
-        overlap,
-        dispatch;
-
-    if (elapsed > _lagThreshold) {
-      _startTime += elapsed - _adjustedLag;
-    }
-
-    _lastUpdate += elapsed;
-    _self.time = (_lastUpdate - _startTime) / 1000;
-    overlap = _self.time - _nextTime;
-
-    if (overlap > 0 || manual) {
-      _self.frame++;
-      _nextTime += overlap + (overlap >= _gap ? 0.004 : _gap - overlap);
-      dispatch = 1;
-    }
-
-    if (!manual) {
-      //make sure the request is made before we dispatch the "tick" event so that timing is maintained. Otherwise, if processing the "tick" requires a bunch of time (like 15ms) and we're using a setTimeout() that's based on 16.7ms, it'd technically take 31.7ms between frames otherwise.
-      _id = _req(_tick);
-    }
-
-    if (dispatch) {
-      _listeners.forEach(function (l) {
-        return l(_self.time, elapsed, _self.frame, v);
-      });
-    }
-  };
-
-  _self = {
-    time: 0,
-    frame: 0,
-    tick: function tick() {
-      _tick(true);
-    },
-    wake: function wake() {
-      if (_coreReady) {
-        if (!_coreInitted && _windowExists()) {
-          _win = _coreInitted = window;
-          _doc = _win.document || {};
-          _globals.gsap = gsap;
-          (_win.gsapVersions || (_win.gsapVersions = [])).push(gsap.version);
-
-          _install(_installScope || _win.GreenSockGlobals || !_win.gsap && _win || {});
-
-          _raf = _win.requestAnimationFrame;
-        }
-
-        _id && _self.sleep();
-
-        _req = _raf || function (f) {
-          return setTimeout(f, (_nextTime - _self.time) * 1000 + 1 | 0);
-        };
-
-        _tickerActive = 1;
-
-        _tick(2);
-      }
-    },
-    sleep: function sleep() {
-      (_raf ? _win.cancelAnimationFrame : clearTimeout)(_id);
-      _tickerActive = 0;
-      _req = _emptyFunc;
-    },
-    lagSmoothing: function lagSmoothing(threshold, adjustedLag) {
-      _lagThreshold = threshold || 1 / _tinyNum; //zero should be interpreted as basically unlimited
-
-      _adjustedLag = Math.min(adjustedLag, _lagThreshold, 0);
-    },
-    fps: function fps(_fps) {
-      _gap = 1 / (_fps || 60);
-      _nextTime = _self.time + _gap;
-    },
-    add: function add(callback) {
-      _listeners.indexOf(callback) < 0 && _listeners.push(callback);
-
-      _wake();
-    },
-    remove: function remove(callback) {
-      var i;
-      ~(i = _listeners.indexOf(callback)) && _listeners.splice(i, 1);
-    },
-    _listeners: _listeners
-  };
-  return _self;
-}(),
-    _wake = function _wake() {
-  return !_tickerActive && _ticker.wake();
-},
-    //also ensures the core classes are initialized.
-
-/*
-* -------------------------------------------------
-* EASING
-* -------------------------------------------------
-*/
-_easeMap = {},
-    _customEaseExp = /^[\d.\-M][\d.\-,\s]/,
-    _quotesExp = /["']/g,
-    _parseObjectInString = function _parseObjectInString(value) {
-  //takes a string like "{wiggles:10, type:anticipate})" and turns it into a real object. Notice it ends in ")" and includes the {} wrappers. This is because we only use this function for parsing ease configs and prioritized optimization rather than reusability.
-  var obj = {},
-      split = value.substr(1, value.length - 3).split(":"),
-      key = split[0],
-      i = 1,
-      l = split.length,
-      index,
-      val,
-      parsedVal;
-
-  for (; i < l; i++) {
-    val = split[i];
-    index = i !== l - 1 ? val.lastIndexOf(",") : val.length;
-    parsedVal = val.substr(0, index);
-    obj[key] = isNaN(parsedVal) ? parsedVal.replace(_quotesExp, "").trim() : +parsedVal;
-    key = val.substr(index + 1).trim();
-  }
-
-  return obj;
-},
-    _configEaseFromString = function _configEaseFromString(name) {
-  //name can be a string like "elastic.out(1,0.5)", and pass in _easeMap as obj and it'll parse it out and call the actual function like _easeMap.Elastic.easeOut.config(1,0.5). It will also parse custom ease strings as long as CustomEase is loaded and registered (internally as _easeMap._CE).
-  var split = (name + "").split("("),
-      ease = _easeMap[split[0]];
-  return ease && split.length > 1 && ease.config ? ease.config.apply(null, ~name.indexOf("{") ? [_parseObjectInString(split[1])] : _parenthesesExp.exec(name)[1].split(",").map(_numericIfPossible)) : _easeMap._CE && _customEaseExp.test(name) ? _easeMap._CE("", name) : ease;
-},
-    _invertEase = function _invertEase(ease) {
-  return function (p) {
-    return 1 - ease(1 - p);
-  };
-},
-    // potential future feature - allow yoyoEase to be set in children and have those affected when the parent/ancestor timeline yoyos. Not sure it's worth the kb.
-// _propagateYoyoEase = (timeline, isYoyo) => {
-// 	let child = timeline._first, ease;
-// 	while (child) {
-// 		if (child instanceof Timeline) {
-// 			_propagateYoyoEase(child, isYoyo);
-// 		} else if (child.vars.yoyoEase && (!child._yoyo || !child._repeat) && child._yoyo !== isYoyo) {
-// 			if (child.timeline) {
-// 				_propagateYoyoEase(child.timeline, isYoyo);
-// 			} else {
-// 				ease = child._ease;
-// 				child._ease = child._yEase;
-// 				child._yEase = ease;
-// 				child._yoyo = isYoyo;
-// 			}
-// 		}
-// 		child = child._next;
-// 	}
-// },
-_parseEase = function _parseEase(ease, defaultEase) {
-  return !ease ? defaultEase : (_isFunction(ease) ? ease : _easeMap[ease] || _configEaseFromString(ease)) || defaultEase;
-},
-    _insertEase = function _insertEase(names, easeIn, easeOut, easeInOut) {
-  if (easeOut === void 0) {
-    easeOut = function easeOut(p) {
-      return 1 - easeIn(1 - p);
-    };
-  }
-
-  if (easeInOut === void 0) {
-    easeInOut = function easeInOut(p) {
-      return p < .5 ? easeIn(p * 2) / 2 : 1 - easeIn((1 - p) * 2) / 2;
-    };
-  }
-
-  var ease = {
-    easeIn: easeIn,
-    easeOut: easeOut,
-    easeInOut: easeInOut
-  },
-      lowercaseName;
-
-  _forEachName(names, function (name) {
-    _easeMap[name] = _globals[name] = ease;
-    _easeMap[lowercaseName = name.toLowerCase()] = easeOut;
-
-    for (var p in ease) {
-      _easeMap[lowercaseName + (p === "easeIn" ? ".in" : p === "easeOut" ? ".out" : ".inOut")] = _easeMap[name + "." + p] = ease[p];
-    }
-  });
-
-  return ease;
-},
-    _easeInOutFromOut = function _easeInOutFromOut(easeOut) {
-  return function (p) {
-    return p < .5 ? (1 - easeOut(1 - p * 2)) / 2 : .5 + easeOut((p - .5) * 2) / 2;
-  };
-},
-    _configElastic = function _configElastic(type, amplitude, period) {
-  var p1 = amplitude >= 1 ? amplitude : 1,
-      //note: if amplitude is < 1, we simply adjust the period for a more natural feel. Otherwise the math doesn't work right and the curve starts at 1.
-  p2 = (period || (type ? .3 : .45)) / (amplitude < 1 ? amplitude : 1),
-      p3 = p2 / _2PI * (Math.asin(1 / p1) || 0),
-      easeOut = function easeOut(p) {
-    return p === 1 ? 1 : p1 * Math.pow(2, -10 * p) * _sin((p - p3) * p2) + 1;
-  },
-      ease = type === "out" ? easeOut : type === "in" ? function (p) {
-    return 1 - easeOut(1 - p);
-  } : _easeInOutFromOut(easeOut);
-
-  p2 = _2PI / p2; //precalculate to optimize
-
-  ease.config = function (amplitude, period) {
-    return _configElastic(type, amplitude, period);
-  };
-
-  return ease;
-},
-    _configBack = function _configBack(type, overshoot) {
-  if (overshoot === void 0) {
-    overshoot = 1.70158;
-  }
-
-  var easeOut = function easeOut(p) {
-    return --p * p * ((overshoot + 1) * p + overshoot) + 1;
-  },
-      ease = type === "out" ? easeOut : type === "in" ? function (p) {
-    return 1 - easeOut(1 - p);
-  } : _easeInOutFromOut(easeOut);
-
-  ease.config = function (overshoot) {
-    return _configBack(type, overshoot);
-  };
-
-  return ease;
-}; // a cheaper (kb and cpu) but more mild way to get a parameterized weighted ease by feeding in a value between -1 (easeIn) and 1 (easeOut) where 0 is linear.
-// _weightedEase = ratio => {
-// 	let y = 0.5 + ratio / 2;
-// 	return p => (2 * (1 - p) * p * y + p * p);
-// },
-// a stronger (but more expensive kb/cpu) parameterized weighted ease that lets you feed in a value between -1 (easeIn) and 1 (easeOut) where 0 is linear.
-// _weightedEaseStrong = ratio => {
-// 	ratio = .5 + ratio / 2;
-// 	let o = 1 / 3 * (ratio < .5 ? ratio : 1 - ratio),
-// 		b = ratio - o,
-// 		c = ratio + o;
-// 	return p => p === 1 ? p : 3 * b * (1 - p) * (1 - p) * p + 3 * c * (1 - p) * p * p + p * p * p;
-// };
-
-
-exports._ticker = _ticker;
-exports._colorStringFilter = _colorStringFilter;
-exports.splitColor = splitColor;
-exports.interpolate = interpolate;
-exports.mapRange = mapRange;
-exports._replaceRandom = _replaceRandom;
-exports.wrapYoyo = wrapYoyo;
-exports.wrap = wrap;
-exports.normalize = normalize;
-exports.unitize = unitize;
-exports.pipe = pipe;
-exports.random = random;
-exports.snap = snap;
-exports._roundModifier = _roundModifier;
-exports.distribute = distribute;
-exports.toArray = toArray;
-exports.clamp = clamp;
-exports.getUnit = getUnit;
-exports._removeLinkedListItem = _removeLinkedListItem;
-exports._setDefaults = _setDefaults;
-exports._round = _round;
-exports._forEachName = _forEachName;
-exports._getProperty = _getProperty;
-exports._getCache = _getCache;
-exports._plugins = _plugins;
-exports._missingPlugin = _missingPlugin;
-exports._relExp = _relExp;
-exports._numExp = _numExp;
-exports._isUndefined = _isUndefined;
-exports._isString = _isString;
-exports._config = _config;
-
-_forEachName("Linear,Quad,Cubic,Quart,Quint,Strong", function (name, i) {
-  var power = i < 5 ? i + 1 : i;
-
-  _insertEase(name + ",Power" + (power - 1), i ? function (p) {
-    return Math.pow(p, power);
-  } : function (p) {
-    return p;
-  }, function (p) {
-    return 1 - Math.pow(1 - p, power);
-  }, function (p) {
-    return p < .5 ? Math.pow(p * 2, power) / 2 : 1 - Math.pow((1 - p) * 2, power) / 2;
-  });
-});
-
-_easeMap.Linear.easeNone = _easeMap.none = _easeMap.Linear.easeIn;
-
-_insertEase("Elastic", _configElastic("in"), _configElastic("out"), _configElastic());
-
-(function (n, c) {
-  var n1 = 1 / c,
-      n2 = 2 * n1,
-      n3 = 2.5 * n1,
-      easeOut = function easeOut(p) {
-    return p < n1 ? n * p * p : p < n2 ? n * Math.pow(p - 1.5 / c, 2) + .75 : p < n3 ? n * (p -= 2.25 / c) * p + .9375 : n * Math.pow(p - 2.625 / c, 2) + .984375;
-  };
-
-  _insertEase("Bounce", function (p) {
-    return 1 - easeOut(1 - p);
-  }, easeOut);
-})(7.5625, 2.75);
-
-_insertEase("Expo", function (p) {
-  return p ? Math.pow(2, 10 * (p - 1)) : 0;
-});
-
-_insertEase("Circ", function (p) {
-  return -(_sqrt(1 - p * p) - 1);
-});
-
-_insertEase("Sine", function (p) {
-  return -_cos(p * _HALF_PI) + 1;
-});
-
-_insertEase("Back", _configBack("in"), _configBack("out"), _configBack());
-
-_easeMap.SteppedEase = _easeMap.steps = _globals.SteppedEase = {
-  config: function config(steps, immediateStart) {
-    if (steps === void 0) {
-      steps = 1;
-    }
-
-    var p1 = 1 / steps,
-        p2 = steps + (immediateStart ? 0 : 1),
-        p3 = immediateStart ? 1 : 0,
-        max = 1 - _tinyNum;
-    return function (p) {
-      return ((p2 * _clamp(0, max, p) | 0) + p3) * p1;
-    };
-  }
-};
-_defaults.ease = _easeMap["quad.out"];
-/*
- * --------------------------------------------------------------------------------------
- * CACHE
- * --------------------------------------------------------------------------------------
- */
-
-var GSCache = function GSCache(target, harness) {
-  this.id = _gsID++;
-  target._gsap = this;
-  this.target = target;
-  this.harness = harness;
-  this.get = harness ? harness.get : _getProperty;
-  this.set = harness ? harness.getSetter : _getSetter;
-};
-/*
- * --------------------------------------------------------------------------------------
- * ANIMATION
- * --------------------------------------------------------------------------------------
- */
-
-
-exports.GSCache = GSCache;
-
-var Animation =
-/*#__PURE__*/
-function () {
-  function Animation(vars, time) {
-    var parent = vars.parent || _globalTimeline;
-    this.vars = vars;
-    this._dur = this._tDur = +vars.duration || 0;
-    this._delay = +vars.delay || 0;
-
-    if (this._repeat = vars.repeat || 0) {
-      this._rDelay = vars.repeatDelay || 0;
-      this._yoyo = !!vars.yoyo || !!vars.yoyoEase;
-
-      _onUpdateTotalDuration(this);
-    }
-
-    this._ts = 1;
-    this.data = vars.data;
-
-    if (!_tickerActive) {
-      _ticker.wake();
-    }
-
-    if (parent) {
-      _addToTimeline(parent, this, time || time === 0 ? time : parent._time);
-    }
-
-    if (vars.reversed) {
-      this.reversed(true);
-    }
-
-    if (vars.paused) {
-      this.paused(true);
-    }
-  }
-
-  var _proto = Animation.prototype;
-
-  _proto.delay = function delay(value) {
-    if (value || value === 0) {
-      this._delay = value;
-      return this;
-    }
-
-    return this._delay;
-  };
-
-  _proto.duration = function duration(value) {
-    var isSetter = arguments.length,
-        repeat = this._repeat,
-        repeatCycles = repeat > 0 ? repeat * ((isSetter ? value : this._dur) + this._rDelay) : 0;
-    return isSetter ? this.totalDuration(repeat < 0 ? value : value + repeatCycles) : this.totalDuration() && this._dur;
-  };
-
-  _proto.totalDuration = function totalDuration(value) {
-    if (!arguments.length) {
-      return this._tDur;
-    }
-
-    var repeat = this._repeat,
-        isInfinite = (value || this._rDelay) && repeat < 0;
-    this._tDur = isInfinite ? 1e20 : value;
-    this._dur = isInfinite ? value : (value - repeat * this._rDelay) / (repeat + 1);
-    this._dirty = 0;
-
-    _uncache(this.parent);
-
-    return this;
-  };
-
-  _proto.totalTime = function totalTime(_totalTime, suppressEvents) {
-    _wake();
-
-    if (!arguments.length) {
-      return this._tTime;
-    }
-
-    var parent = this.parent || this._dp,
-        start;
-
-    if (parent && parent.smoothChildTiming && this._ts) {
-      start = this._start; // if (!parent._dp && parent._time === parent._dur) { // if a root timeline completes...and then a while later one of its children resumes, we must shoot the playhead forward to where it should be raw-wise, otherwise the child will jump to the end. Down side: this assumes it's using the _ticker.time as a reference.
-      // 	parent._time = _ticker.time - parent._start;
-      // }
-
-      this._start = parent._time - (this._ts > 0 ? _totalTime / this._ts : ((this._dirty ? this.totalDuration() : this._tDur) - _totalTime) / -this._ts);
-      this._end += this._start - start;
-
-      if (!parent._dirty) {
-        //for performance improvement. If the parent's cache is already dirty, it already took care of marking the ancestors as dirty too, so skip the function call here.
-        _uncache(parent);
-      } //in case any of the ancestor timelines had completed but should now be enabled, we should reset their totalTime() which will also ensure that they're lined up properly and enabled. Skip for animations that are on the root (wasteful). Example: a TimelineLite.exportRoot() is performed when there's a paused tween on the root, the export will not complete until that tween is unpaused, but imagine a child gets restarted later, after all [unpaused] tweens have completed. The start of that child would get pushed out, but one of the ancestors may have completed.
-
-
-      while (parent.parent) {
-        if (parent.parent._time !== parent._start + (parent._ts > 0 ? parent._tTime / parent._ts : (parent.totalDuration() - parent._tTime) / -parent._ts)) {
-          parent.totalTime(parent._tTime, true);
-        }
-
-        parent = parent.parent;
-      }
-
-      if (!this.parent) {
-        //if the animation doesn't have a parent, put it back into its last parent (recorded as _dp for exactly cases like this).
-        _addToTimeline(this._dp, this, this._start - this._delay);
-      }
-    }
-
-    if (this._tTime !== _totalTime || !this._dur) {
-      this._ts || (this._pTime = _totalTime); // otherwise, if an animation is paused, then the playhead is moved back to zero, then resumed, it'd revert back to the original time at the pause
-
-      _lazySafeRender(this, _totalTime, suppressEvents);
-    }
-
-    return this;
-  };
-
-  _proto.time = function time(value, suppressEvents) {
-    return arguments.length ? this.totalTime((value + _elapsedCycleDuration(this)) % this.duration() || (value ? this._dur : 0), suppressEvents) : this._time; // note: if the modulus results in 0, the playhead could be exactly at the end or the beginning, and we always defer to the END with a non-zero value, otherwise if you set the time() to the very end (duration()), it would render at the START!
-  };
-
-  _proto.totalProgress = function totalProgress(value, suppressEvents) {
-    return arguments.length ? this.totalTime(this.totalDuration() * value, suppressEvents) : this._tTime / this.totalDuration();
-  };
-
-  _proto.progress = function progress(value, suppressEvents) {
-    return arguments.length ? this.totalTime(this.duration() * (this._yoyo && !(this.iteration() & 1) ? 1 - value : value) + _elapsedCycleDuration(this), suppressEvents) : this.duration() ? this._time / this._dur : this.ratio;
-  };
-
-  _proto.iteration = function iteration(value, suppressEvents) {
-    var cycleDuration = this.duration() + this._rDelay;
-
-    return arguments.length ? this.totalTime(this._time + (value - 1) * cycleDuration, suppressEvents) : this._repeat ? ~~(this._tTime / cycleDuration) + 1 : 1;
-  };
-
-  _proto.timeScale = function timeScale(value) {
-    var prevTS = this._ts;
-
-    if (!arguments.length) {
-      return prevTS || this._pauseTS;
-    }
-
-    if (!prevTS) {
-      this._pauseTS = value;
-      return this;
-    } //don't allow a zero _ts, otherwise we can't resume() properly. For example, gsap.fromTo(tween, {timeScale:0}, {timeScale:1}) wouldn't work because the timeScale:0 would of course pause, and we'd record _pauseTS as 0...and then when resuming we'd copy that back to _ts...which would still keep it paused.
-
-
-    this._end = this._start + this._tDur / (this._ts = value || _tinyNum);
-    return _recacheAncestors(this).totalTime(this._tTime, true);
-  };
-
-  _proto.paused = function paused(value) {
-    var isPaused = !this._ts;
-
-    if (!arguments.length) {
-      return isPaused;
-    }
-
-    if (isPaused !== value) {
-      if (value) {
-        this._pauseTS = this._ts;
-        this._pTime = this._tTime || Math.max(-this._delay, this.rawTime()); // if the pause occurs during the delay phase, make sure that's factored in when resuming.
-
-        this._ts = this._act = 0; //we use a timeScale of 0 to indicate a paused state, but we record the old "real" timeScale as _pauseTS so we can revert when unpaused.
-      } else {
-        this._ts = this._pauseTS;
-        value = this._tTime || this._pTime; //only defer to _pTime (pauseTime) if tTime is zero. Remember, someone could pause() an animation, then scrub the playhead and resume().
-
-        if (this.progress() === 1) {
-          // edge case: animation.progress(1).pause().play() wouldn't render again because the playhead is already at the end, but the call to totalTime() below will add it back to its parent...and not remove it again (since removing only happens upon rendering at a new time). Offsetting the _tTime slightly is done simply to cause the final render in totalTime() that'll pop it off its timeline (if autoRemoveChildren is true, of course).
-          this._tTime -= _tinyNum;
-        }
-
-        this.totalTime(value, true);
-      }
-    }
-
-    return this;
-  };
-
-  _proto.startTime = function startTime(value) {
-    if (arguments.length) {
-      if (this.parent && this.parent._sort) {
-        _addToTimeline(this.parent, this, value - this._delay);
-      }
-
-      return this;
-    }
-
-    return this._start;
-  };
-
-  _proto.endTime = function endTime(includeRepeats) {
-    return this._start + (_isNotFalse(includeRepeats) ? this.totalDuration() : this.duration()) / Math.abs(this._ts);
-  };
-
-  _proto.rawTime = function rawTime(wrapRepeats) {
-    var parent = this.parent || this._dp; // _dp = detatched parent
-
-    return !parent ? this._tTime : wrapRepeats && (!this._ts || this._repeat && this._time && this.totalProgress() < 1) ? this._tTime % (this._dur + this._rDelay) : !this._ts ? this._tTime : _parentToChildTotalTime(parent.rawTime(wrapRepeats), this);
-  } // globalTime(rawTime) {
-  // 	let animation = this,
-  // 		time = arguments.length ? rawTime : animation.rawTime();
-  // 	while (animation) {
-  // 		time = animation._start + time / (animation._ts || 1);
-  // 		animation = animation.parent;
-  // 	}
-  // 	return time;
-  // }
-  ;
-
-  _proto.repeat = function repeat(value) {
-    if (arguments.length) {
-      this._repeat = value;
-      return _onUpdateTotalDuration(this);
-    }
-
-    return this._repeat;
-  };
-
-  _proto.repeatDelay = function repeatDelay(value) {
-    if (arguments.length) {
-      this._rDelay = value;
-      return _onUpdateTotalDuration(this);
-    }
-
-    return this._rDelay;
-  };
-
-  _proto.yoyo = function yoyo(value) {
-    if (arguments.length) {
-      this._yoyo = value;
-      return this;
-    }
-
-    return this._yoyo;
-  };
-
-  _proto.seek = function seek(position, suppressEvents) {
-    return this.totalTime(_parsePosition(this, position), _isNotFalse(suppressEvents));
-  };
-
-  _proto.restart = function restart(includeDelay, suppressEvents) {
-    return this.play().totalTime(includeDelay ? -this._delay : 0, _isNotFalse(suppressEvents));
-  };
-
-  _proto.play = function play(from, suppressEvents) {
-    if (from != null) {
-      this.seek(from, suppressEvents);
-    }
-
-    return this.reversed(false).paused(false);
-  };
-
-  _proto.reverse = function reverse(from, suppressEvents) {
-    if (from != null) {
-      this.seek(from || this.totalDuration(), suppressEvents);
-    }
-
-    return this.reversed(true).paused(false);
-  };
-
-  _proto.pause = function pause(atTime, suppressEvents) {
-    if (atTime != null) {
-      this.seek(atTime, suppressEvents);
-    }
-
-    return this.paused(true);
-  };
-
-  _proto.resume = function resume() {
-    return this.paused(false);
-  };
-
-  _proto.reversed = function reversed(value) {
-    var ts = this._ts || this._pauseTS;
-
-    if (arguments.length) {
-      if (value !== this.reversed()) {
-        this[this._ts ? "_ts" : "_pauseTS"] = Math.abs(ts) * (value ? -1 : 1);
-        this.totalTime(this._tTime, true);
-      }
-
-      return this;
-    }
-
-    return ts < 0;
-  };
-
-  _proto.invalidate = function invalidate() {
-    this._initted = 0;
-    return this;
-  };
-
-  _proto.isActive = function isActive(hasStarted) {
-    var parent = this.parent || this._dp,
-        start = this._start,
-        rawTime;
-    return !parent || this._ts && (this._initted || !hasStarted) && parent.isActive(hasStarted) && (rawTime = parent.rawTime(true)) >= start && rawTime < this.endTime(true) - _tinyNum;
-  };
-
-  _proto.eventCallback = function eventCallback(type, callback, params) {
-    var vars = this.vars;
-
-    if (arguments.length > 1) {
-      if (!callback) {
-        delete vars[type];
-      } else {
-        vars[type] = callback;
-
-        if (params) {
-          vars[type + "Params"] = params;
-        }
-
-        if (type === "onUpdate") {
-          this._onUpdate = callback;
-        }
-      }
-
-      return this;
-    }
-
-    return vars[type];
-  };
-
-  _proto.then = function then(onFulfilled) {
-    var _this = this;
-
-    return new Promise(function (resolve) {
-      var f = onFulfilled || _passThrough,
-          _resolve = function _resolve() {
-        var _then = _this.then;
-        _this.then = null; // temporarily null the then() method to avoid an infinite loop (see https://github.com/greensock/GSAP/issues/322)
-
-        f = f(_this);
-
-        if (f && (f.then || f === _this)) {
-          _this._prom = f;
-          _this.then = _then;
-        }
-
-        resolve(f);
-        _this.then = _then;
-      };
-
-      if (_this._initted && _this.totalProgress() === 1 && _this._ts >= 0 || !_this._tTime && _this._ts < 0) {
-        _resolve();
-      } else {
-        _this._prom = _resolve;
-      }
-    });
-  };
-
-  _proto.kill = function kill() {
-    _interrupt(this);
-  };
-
-  return Animation;
-}();
-
-exports.Animation = Animation;
-
-_setDefaults(Animation.prototype, {
-  _time: 0,
-  _start: 0,
-  _end: 0,
-  _tTime: 0,
-  _tDur: 0,
-  _dirty: 0,
-  _repeat: 0,
-  _yoyo: false,
-  parent: 0,
-  _initted: false,
-  _rDelay: 0,
-  _ts: 1,
-  _dp: 0,
-  ratio: 0,
-  _zTime: -_tinyNum,
-  _prom: 0
-});
-/*
- * -------------------------------------------------
- * TIMELINE
- * -------------------------------------------------
- */
-
-
-var Timeline =
-/*#__PURE__*/
-function (_Animation) {
-  _inheritsLoose(Timeline, _Animation);
-
-  function Timeline(vars, time) {
-    var _this2;
-
-    if (vars === void 0) {
-      vars = {};
-    }
-
-    _this2 = _Animation.call(this, vars, time) || this;
-    _this2.labels = {};
-    _this2.smoothChildTiming = _isNotFalse(vars.smoothChildTiming);
-    _this2.autoRemoveChildren = !!vars.autoRemoveChildren;
-    _this2._sort = _isNotFalse(vars.sortChildren);
-    return _this2;
-  }
-
-  var _proto2 = Timeline.prototype;
-
-  _proto2.to = function to(targets, vars, position) {
-    new Tween(targets, _parseVars(arguments, 0, this), _parsePosition(this, _isNumber(vars) ? arguments[3] : position));
-    return this;
-  };
-
-  _proto2.from = function from(targets, vars, position) {
-    new Tween(targets, _parseVars(arguments, 1, this), _parsePosition(this, _isNumber(vars) ? arguments[3] : position));
-    return this;
-  };
-
-  _proto2.fromTo = function fromTo(targets, fromVars, toVars, position) {
-    new Tween(targets, _parseVars(arguments, 2, this), _parsePosition(this, _isNumber(fromVars) ? arguments[4] : position));
-    return this;
-  };
-
-  _proto2.set = function set(targets, vars, position) {
-    vars.duration = 0;
-    vars.parent = this;
-
-    if (!vars.repeatDelay) {
-      vars.repeat = 0;
-    }
-
-    vars.immediateRender = !!vars.immediateRender;
-    new Tween(targets, vars, _parsePosition(this, position));
-    return this;
-  };
-
-  _proto2.call = function call(callback, params, position) {
-    return _addToTimeline(this, Tween.delayedCall(0, callback, params), _parsePosition(this, position));
-  } //ONLY for backward compatibility! Maybe delete?
-  ;
-
-  _proto2.staggerTo = function staggerTo(targets, duration, vars, stagger, position, onCompleteAll, onCompleteAllParams) {
-    vars.duration = duration;
-    vars.stagger = vars.stagger || stagger;
-    vars.onComplete = onCompleteAll;
-    vars.onCompleteParams = onCompleteAllParams;
-    vars.parent = this;
-    new Tween(targets, vars, _parsePosition(this, position));
-    return this;
-  };
-
-  _proto2.staggerFrom = function staggerFrom(targets, duration, vars, stagger, position, onCompleteAll, onCompleteAllParams) {
-    vars.runBackwards = 1;
-    vars.immediateRender = _isNotFalse(vars.immediateRender);
-    return this.staggerTo(targets, duration, vars, stagger, position, onCompleteAll, onCompleteAllParams);
-  };
-
-  _proto2.staggerFromTo = function staggerFromTo(targets, duration, fromVars, toVars, stagger, position, onCompleteAll, onCompleteAllParams) {
-    toVars.startAt = fromVars;
-    toVars.immediateRender = _isNotFalse(toVars.immediateRender);
-    return this.staggerTo(targets, duration, toVars, stagger, position, onCompleteAll, onCompleteAllParams);
-  };
-
-  _proto2.render = function render(totalTime, suppressEvents, force) {
-    var prevTime = this._time,
-        tDur = this._dirty ? this.totalDuration() : this._tDur,
-        dur = this._dur,
-        tTime = totalTime > tDur - _tinyNum && totalTime >= 0 && this !== _globalTimeline ? tDur : totalTime < _tinyNum ? 0 : totalTime,
-        crossingStart = this._zTime < 0 !== totalTime < 0 && (this._initted || !dur),
-        time,
-        child,
-        next,
-        iteration,
-        cycleDuration,
-        prevPaused,
-        pauseTween,
-        timeScale,
-        prevStart,
-        prevIteration,
-        yoyo,
-        isYoyo;
-
-    if (tTime !== this._tTime || force || crossingStart) {
-      if (crossingStart) {
-        if (!dur) {
-          prevTime = this._zTime;
-        }
-
-        if (totalTime || !suppressEvents) {
-          //when the playhead arrives at EXACTLY time 0 (right on top) of a zero-duration timeline, we need to discern if events are suppressed so that when the playhead moves again (next time), it'll trigger the callback. If events are NOT suppressed, obviously the callback would be triggered in this render. Basically, the callback should fire either when the playhead ARRIVES or LEAVES this exact spot, not both. Imagine doing a timeline.seek(0) and there's a callback that sits at 0. Since events are suppressed on that seek() by default, nothing will fire, but when the playhead moves off of that position, the callback should fire. This behavior is what people intuitively expect.
-          this._zTime = totalTime;
-        }
-      }
-
-      time = tTime;
-      prevStart = this._start;
-      timeScale = this._ts;
-      prevPaused = timeScale === 0;
-
-      if (prevTime !== this._time && dur) {
-        //if totalDuration() finds a child with a negative startTime and smoothChildTiming is true, things get shifted around internally so we need to adjust the time accordingly. For example, if a tween starts at -30 we must shift EVERYTHING forward 30 seconds and move this timeline's startTime backward by 30 seconds so that things align with the playhead (no jump).
-        time += this._time - prevTime;
-      }
-
-      if (this._repeat) {
-        //adjust the time for repeats and yoyos
-        yoyo = this._yoyo;
-        cycleDuration = dur + this._rDelay;
-        time = _round(tTime % cycleDuration); //round to avoid floating point errors. (4 % 0.8 should be 0 but some browsers report it as 0.79999999!)
-
-        if (time > dur || tDur === tTime) {
-          time = dur;
-        }
-
-        iteration = ~~(tTime / cycleDuration);
-
-        if (iteration && iteration === tTime / cycleDuration) {
-          time = dur;
-          iteration--;
-        }
-
-        prevIteration = ~~(this._tTime / cycleDuration);
-
-        if (prevIteration && prevIteration === this._tTime / cycleDuration) {
-          prevIteration--;
-        }
-
-        if (yoyo && iteration & 1) {
-          time = dur - time;
-          isYoyo = 1;
-        }
-        /*
-        make sure children at the end/beginning of the timeline are rendered properly. If, for example,
-        a 3-second long timeline rendered at 2.9 seconds previously, and now renders at 3.2 seconds (which
-        would get translated to 2.8 seconds if the timeline yoyos or 0.2 seconds if it just repeats), there
-        could be a callback or a short tween that's at 2.95 or 3 seconds in which wouldn't render. So
-        we need to push the timeline to the end (and/or beginning depending on its yoyo value). Also we must
-        ensure that zero-duration tweens at the very beginning or end of the Timeline work.
-        */
-
-
-        if (iteration !== prevIteration && !this._lock) {
-          var rewinding = yoyo && prevIteration & 1,
-              doesWrap = rewinding === (yoyo && iteration & 1);
-
-          if (iteration < prevIteration) {
-            rewinding = !rewinding;
-          }
-
-          prevTime = rewinding ? 0 : dur;
-          this._lock = 1;
-          this.render(prevTime, suppressEvents, !dur)._lock = 0;
-
-          if (!suppressEvents && this.parent) {
-            _callback(this, "onRepeat");
-          }
-
-          if (prevTime !== this._time || prevPaused !== !this._ts) {
-            return this;
-          }
-
-          if (doesWrap) {
-            this._lock = 2;
-            prevTime = rewinding ? dur + 0.0001 : -0.0001;
-            this.render(prevTime, true);
-          }
-
-          this._lock = 0;
-
-          if (!this._ts && !prevPaused) {
-            return this;
-          } //in order for yoyoEase to work properly when there's a stagger, we must swap out the ease in each sub-tween.
-          //_propagateYoyoEase(this, isYoyo);
-
-        }
-      }
-
-      if (this._hasPause && !this._forcing && this._lock < 2) {
-        pauseTween = _findNextPauseTween(this, _round(prevTime), _round(time));
-
-        if (pauseTween) {
-          tTime -= time - (time = pauseTween._start);
-        }
-      }
-
-      this._tTime = tTime;
-      this._time = time;
-      this._act = !timeScale; //as long as it's not paused, force it to be active so that if the user renders independent of the parent timeline, it'll be forced to re-render on the next tick.
-
-      if (!this._initted) {
-        this._onUpdate = this.vars.onUpdate;
-        this._initted = 1;
-      }
-
-      if (!prevTime && time && !suppressEvents) {
-        _callback(this, "onStart");
-      }
-
-      if (time >= prevTime && totalTime >= 0) {
-        child = this._first;
-
-        while (child) {
-          next = child._next;
-
-          if ((child._act || time >= child._start) && child._ts && pauseTween !== child) {
-            if (child.parent !== this) {
-              // an extreme edge case - the child's render could do something like kill() the "next" one in the linked list, or reparent it. In that case we must re-initiate the whole render to be safe.
-              return this.render(totalTime, suppressEvents, force);
-            }
-
-            child.render(child._ts > 0 ? (time - child._start) * child._ts : (child._dirty ? child.totalDuration() : child._tDur) + (time - child._start) * child._ts, suppressEvents, force);
-
-            if (time !== this._time || !this._ts && !prevPaused) {
-              //in case a tween pauses or seeks the timeline when rendering, like inside of an onUpdate/onComplete
-              pauseTween = 0;
-              break;
-            }
-          }
-
-          child = next;
-        }
-      } else {
-        child = this._last;
-        var adjustedTime = totalTime < 0 ? totalTime : time; //when the playhead goes backward beyond the start of this timeline, we must pass that information down to the child animations so that zero-duration tweens know whether to render their starting or ending values.
-
-        while (child) {
-          next = child._prev;
-
-          if ((child._act || adjustedTime <= child._end) && child._ts && pauseTween !== child) {
-            if (child.parent !== this) {
-              // an extreme edge case - the child's render could do something like kill() the "next" one in the linked list, or reparent it. In that case we must re-initiate the whole render to be safe.
-              return this.render(totalTime, suppressEvents, force);
-            }
-
-            child.render(child._ts > 0 ? (adjustedTime - child._start) * child._ts : (child._dirty ? child.totalDuration() : child._tDur) + (adjustedTime - child._start) * child._ts, suppressEvents, force);
-
-            if (time !== this._time || !this._ts && !prevPaused) {
-              //in case a tween pauses or seeks the timeline when rendering, like inside of an onUpdate/onComplete
-              pauseTween = 0;
-              break;
-            }
-          }
-
-          child = next;
-        }
-      }
-
-      if (pauseTween && !suppressEvents) {
-        this.pause();
-        pauseTween.render(time >= prevTime ? 0 : -_tinyNum)._zTime = time >= prevTime ? 1 : -1;
-
-        if (this._ts) {
-          //the callback resumed playback! So since we may have held back the playhead due to where the pause is positioned, go ahead and jump to where it's SUPPOSED to be (if no pause happened).
-          this._start = prevStart; //if the pause was at an earlier time and the user resumed in the callback, it could reposition the timeline (changing its startTime), throwing things off slightly, so we make sure the _start doesn't shift.
-
-          return this.render(totalTime, suppressEvents, force);
-        }
-      }
-
-      if (this._onUpdate && !suppressEvents) {
-        _callback(this, "onUpdate", true);
-      }
-
-      if (tTime === tDur || !tTime && this._ts < 0) if (prevStart === this._start || Math.abs(timeScale) !== Math.abs(this._ts)) if (!time || tDur >= this.totalDuration()) {
-        (totalTime || !dur) && _removeFromParent(this, 1);
-
-        if (!suppressEvents && !(totalTime < 0 && !prevTime)) {
-          _callback(this, tTime === tDur ? "onComplete" : "onReverseComplete", true);
-
-          this._prom && this._prom();
-        }
-      }
-    }
-
-    return this;
-  };
-
-  _proto2.add = function add(child, position) {
-    var _this3 = this;
-
-    if (!_isNumber(position)) {
-      position = _parsePosition(this, position);
-    }
-
-    if (!(child instanceof Animation)) {
-      if (_isArray(child)) {
-        child.forEach(function (obj) {
-          return _this3.add(obj, position);
-        });
-        return _uncache(this);
-      }
-
-      if (_isString(child)) {
-        return this.addLabel(child, position);
-      }
-
-      if (_isFunction(child)) {
-        child = Tween.delayedCall(0, child);
-      } else {
-        return this;
-      }
-    }
-
-    return this !== child ? _addToTimeline(this, child, position) : this; //don't allow a timeline to be added to itself as a child!
-  } // buildFrom(position, absolute) {
-  // 	this._build = (position === ">>" || position === "auto") ? position : (position === "<<") ? 0 : _parsePosition(this, position, !absolute);
-  // 	return this;
-  // }
-  ;
-
-  _proto2.getChildren = function getChildren(nested, tweens, timelines, ignoreBeforeTime) {
-    if (nested === void 0) {
-      nested = true;
-    }
-
-    if (tweens === void 0) {
-      tweens = true;
-    }
-
-    if (timelines === void 0) {
-      timelines = true;
-    }
-
-    if (ignoreBeforeTime === void 0) {
-      ignoreBeforeTime = -_bigNum;
-    }
-
-    var a = [],
-        child = this._first;
-
-    while (child) {
-      if (child._start >= ignoreBeforeTime) {
-        if (child instanceof Tween) {
-          if (tweens) {
-            a.push(child);
-          }
-        } else {
-          if (timelines) {
-            a.push(child);
-          }
-
-          if (nested) {
-            a.push.apply(a, child.getChildren(true, tweens, timelines));
-          }
-        }
-      }
-
-      child = child._next;
-    }
-
-    return a;
-  };
-
-  _proto2.getById = function getById(id) {
-    var animations = this.getChildren(1, 1, 1),
-        i = animations.length;
-
-    while (i--) {
-      if (animations[i].vars.id === id) {
-        return animations[i];
-      }
-    }
-  };
-
-  _proto2.remove = function remove(child) {
-    if (_isString(child)) {
-      return this.removeLabel(child);
-    }
-
-    if (_isFunction(child)) {
-      return this.killTweensOf(child);
-    }
-
-    _removeLinkedListItem(this, child);
-
-    if (child === this._recent) {
-      this._recent = this._last;
-    }
-
-    return _uncache(this);
-  };
-
-  _proto2.totalTime = function totalTime(_totalTime2, suppressEvents) {
-    if (!arguments.length) {
-      return this._tTime;
-    }
-
-    this._forcing = 1;
-
-    if (!this.parent && !this._dp && this._ts) {
-      //special case for the global timeline (or any other that has no parent or detached parent).
-      this._start = _ticker.time - (this._ts > 0 ? _totalTime2 / this._ts : (this.totalDuration() - _totalTime2) / -this._ts);
-    }
-
-    _Animation.prototype.totalTime.call(this, _totalTime2, suppressEvents);
-
-    this._forcing = 0;
-    return this;
-  };
-
-  _proto2.addLabel = function addLabel(label, position) {
-    this.labels[label] = _parsePosition(this, position);
-    return this;
-  };
-
-  _proto2.removeLabel = function removeLabel(label) {
-    delete this.labels[label];
-    return this;
-  };
-
-  _proto2.addPause = function addPause(position, callback, params) {
-    var t = Tween.delayedCall(0, callback || _emptyFunc, params);
-    t.data = "isPause";
-    this._hasPause = 1;
-    return _addToTimeline(this, t, _parsePosition(this, position));
-  };
-
-  _proto2.removePause = function removePause(position) {
-    var child = this._first;
-    position = _parsePosition(this, position);
-
-    while (child) {
-      if (child._start === position && child.data === "isPause") {
-        _removeFromParent(child);
-      }
-
-      child = child._next;
-    }
-  };
-
-  _proto2.killTweensOf = function killTweensOf(targets, props, onlyActive) {
-    var tweens = this.getTweensOf(targets, onlyActive),
-        i = tweens.length;
-
-    while (i--) {
-      _overwritingTween !== tweens[i] && tweens[i].kill(targets, props);
-    }
-
-    return this;
-  };
-
-  _proto2.getTweensOf = function getTweensOf(targets, onlyActive) {
-    var a = [],
-        parsedTargets = toArray(targets),
-        child = this._first,
-        children;
-
-    while (child) {
-      if (child instanceof Tween) {
-        if (_arrayContainsAny(child._targets, parsedTargets) && (!onlyActive || child.isActive(onlyActive === "started"))) {
-          a.push(child);
-        }
-      } else if ((children = child.getTweensOf(parsedTargets, onlyActive)).length) {
-        a.push.apply(a, children);
-      }
-
-      child = child._next;
-    }
-
-    return a;
-  };
-
-  _proto2.tweenTo = function tweenTo(position, vars) {
-    var tl = this,
-        endTime = _parsePosition(tl, position),
-        startAt = vars && vars.startAt,
-        tween = Tween.to(tl, _setDefaults({
-      ease: "none",
-      lazy: false,
-      time: endTime,
-      duration: Math.abs(endTime - (startAt && "time" in startAt ? startAt.time : tl._time)) / tl.timeScale() || _tinyNum,
-      onStart: function onStart() {
-        tl.pause();
-        var duration = Math.abs(endTime - tl._time) / tl.timeScale();
-
-        if (tween._dur !== duration) {
-          tween._dur = duration;
-          tween.render(tween._time, true, true);
-        }
-
-        if (vars && vars.onStart) {
-          //in case the user had an onStart in the vars - we don't want to overwrite it.
-          vars.onStart.apply(tween, vars.onStartParams || []);
-        }
-      }
-    }, vars));
-
-    return tween;
-  };
-
-  _proto2.tweenFromTo = function tweenFromTo(fromPosition, toPosition, vars) {
-    return this.tweenTo(toPosition, _setDefaults({
-      startAt: {
-        time: _parsePosition(this, fromPosition)
-      }
-    }, vars));
-  };
-
-  _proto2.recent = function recent() {
-    return this._recent;
-  };
-
-  _proto2.nextLabel = function nextLabel(afterTime) {
-    if (afterTime === void 0) {
-      afterTime = this._time;
-    }
-
-    return _getLabelInDirection(this, _parsePosition(this, afterTime));
-  };
-
-  _proto2.previousLabel = function previousLabel(beforeTime) {
-    if (beforeTime === void 0) {
-      beforeTime = this._time;
-    }
-
-    return _getLabelInDirection(this, _parsePosition(this, beforeTime), 1);
-  };
-
-  _proto2.currentLabel = function currentLabel(value) {
-    return arguments.length ? this.seek(value, true) : this.previousLabel(this._time + _tinyNum);
-  };
-
-  _proto2.shiftChildren = function shiftChildren(amount, adjustLabels, ignoreBeforeTime) {
-    if (ignoreBeforeTime === void 0) {
-      ignoreBeforeTime = 0;
-    }
-
-    var child = this._first,
-        labels = this.labels,
-        p;
-
-    while (child) {
-      if (child._start >= ignoreBeforeTime) {
-        child._start += amount;
-      }
-
-      child = child._next;
-    }
-
-    if (adjustLabels) {
-      for (p in labels) {
-        if (labels[p] >= ignoreBeforeTime) {
-          labels[p] += amount;
-        }
-      }
-    }
-
-    return _uncache(this);
-  };
-
-  _proto2.invalidate = function invalidate() {
-    var child = this._first;
-    this._lock = 0;
-
-    while (child) {
-      child.invalidate();
-      child = child._next;
-    }
-
-    return _Animation.prototype.invalidate.call(this);
-  };
-
-  _proto2.clear = function clear(includeLabels) {
-    if (includeLabels === void 0) {
-      includeLabels = true;
-    }
-
-    var child = this._first,
-        next;
-
-    while (child) {
-      next = child._next;
-      this.remove(child);
-      child = next;
-    }
-
-    this._time = this._tTime = 0;
-
-    if (includeLabels) {
-      this.labels = {};
-    }
-
-    return _uncache(this);
-  };
-
-  _proto2.totalDuration = function totalDuration(value) {
-    var max = 0,
-        self = this,
-        child = self._last,
-        prevStart = _bigNum,
-        repeat = self._repeat,
-        repeatCycles = repeat * self._rDelay || 0,
-        isInfinite = repeat < 0,
-        prev,
-        end;
-
-    if (!arguments.length) {
-      if (self._dirty) {
-        while (child) {
-          prev = child._prev; //record it here in case the tween changes position in the sequence...
-
-          if (child._dirty) {
-            child.totalDuration(); //could change the tween._startTime, so make sure the animation's cache is clean before analyzing it.
-          }
-
-          if (child._start > prevStart && self._sort && child._ts && !self._lock) {
-            //in case one of the tweens shifted out of order, it needs to be re-inserted into the correct position in the sequence
-            self._lock = 1; //prevent endless recursive calls - there are methods that get triggered that check duration/totalDuration when we add().
-
-            _addToTimeline(self, child, child._start - child._delay);
-
-            self._lock = 0;
-          } else {
-            prevStart = child._start;
-          }
-
-          if (child._start < 0 && child._ts) {
-            //children aren't allowed to have negative startTimes unless smoothChildTiming is true, so adjust here if one is found.
-            max -= child._start;
-
-            if (!self.parent && !self._dp || self.parent && self.parent.smoothChildTiming) {
-              self._start += child._start / self._ts;
-              self._time -= child._start;
-              self._tTime -= child._start;
-            }
-
-            self.shiftChildren(-child._start, false, -_bigNum);
-            prevStart = 0;
-          }
-
-          end = child._end = child._start + child._tDur / Math.abs(child._ts || child._pauseTS);
-
-          if (end > max && child._ts) {
-            max = _round(end);
-          }
-
-          child = prev;
-        }
-
-        self._dur = self === _globalTimeline && self._time > max ? self._time : Math.min(_bigNum, max);
-        self._tDur = isInfinite && (self._dur || repeatCycles) ? 1e20 : Math.min(_bigNum, max * (repeat + 1) + repeatCycles);
-        self._end = self._start + (self._tDur / Math.abs(self._ts || self._pauseTS) || 0);
-        self._dirty = 0;
-      }
-
-      return self._tDur;
-    }
-
-    return isInfinite ? self : self.timeScale(self.totalDuration() / value);
-  };
-
-  Timeline.updateRoot = function updateRoot(time) {
-    if (_globalTimeline._ts) {
-      _lazySafeRender(_globalTimeline, _parentToChildTotalTime(time, _globalTimeline));
-    }
-
-    if (_ticker.frame >= _nextGCFrame) {
-      _nextGCFrame += _config.autoSleep || 120;
-      var child = _globalTimeline._first;
-      if (!child || !child._ts) if (_config.autoSleep && _ticker._listeners.length < 2) {
-        while (child && !child._ts) {
-          child = child._next;
-        }
-
-        if (!child) {
-          _ticker.sleep();
-        }
-      }
-    }
-  };
-
-  return Timeline;
-}(Animation);
-
-exports.TimelineLite = exports.TimelineMax = exports.Timeline = Timeline;
-
-_setDefaults(Timeline.prototype, {
-  _lock: 0,
-  _hasPause: 0,
-  _forcing: 0
-});
-
-var _addComplexStringPropTween = function _addComplexStringPropTween(target, prop, start, end, setter, stringFilter, funcParam) {
-  //note: we call _addComplexStringPropTween.call(tweenInstance...) to ensure that it's scoped properly. We may call it from within a plugin too, thus "this" would refer to the plugin.
-  var pt = new PropTween(this._pt, target, prop, 0, 1, _renderComplexString, null, setter),
-      index = 0,
-      matchIndex = 0,
-      result,
-      startNums,
-      color,
-      endNum,
-      chunk,
-      startNum,
-      hasRandom,
-      a;
-  pt.b = start;
-  pt.e = end;
-  start += ""; //ensure values are strings
-
-  end += "";
-
-  if (hasRandom = ~end.indexOf("random(")) {
-    end = _replaceRandom(end);
-  }
-
-  if (stringFilter) {
-    a = [start, end];
-    stringFilter(a, target, prop); //pass an array with the starting and ending values and let the filter do whatever it needs to the values.
-
-    start = a[0];
-    end = a[1];
-  }
-
-  startNums = start.match(_complexStringNumExp) || [];
-
-  while (result = _complexStringNumExp.exec(end)) {
-    endNum = result[0];
-    chunk = end.substring(index, result.index);
-
-    if (color) {
-      color = (color + 1) % 5;
-    } else if (chunk.substr(-5) === "rgba(") {
-      color = 1;
-    }
-
-    if (endNum !== startNums[matchIndex++]) {
-      startNum = parseFloat(startNums[matchIndex - 1]); //these nested PropTweens are handled in a special way - we'll never actually call a render or setter method on them. We'll just loop through them in the parent complex string PropTween's render method.
-
-      pt._pt = {
-        _next: pt._pt,
-        p: chunk || matchIndex === 1 ? chunk : ",",
-        //note: SVG spec allows omission of comma/space when a negative sign is wedged between two numbers, like 2.5-5.3 instead of 2.5,-5.3 but when tweening, the negative value may switch to positive, so we insert the comma just in case.
-        s: startNum,
-        c: endNum.charAt(1) === "=" ? parseFloat(endNum.substr(2)) * (endNum.charAt(0) === "-" ? -1 : 1) : parseFloat(endNum) - startNum,
-        m: color && color < 4 ? Math.round : 0
-      };
-      index = _complexStringNumExp.lastIndex;
-    }
-  }
-
-  pt.c = index < end.length ? end.substring(index, end.length) : ""; //we use the "c" of the PropTween to store the final part of the string (after the last number)
-
-  pt.fp = funcParam;
-
-  if (_relExp.test(end) || hasRandom) {
-    pt.e = 0; //if the end string contains relative values or dynamic random(...) values, delete the end it so that on the final render we don't actually set it to the string with += or -= characters (forces it to use the calculated value).
-  }
-
-  this._pt = pt; //start the linked list with this new PropTween. Remember, we call _addComplexStringPropTween.call(tweenInstance...) to ensure that it's scoped properly. We may call it from within a plugin too, thus "this" would refer to the plugin.
-
-  return pt;
-},
-    _addPropTween = function _addPropTween(target, prop, start, end, index, targets, modifier, stringFilter, funcParam) {
-  if (_isFunction(end)) {
-    end = end(index || 0, target, targets);
-  }
-
-  var currentValue = target[prop],
-      parsedStart = start !== "get" ? start : !_isFunction(currentValue) ? currentValue : funcParam ? target[prop.indexOf("set") || !_isFunction(target["get" + prop.substr(3)]) ? prop : "get" + prop.substr(3)](funcParam) : target[prop](),
-      setter = !_isFunction(currentValue) ? _setterPlain : funcParam ? _setterFuncWithParam : _setterFunc,
-      pt;
-
-  if (_isString(end)) {
-    if (~end.indexOf("random(")) {
-      end = _replaceRandom(end);
-    }
-
-    if (end.charAt(1) === "=") {
-      end = parseFloat(parsedStart) + parseFloat(end.substr(2)) * (end.charAt(0) === "-" ? -1 : 1) + (getUnit(parsedStart) || 0);
-    }
-  }
-
-  if (parsedStart !== end) {
-    if (!isNaN(parsedStart + end)) {
-      pt = new PropTween(this._pt, target, prop, +parsedStart || 0, end - (parsedStart || 0), typeof currentValue === "boolean" ? _renderBoolean : _renderPlain, 0, setter);
-
-      if (funcParam) {
-        pt.fp = funcParam;
-      }
-
-      if (modifier) {
-        pt.modifier(modifier, this, target);
-      }
-
-      return this._pt = pt;
-    }
-
-    !currentValue && !(prop in target) && _missingPlugin(prop, end);
-    return _addComplexStringPropTween.call(this, target, prop, parsedStart, end, setter, stringFilter || _config.stringFilter, funcParam);
-  }
-},
-    //creates a copy of the vars object and processes any function-based values (putting the resulting values directly into the copy) as well as strings with "random()" in them. It does NOT process relative values.
-_processVars = function _processVars(vars, index, target, targets, tween) {
-  if (_isFunction(vars)) {
-    vars = _parseFuncOrString(vars, tween, index, target, targets);
-  }
-
-  if (!_isObject(vars) || vars.style && vars.nodeType || _isArray(vars)) {
-    return _isString(vars) ? _parseFuncOrString(vars, tween, index, target, targets) : vars;
-  }
-
-  var copy = {},
-      p;
-
-  for (p in vars) {
-    copy[p] = _parseFuncOrString(vars[p], tween, index, target, targets);
-  }
-
-  return copy;
-},
-    _checkPlugin = function _checkPlugin(property, vars, tween, index, target, targets) {
-  var plugin, pt, ptLookup, i;
-
-  if (_plugins[property] && (plugin = new _plugins[property]()).init(target, plugin.rawVars ? vars[property] : _processVars(vars[property], index, target, targets, tween), tween, index, targets) !== false) {
-    tween._pt = pt = new PropTween(tween._pt, target, property, 0, 1, plugin.render, plugin, 0, plugin.priority);
-
-    if (tween !== _quickTween) {
-      ptLookup = tween._ptLookup[tween._targets.indexOf(target)]; //note: we can't use tween._ptLookup[index] because for staggered tweens, the index from the fullTargets array won't match what it is in each individual tween that spawns from the stagger.
-
-      i = plugin._props.length;
-
-      while (i--) {
-        ptLookup[plugin._props[i]] = pt;
-      }
-    }
-  }
-
-  return plugin;
-},
-    _overwritingTween,
-    //store a reference temporarily so we can avoid overwriting itself.
-_initTween = function _initTween(tween, time) {
-  var vars = tween.vars,
-      ease = vars.ease,
-      startAt = vars.startAt,
-      immediateRender = vars.immediateRender,
-      lazy = vars.lazy,
-      onUpdate = vars.onUpdate,
-      onUpdateParams = vars.onUpdateParams,
-      callbackScope = vars.callbackScope,
-      runBackwards = vars.runBackwards,
-      yoyoEase = vars.yoyoEase,
-      keyframes = vars.keyframes,
-      autoRevert = vars.autoRevert,
-      dur = tween._dur,
-      prevStartAt = tween._startAt,
-      targets = tween._targets,
-      parent = tween.parent,
-      fullTargets = parent && parent.data === "nested" ? parent.parent._targets : targets,
-      autoOverwrite = tween._overwrite === "auto",
-      tl = tween.timeline,
-      cleanVars,
-      i,
-      p,
-      pt,
-      target,
-      hasPriority,
-      gsData,
-      harness,
-      plugin,
-      ptLookup,
-      index,
-      harnessVars;
-
-  if (tl && (!keyframes || !ease)) {
-    ease = "none";
-  }
-
-  tween._ease = _parseEase(ease, _defaults.ease);
-  tween._yEase = yoyoEase ? _invertEase(_parseEase(yoyoEase === true ? ease : yoyoEase, _defaults.ease)) : 0;
-
-  if (yoyoEase && tween._yoyo && !tween._repeat) {
-    //there must have been a parent timeline with yoyo:true that is currently in its yoyo phase, so flip the eases.
-    yoyoEase = tween._yEase;
-    tween._yEase = tween._ease;
-    tween._ease = yoyoEase;
-  }
-
-  if (!tl) {
-    //if there's an internal timeline, skip all the parsing because we passed that task down the chain.
-    if (prevStartAt) {
-      prevStartAt.render(-1, true).kill();
-    }
-
-    if (startAt) {
-      _removeFromParent(tween._startAt = Tween.set(targets, _setDefaults({
-        data: "isStart",
-        overwrite: false,
-        parent: parent,
-        immediateRender: true,
-        lazy: _isNotFalse(lazy),
-        startAt: null,
-        delay: 0,
-        onUpdate: onUpdate,
-        onUpdateParams: onUpdateParams,
-        callbackScope: callbackScope,
-        stagger: 0
-      }, startAt))); //copy the properties/values into a new object to avoid collisions, like var to = {x:0}, from = {x:500}; timeline.fromTo(e, from, to).fromTo(e, to, from);
-
-
-      if (immediateRender) {
-        if (time > 0) {
-          !autoRevert && (tween._startAt = 0); //tweens that render immediately (like most from() and fromTo() tweens) shouldn't revert when their parent timeline's playhead goes backward past the startTime because the initial render could have happened anytime and it shouldn't be directly correlated to this tween's startTime. Imagine setting up a complex animation where the beginning states of various objects are rendered immediately but the tween doesn't happen for quite some time - if we revert to the starting values as soon as the playhead goes backward past the tween's startTime, it will throw things off visually. Reversion should only happen in Timeline instances where immediateRender was false or when autoRevert is explicitly set to true.
-        } else if (dur) {
-          return; //we skip initialization here so that overwriting doesn't occur until the tween actually begins. Otherwise, if you create several immediateRender:true tweens of the same target/properties to drop into a Timeline, the last one created would overwrite the first ones because they didn't get placed into the timeline yet before the first render occurs and kicks in overwriting.
-        }
-      }
-    } else if (runBackwards && dur) {
-      //from() tweens must be handled uniquely: their beginning values must be rendered but we don't want overwriting to occur yet (when time is still 0). Wait until the tween actually begins before doing all the routines like overwriting. At that time, we should render at the END of the tween to ensure that things initialize correctly (remember, from() tweens go backwards)
-      if (prevStartAt) {
-        !autoRevert && (tween._startAt = 0);
-      } else {
-        if (time) {
-          //in rare cases (like if a from() tween runs and then is invalidate()-ed), immediateRender could be true but the initial forced-render gets skipped, so there's no need to force the render in this context when the _time is greater than 0
-          immediateRender = false;
-        }
-
-        _removeFromParent(tween._startAt = Tween.set(targets, _merge(_copyExcluding(vars, _reservedProps), {
-          overwrite: false,
-          data: "isFromStart",
-          //we tag the tween with as "isFromStart" so that if [inside a plugin] we need to only do something at the very END of a tween, we have a way of identifying this tween as merely the one that's setting the beginning values for a "from()" tween. For example, clearProps in CSSPlugin should only get applied at the very END of a tween and without this tag, from(...{height:100, clearProps:"height", delay:1}) would wipe the height at the beginning of the tween and after 1 second, it'd kick back in.
-          lazy: immediateRender && _isNotFalse(lazy),
-          immediateRender: immediateRender,
-          //zero-duration tweens render immediately by default, but if we're not specifically instructed to render this tween immediately, we should skip this and merely _init() to record the starting values (rendering them immediately would push them to completion which is wasteful in that case - we'd have to render(-1) immediately after)
-          stagger: 0,
-          parent: parent //ensures that nested tweens that had a stagger are handled properly, like gsap.from(".class", {y:gsap.utils.wrap([-100,100])})
-
-        })));
-
-        if (!immediateRender) {
-          _initTween(tween._startAt, _tinyNum); //ensures that the initial values are recorded
-
-        } else if (!time) {
-          return;
-        }
-      }
-    }
-
-    cleanVars = _copyExcluding(vars, _reservedProps);
-    tween._pt = 0;
-    harness = targets[0] ? _getCache(targets[0]).harness : 0;
-    harnessVars = harness && vars[harness.prop]; //someone may need to specify CSS-specific values AND non-CSS values, like if the element has an "x" property plus it's a standard DOM element. We allow people to distinguish by wrapping plugin-specific stuff in a css:{} object for example.
-
-    lazy = dur && _isNotFalse(lazy) || lazy && !dur;
-
-    for (i = 0; i < targets.length; i++) {
-      target = targets[i];
-      gsData = target._gsap || _harness(targets)[i]._gsap;
-      tween._ptLookup[i] = ptLookup = {};
-
-      if (_lazyLookup[gsData.id]) {
-        _lazyRender(); //if other tweens of the same target have recently initted but haven't rendered yet, we've got to force the render so that the starting values are correct (imagine populating a timeline with a bunch of sequential tweens and then jumping to the end)
-
-      }
-
-      index = fullTargets === targets ? i : fullTargets.indexOf(target);
-
-      if (harness && (plugin = new harness()).init(target, harnessVars || cleanVars, tween, index, fullTargets) !== false) {
-        tween._pt = pt = new PropTween(tween._pt, target, plugin.name, 0, 1, plugin.render, plugin, 0, plugin.priority);
-
-        plugin._props.forEach(function (name) {
-          ptLookup[name] = pt;
-        });
-
-        if (plugin.priority) {
-          hasPriority = 1;
-        }
-      }
-
-      if (!harness || harnessVars) {
-        for (p in cleanVars) {
-          if (_plugins[p] && (plugin = _checkPlugin(p, cleanVars, tween, index, target, fullTargets))) {
-            if (plugin.priority) {
-              hasPriority = 1;
-            }
-          } else {
-            ptLookup[p] = pt = _addPropTween.call(tween, target, p, "get", cleanVars[p], index, fullTargets, 0, vars.stringFilter);
-          }
-        }
-      }
-
-      if (tween._op && tween._op[i]) {
-        tween.kill(target, tween._op[i]);
-      }
-
-      if (autoOverwrite) {
-        _overwritingTween = tween;
-
-        _globalTimeline.killTweensOf(target, ptLookup, "started"); //Also make sure the overwriting doesn't overwrite THIS tween!!!
-
-
-        _overwritingTween = 0;
-      }
-
-      if (tween._pt && lazy) {
-        _lazyLookup[gsData.id] = 1;
-      }
-    }
-
-    if (hasPriority) {
-      _sortPropTweensByPriority(tween);
-    }
-
-    if (tween._onInit) {
-      //plugins like RoundProps must wait until ALL of the PropTweens are instantiated. In the plugin's init() function, it sets the _onInit on the tween instance. May not be pretty/intuitive, but it's fast and keeps file size down.
-      tween._onInit(tween);
-    }
-  }
-
-  tween._from = !tl && !!vars.runBackwards; //nested timelines should never run backwards - the backwards-ness is in the child tweens.
-
-  tween._onUpdate = onUpdate;
-  tween._initted = 1;
-},
-    _addAliasesToVars = function _addAliasesToVars(targets, vars) {
-  var harness = targets[0] ? _getCache(targets[0]).harness : 0,
-      propertyAliases = harness && harness.aliases,
-      copy,
-      p,
-      i,
-      aliases;
-
-  if (!propertyAliases) {
-    return vars;
-  }
-
-  copy = _merge({}, vars);
-
-  for (p in propertyAliases) {
-    if (p in copy) {
-      aliases = propertyAliases[p].split(",");
-      i = aliases.length;
-
-      while (i--) {
-        copy[aliases[i]] = copy[p];
-      }
-    }
-  }
-
-  return copy;
-},
-    _parseFuncOrString = function _parseFuncOrString(value, tween, i, target, targets) {
-  return _isFunction(value) ? value.call(tween, i, target, targets) : _isString(value) && ~value.indexOf("random(") ? _replaceRandom(value) : value;
-},
-    _staggerTweenProps = _callbackNames + ",repeat,repeatDelay,yoyo,repeatRefresh,yoyoEase",
-    _staggerPropsToSkip = (_staggerTweenProps + ",id,stagger,delay,duration,paused").split(",");
-/*
- * --------------------------------------------------------------------------------------
- * TWEEN
- * --------------------------------------------------------------------------------------
- */
-
-
-exports._checkPlugin = _checkPlugin;
-
-var Tween =
-/*#__PURE__*/
-function (_Animation2) {
-  _inheritsLoose(Tween, _Animation2);
-
-  function Tween(targets, vars, time) {
-    var _this4;
-
-    if (typeof vars === "number") {
-      time.duration = vars;
-      vars = time;
-      time = null;
-    }
-
-    _this4 = _Animation2.call(this, _inheritDefaults(vars), time) || this;
-    var _this4$vars = _this4.vars,
-        duration = _this4$vars.duration,
-        delay = _this4$vars.delay,
-        immediateRender = _this4$vars.immediateRender,
-        stagger = _this4$vars.stagger,
-        overwrite = _this4$vars.overwrite,
-        keyframes = _this4$vars.keyframes,
-        defaults = _this4$vars.defaults,
-        parsedTargets = _isArray(targets) && _isNumber(targets[0]) ? [targets] : toArray(targets),
-        tl,
-        i,
-        copy,
-        l,
-        p,
-        curTarget,
-        staggerFunc,
-        staggerVarsToMerge;
-    _this4._targets = parsedTargets.length ? _harness(parsedTargets) : _warn("GSAP target " + targets + " not found. https://greensock.com", !_config.nullTargetWarn) || [];
-    _this4._ptLookup = []; //PropTween lookup. An array containing an object for each target, having keys for each tweening property
-
-    _this4._overwrite = overwrite;
-
-    if (keyframes || stagger || _isFuncOrString(duration) || _isFuncOrString(delay)) {
-      vars = _this4.vars;
-      tl = _this4.timeline = new Timeline({
-        data: "nested",
-        defaults: defaults || {}
-      });
-      tl.kill();
-      tl.parent = _assertThisInitialized(_this4);
-
-      if (keyframes) {
-        _setDefaults(tl.vars.defaults, {
-          ease: "none"
-        });
-
-        keyframes.forEach(function (frame) {
-          return tl.to(parsedTargets, frame, ">");
-        });
-      } else {
-        l = parsedTargets.length;
-        staggerFunc = stagger ? distribute(stagger) : _emptyFunc;
-
-        if (_isObject(stagger)) {
-          //users can pass in callbacks like onStart/onComplete in the stagger object. These should fire with each individual tween.
-          for (p in stagger) {
-            if (~_staggerTweenProps.indexOf(p)) {
-              if (!staggerVarsToMerge) {
-                staggerVarsToMerge = {};
-              }
-
-              staggerVarsToMerge[p] = stagger[p];
-            }
-          }
-        }
-
-        for (i = 0; i < l; i++) {
-          copy = {};
-
-          for (p in vars) {
-            if (_staggerPropsToSkip.indexOf(p) < 0) {
-              copy[p] = vars[p];
-            }
-          }
-
-          copy.stagger = 0;
-
-          if (staggerVarsToMerge) {
-            _merge(copy, staggerVarsToMerge);
-          }
-
-          if (vars.yoyoEase && !vars.repeat) {
-            //so that propagation works properly when a ancestor timeline yoyos
-            copy.yoyoEase = vars.yoyoEase;
-          }
-
-          curTarget = parsedTargets[i]; //don't just copy duration or delay because if they're a string or function, we'd end up in an infinite loop because _isFuncOrString() would evaluate as true in the child tweens, entering this loop, etc. So we parse the value straight from vars and default to 0.
-
-          copy.duration = +_parseFuncOrString(duration, _assertThisInitialized(_this4), i, curTarget, parsedTargets);
-          copy.delay = (+_parseFuncOrString(delay, _assertThisInitialized(_this4), i, curTarget, parsedTargets) || 0) - _this4._delay;
-
-          if (!stagger && l === 1 && copy.delay) {
-            // if someone does delay:"random(1, 5)", repeat:-1, for example, the delay shouldn't be inside the repeat.
-            _this4._delay = delay = copy.delay;
-            _this4._start += delay;
-            copy.delay = 0;
-          }
-
-          tl.to(curTarget, copy, staggerFunc(i, curTarget, parsedTargets));
-        }
-
-        duration = delay = 0;
-      }
-
-      duration || _this4.duration(duration = tl.duration());
-    } else {
-      _this4.timeline = 0; //speed optimization, faster lookups (no going up the prototype chain)
-    }
-
-    if (overwrite === true) {
-      _overwritingTween = _assertThisInitialized(_this4);
-
-      _globalTimeline.killTweensOf(parsedTargets);
-
-      _overwritingTween = 0;
-    }
-
-    if (immediateRender || !duration && !keyframes && _this4._start === _this4.parent._time && _isNotFalse(immediateRender) && _hasNoPausedAncestors(_assertThisInitialized(_this4)) && _this4.parent.data !== "nested") {
-      _this4._tTime = -_tinyNum; //forces a render without having to set the render() "force" parameter to true because we want to allow lazying by default (using the "force" parameter always forces an immediate full render)
-
-      _this4.render(Math.max(0, -delay)); //in case delay is negative
-
-    }
-
-    return _this4;
-  }
-
-  var _proto3 = Tween.prototype;
-
-  _proto3.render = function render(totalTime, suppressEvents, force) {
-    var prevTime = this._time,
-        tDur = this._tDur,
-        dur = this._dur,
-        tTime = totalTime > tDur - _tinyNum && totalTime >= 0 ? tDur : totalTime < _tinyNum ? 0 : totalTime,
-        time,
-        pt,
-        iteration,
-        cycleDuration,
-        prevIteration,
-        isYoyo,
-        ratio,
-        timeline,
-        yoyoEase;
-
-    if (!dur) {
-      _renderZeroDurationTween(this, totalTime, suppressEvents, force);
-    } else if (tTime !== this._tTime || !totalTime || force || this._startAt && this._zTime < 0 !== totalTime < 0) {
-      //this senses if we're crossing over the start time, in which case we must record _zTime and force the render, but we do it in this lengthy conditional way for performance reasons (usually we can skip the calculations): this._initted && (this._zTime < 0) !== (totalTime < 0)
-      time = tTime;
-      timeline = this.timeline;
-
-      if (this._repeat) {
-        //adjust the time for repeats and yoyos
-        cycleDuration = dur + this._rDelay;
-        time = _round(tTime % cycleDuration); //round to avoid floating point errors. (4 % 0.8 should be 0 but some browsers report it as 0.79999999!)
-
-        if (time > dur) {
-          time = dur;
-        }
-
-        iteration = ~~(tTime / cycleDuration);
-
-        if (iteration && iteration === tTime / cycleDuration) {
-          time = dur;
-          iteration--;
-        }
-
-        isYoyo = this._yoyo && iteration & 1;
-
-        if (isYoyo) {
-          yoyoEase = this._yEase;
-          time = dur - time;
-        }
-
-        prevIteration = ~~(this._tTime / cycleDuration);
-
-        if (prevIteration && prevIteration === this._tTime / cycleDuration) {
-          prevIteration--;
-        }
-
-        if (time === prevTime && !force && this._initted) {
-          //could be during the repeatDelay part. No need to render and fire callbacks.
-          return this;
-        }
-
-        if (iteration !== prevIteration) {
-          //timeline && this._yEase && _propagateYoyoEase(timeline, isYoyo);
-          //repeatRefresh functionality
-          if (this.vars.repeatRefresh && !this._lock) {
-            this._lock = force = 1; //force, otherwise if lazy is true, the _attemptInitTween() will return and we'll jump out and get caught bouncing on each tick.
-
-            this.render(cycleDuration * iteration, true).invalidate()._lock = 0;
-          }
-        }
-      }
-
-      if (!this._initted && _attemptInitTween(this, time, force, suppressEvents)) {
-        return this;
-      }
-
-      this._tTime = tTime;
-      this._time = time;
-
-      if (!this._act && this._ts) {
-        this._act = 1; //as long as it's not paused, force it to be active so that if the user renders independent of the parent timeline, it'll be forced to re-render on the next tick.
-
-        this._lazy = 0;
-      }
-
-      this.ratio = ratio = (yoyoEase || this._ease)(time / dur);
-
-      if (this._from) {
-        this.ratio = ratio = 1 - ratio;
-      }
-
-      if (!prevTime && time && !suppressEvents) {
-        _callback(this, "onStart");
-      }
-
-      pt = this._pt;
-
-      while (pt) {
-        pt.r(ratio, pt.d);
-        pt = pt._next;
-      }
-
-      timeline && timeline.render(totalTime < 0 ? totalTime : !time && isYoyo ? -_tinyNum : timeline._dur * ratio, suppressEvents, force) || this._startAt && (this._zTime = totalTime);
-
-      if (this._onUpdate && !suppressEvents) {
-        if (totalTime < 0 && this._startAt) {
-          this._startAt.render(totalTime, true, force); //note: for performance reasons, we tuck this conditional logic inside less traveled areas (most tweens don't have an onUpdate). We'd just have it at the end before the onComplete, but the values should be updated before any onUpdate is called, so we ALSO put it here and then if it's not called, we do so later near the onComplete.
-
-        }
-
-        _callback(this, "onUpdate");
-      }
-
-      if (this._repeat) if (iteration !== prevIteration && this.vars.onRepeat && !suppressEvents && this.parent) {
-        _callback(this, "onRepeat");
-      }
-
-      if ((tTime === tDur || !tTime) && this._tTime === tTime) {
-        if (totalTime < 0 && this._startAt && !this._onUpdate) {
-          this._startAt.render(totalTime, true, force);
-        }
-
-        (totalTime || !dur) && (tTime || this._ts < 0) && _removeFromParent(this, 1); // don't remove if we're rendering at exactly a time of 0, as there could be autoRevert values that should get set on the next tick (if the playhead goes backward beyond the startTime, negative totalTime).
-
-        if (!suppressEvents && !(totalTime < 0 && !prevTime)) {
-          _callback(this, tTime === tDur ? "onComplete" : "onReverseComplete", true);
-
-          this._prom && this._prom();
-        }
-      }
-    }
-
-    return this;
-  };
-
-  _proto3.targets = function targets() {
-    return this._targets;
-  };
-
-  _proto3.invalidate = function invalidate() {
-    this._pt = this._op = this._startAt = this._onUpdate = this._act = this._lazy = 0;
-    this._ptLookup = [];
-
-    if (this.timeline) {
-      this.timeline.invalidate();
-    }
-
-    return _Animation2.prototype.invalidate.call(this);
-  };
-
-  _proto3.kill = function kill(targets, vars) {
-    if (vars === void 0) {
-      vars = "all";
-    }
-
-    if (!targets && (!vars || vars === "all")) {
-      this._lazy = 0;
-
-      if (this.parent) {
-        return _interrupt(this);
-      }
-    }
-
-    if (this.timeline) {
-      this.timeline.killTweensOf(targets, vars, !!_overwritingTween);
-      return this;
-    }
-
-    var parsedTargets = this._targets,
-        killingTargets = targets ? toArray(targets) : parsedTargets,
-        propTweenLookup = this._ptLookup,
-        firstPT = this._pt,
-        overwrittenProps,
-        curLookup,
-        curOverwriteProps,
-        props,
-        p,
-        pt,
-        i;
-
-    if ((!vars || vars === "all") && _arraysMatch(parsedTargets, killingTargets)) {
-      return _interrupt(this);
-    }
-
-    overwrittenProps = this._op = this._op || [];
-
-    if (vars !== "all") {
-      //so people can pass in a comma-delimited list of property names
-      if (_isString(vars)) {
-        p = {};
-
-        _forEachName(vars, function (name) {
-          return p[name] = 1;
-        });
-
-        vars = p;
-      }
-
-      vars = _addAliasesToVars(parsedTargets, vars);
-    }
-
-    i = parsedTargets.length;
-
-    while (i--) {
-      if (~killingTargets.indexOf(parsedTargets[i])) {
-        curLookup = propTweenLookup[i];
-
-        if (vars === "all") {
-          overwrittenProps[i] = vars;
-          props = curLookup;
-          curOverwriteProps = {};
-        } else {
-          curOverwriteProps = overwrittenProps[i] = overwrittenProps[i] || {};
-          props = vars;
-        }
-
-        for (p in props) {
-          pt = curLookup && curLookup[p];
-
-          if (pt) {
-            if (!("kill" in pt.d) || pt.d.kill(p) === true) {
-              _removeLinkedListItem(this, pt, "_pt");
-
-              delete curLookup[p];
-            }
-          }
-
-          if (curOverwriteProps !== "all") {
-            curOverwriteProps[p] = 1;
-          }
-        }
-      }
-    }
-
-    if (this._initted && !this._pt && firstPT) {
-      //if all tweening properties are killed, kill the tween. Without this line, if there's a tween with multiple targets and then you killTweensOf() each target individually, the tween would technically still remain active and fire its onComplete even though there aren't any more properties tweening.
-      _interrupt(this);
-    }
-
-    return this;
-  };
-
-  Tween.to = function to(targets, vars) {
-    return new Tween(targets, vars, arguments[2]);
-  };
-
-  Tween.from = function from(targets, vars) {
-    return new Tween(targets, _parseVars(arguments, 1));
-  };
-
-  Tween.delayedCall = function delayedCall(delay, callback, params, scope) {
-    return new Tween(callback, 0, {
-      immediateRender: false,
-      lazy: false,
-      overwrite: false,
-      delay: delay,
-      onComplete: callback,
-      onReverseComplete: callback,
-      onCompleteParams: params,
-      onReverseCompleteParams: params,
-      callbackScope: scope
-    });
-  };
-
-  Tween.fromTo = function fromTo(targets, fromVars, toVars) {
-    return new Tween(targets, _parseVars(arguments, 2));
-  };
-
-  Tween.set = function set(targets, vars) {
-    vars.duration = 0;
-
-    if (!vars.repeatDelay) {
-      vars.repeat = 0;
-    }
-
-    return new Tween(targets, vars);
-  };
-
-  Tween.killTweensOf = function killTweensOf(targets, props, onlyActive) {
-    return _globalTimeline.killTweensOf(targets, props, onlyActive);
-  };
-
-  return Tween;
-}(Animation);
-
-exports.TweenLite = exports.TweenMax = exports.Tween = Tween;
-
-_setDefaults(Tween.prototype, {
-  _targets: [],
-  _lazy: 0,
-  _startAt: 0,
-  _op: 0,
-  _onInit: 0
-}); //add the pertinent timeline methods to Tween instances so that users can chain conveniently and create a timeline automatically. (removed due to concerns that it'd ultimately add to more confusion especially for beginners)
-// _forEachName("to,from,fromTo,set,call,add,addLabel,addPause", name => {
-// 	Tween.prototype[name] = function() {
-// 		let tl = new Timeline();
-// 		return _addToTimeline(tl, this)[name].apply(tl, toArray(arguments));
-// 	}
-// });
-//for backward compatibility. Leverage the timeline calls.
-
-
-_forEachName("staggerTo,staggerFrom,staggerFromTo", function (name) {
-  Tween[name] = function () {
-    var tl = new Timeline(),
-        params = toArray(arguments);
-    params.splice(name === "staggerFromTo" ? 5 : 4, 0, 0);
-    return tl[name].apply(tl, params);
-  };
-});
-/*
- * --------------------------------------------------------------------------------------
- * PROPTWEEN
- * --------------------------------------------------------------------------------------
- */
-
-
-var _setterPlain = function _setterPlain(target, property, value) {
-  return target[property] = value;
-},
-    _setterFunc = function _setterFunc(target, property, value) {
-  return target[property](value);
-},
-    _setterFuncWithParam = function _setterFuncWithParam(target, property, value, data) {
-  return target[property](data.fp, value);
-},
-    _setterAttribute = function _setterAttribute(target, property, value) {
-  return target.setAttribute(property, value);
-},
-    _getSetter = function _getSetter(target, property) {
-  return _isFunction(target[property]) ? _setterFunc : _isUndefined(target[property]) && target.setAttribute ? _setterAttribute : _setterPlain;
-},
-    _renderPlain = function _renderPlain(ratio, data) {
-  return data.set(data.t, data.p, Math.round((data.s + data.c * ratio) * 10000) / 10000, data);
-},
-    _renderBoolean = function _renderBoolean(ratio, data) {
-  return data.set(data.t, data.p, !!(data.s + data.c * ratio), data);
-},
-    _renderComplexString = function _renderComplexString(ratio, data) {
-  var pt = data._pt,
-      s = "";
-
-  if (!ratio && data.b) {
-    //b = beginning string
-    s = data.b;
-  } else if (ratio === 1 && data.e) {
-    //e = ending string
-    s = data.e;
-  } else {
-    while (pt) {
-      s = pt.p + (pt.m ? pt.m(pt.s + pt.c * ratio) : Math.round((pt.s + pt.c * ratio) * 10000) / 10000) + s; //we use the "p" property for the text inbetween (like a suffix). And in the context of a complex string, the modifier (m) is typically just Math.round(), like for RGB colors.
-
-      pt = pt._next;
-    }
-
-    s += data.c; //we use the "c" of the PropTween to store the final chunk of non-numeric text.
-  }
-
-  data.set(data.t, data.p, s, data);
-},
-    _renderPropTweens = function _renderPropTweens(ratio, data) {
-  var pt = data._pt;
-
-  while (pt) {
-    pt.r(ratio, pt.d);
-    pt = pt._next;
-  }
-},
-    _addPluginModifier = function _addPluginModifier(modifier, tween, target, property) {
-  var pt = this._pt,
-      next;
-
-  while (pt) {
-    next = pt._next;
-
-    if (pt.p === property) {
-      pt.modifier(modifier, tween, target);
-    }
-
-    pt = next;
-  }
-},
-    _killPropTweensOf = function _killPropTweensOf(property) {
-  var pt = this._pt,
-      hasNonDependentRemaining,
-      next;
-
-  while (pt) {
-    next = pt._next;
-
-    if (pt.p === property && !pt.op || pt.op === property) {
-      _removeLinkedListItem(this, pt, "_pt");
-    } else if (!pt.dep) {
-      hasNonDependentRemaining = 1;
-    }
-
-    pt = next;
-  }
-
-  return !hasNonDependentRemaining;
-},
-    _setterWithModifier = function _setterWithModifier(target, property, value, data) {
-  data.mSet(target, property, data.m.call(data.tween, value, data.mt), data);
-},
-    _sortPropTweensByPriority = function _sortPropTweensByPriority(parent) {
-  var pt = parent._pt,
-      next,
-      pt2,
-      first,
-      last; //sorts the PropTween linked list in order of priority because some plugins need to do their work after ALL of the PropTweens were created (like RoundPropsPlugin and ModifiersPlugin)
-
-  while (pt) {
-    next = pt._next;
-    pt2 = first;
-
-    while (pt2 && pt2.pr > pt.pr) {
-      pt2 = pt2._next;
-    }
-
-    if (pt._prev = pt2 ? pt2._prev : last) {
-      pt._prev._next = pt;
-    } else {
-      first = pt;
-    }
-
-    if (pt._next = pt2) {
-      pt2._prev = pt;
-    } else {
-      last = pt;
-    }
-
-    pt = next;
-  }
-
-  parent._pt = first;
-}; //PropTween key: t = target, p = prop, r = renderer, d = data, s = start, c = change, op = overwriteProperty (ONLY populated when it's different than p), pr = priority, _next/_prev for the linked list siblings, set = setter, m = modifier, mSet = modifierSetter (the original setter, before a modifier was added)
-
-
-exports._sortPropTweensByPriority = _sortPropTweensByPriority;
-exports._renderComplexString = _renderComplexString;
-exports._getSetter = _getSetter;
-
-var PropTween =
-/*#__PURE__*/
-function () {
-  function PropTween(next, target, prop, start, change, renderer, data, setter, priority) {
-    this.t = target;
-    this.s = start;
-    this.c = change;
-    this.p = prop;
-    this.r = renderer || _renderPlain;
-    this.d = data || this;
-    this.set = setter || _setterPlain;
-    this.pr = priority || 0;
-    this._next = next;
-
-    if (next) {
-      next._prev = this;
-    }
-  }
-
-  var _proto4 = PropTween.prototype;
-
-  _proto4.modifier = function modifier(func, tween, target) {
-    this.mSet = this.mSet || this.set; //in case it was already set (a PropTween can only have one modifier)
-
-    this.set = _setterWithModifier;
-    this.m = func;
-    this.mt = target; //modifier target
-
-    this.tween = tween;
-  };
-
-  return PropTween;
-}(); //Initialization tasks
-
-
-exports.PropTween = PropTween;
-
-_forEachName(_callbackNames + ",parent,duration,ease,delay,overwrite,runBackwards,startAt,yoyo,immediateRender,repeat,repeatDelay,data,paused,reversed,lazy,callbackScope,stringFilter,id,yoyoEase,stagger,inherit,repeatRefresh,keyframes,autoRevert", function (name) {
-  _reservedProps[name] = 1;
-  if (name.substr(0, 2) === "on") _reservedProps[name + "Params"] = 1;
-});
-
-_globals.TweenMax = _globals.TweenLite = Tween;
-_globals.TimelineLite = _globals.TimelineMax = Timeline;
-_globalTimeline = new Timeline({
-  sortChildren: false,
-  defaults: _defaults,
-  autoRemoveChildren: true,
-  id: "root"
-});
-_config.stringFilter = _colorStringFilter;
-/*
- * --------------------------------------------------------------------------------------
- * GSAP
- * --------------------------------------------------------------------------------------
- */
-
-var _gsap = {
-  registerPlugin: function registerPlugin() {
-    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    args.forEach(function (config) {
-      return _createPlugin(config);
-    });
-  },
-  timeline: function timeline(vars) {
-    return new Timeline(vars);
-  },
-  getTweensOf: function getTweensOf(targets, onlyActive) {
-    return _globalTimeline.getTweensOf(targets, onlyActive);
-  },
-  getProperty: function getProperty(target, property, unit, uncache) {
-    if (_isString(target)) {
-      //in case selector text or an array is passed in
-      target = toArray(target)[0];
-    }
-
-    var getter = _getCache(target || {}).get,
-        format = unit ? _passThrough : _numericIfPossible;
-
-    if (unit === "native") {
-      unit = "";
-    }
-
-    return !target ? target : !property ? function (property, unit, uncache) {
-      return format((_plugins[property] && _plugins[property].get || getter)(target, property, unit, uncache));
-    } : format((_plugins[property] && _plugins[property].get || getter)(target, property, unit, uncache));
-  },
-  quickSetter: function quickSetter(target, property, unit) {
-    target = toArray(target);
-
-    if (target.length > 1) {
-      var setters = target.map(function (t) {
-        return gsap.quickSetter(t, property, unit);
-      }),
-          l = setters.length;
-      return function (value) {
-        var i = l;
-
-        while (i--) {
-          setters[i](value);
-        }
-      };
-    }
-
-    target = target[0] || {};
-
-    var Plugin = _plugins[property],
-        cache = _getCache(target),
-        setter = Plugin ? function (value) {
-      var p = new Plugin();
-      _quickTween._pt = 0;
-      p.init(target, unit ? value + unit : value, _quickTween, 0, [target]);
-      p.render(1, p);
-      _quickTween._pt && _renderPropTweens(1, _quickTween);
-    } : cache.set(target, property);
-
-    return Plugin ? setter : function (value) {
-      return setter(target, property, unit ? value + unit : value, cache, 1);
-    };
-  },
-  isTweening: function isTweening(targets) {
-    return _globalTimeline.getTweensOf(targets, true).length > 0;
-  },
-  defaults: function defaults(value) {
-    if (value && value.ease) {
-      value.ease = _parseEase(value.ease, _defaults.ease);
-    }
-
-    return _mergeDeep(_defaults, value || {});
-  },
-  config: function config(value) {
-    return _mergeDeep(_config, value || {});
-  },
-  registerEffect: function registerEffect(_ref) {
-    var name = _ref.name,
-        effect = _ref.effect,
-        plugins = _ref.plugins,
-        defaults = _ref.defaults,
-        extendTimeline = _ref.extendTimeline;
-    (plugins || "").split(",").forEach(function (pluginName) {
-      return pluginName && !_plugins[pluginName] && !_globals[pluginName] && _warn(name + " effect requires " + pluginName + " plugin.");
-    });
-
-    _effects[name] = function (targets, vars) {
-      return effect(toArray(targets), _setDefaults(vars || {}, defaults));
-    };
-
-    if (extendTimeline) {
-      Timeline.prototype[name] = function (targets, vars, position) {
-        return this.add(_effects[name](targets, _isObject(vars) ? vars : (position = vars) && {}), position);
-      };
-    }
-  },
-  registerEase: function registerEase(name, ease) {
-    _easeMap[name] = _parseEase(ease);
-  },
-  parseEase: function parseEase(ease, defaultEase) {
-    return arguments.length ? _parseEase(ease, defaultEase) : _easeMap;
-  },
-  getById: function getById(id) {
-    return _globalTimeline.getById(id);
-  },
-  exportRoot: function exportRoot(vars, includeDelayedCalls) {
-    if (vars === void 0) {
-      vars = {};
-    }
-
-    var tl = new Timeline(vars),
-        child,
-        next;
-    tl.smoothChildTiming = _isNotFalse(vars.smoothChildTiming);
-
-    _globalTimeline.remove(tl);
-
-    tl._dp = 0; //otherwise it'll get re-activated when adding children and be re-introduced into _globalTimeline's linked list (then added to itself).
-
-    tl._time = tl._tTime = _globalTimeline._time;
-    child = _globalTimeline._first;
-
-    while (child) {
-      next = child._next;
-
-      if (includeDelayedCalls || !(!child._dur && child instanceof Tween && child.vars.onComplete === child._targets[0])) {
-        _addToTimeline(tl, child, child._start - child._delay);
-      }
-
-      child = next;
-    }
-
-    _addToTimeline(_globalTimeline, tl, 0);
-
-    return tl;
-  },
-  utils: {
-    wrap: wrap,
-    wrapYoyo: wrapYoyo,
-    distribute: distribute,
-    random: random,
-    snap: snap,
-    normalize: normalize,
-    getUnit: getUnit,
-    clamp: clamp,
-    splitColor: splitColor,
-    toArray: toArray,
-    mapRange: mapRange,
-    pipe: pipe,
-    unitize: unitize,
-    interpolate: interpolate
-  },
-  install: _install,
-  effects: _effects,
-  ticker: _ticker,
-  updateRoot: Timeline.updateRoot,
-  plugins: _plugins,
-  globalTimeline: _globalTimeline,
-  core: {
-    PropTween: PropTween,
-    globals: _addGlobal,
-    Tween: Tween,
-    Timeline: Timeline,
-    Animation: Animation,
-    getCache: _getCache
-  }
-};
-
-_forEachName("to,from,fromTo,delayedCall,set,killTweensOf", function (name) {
-  return _gsap[name] = Tween[name];
-});
-
-_ticker.add(Timeline.updateRoot);
-
-_quickTween = _gsap.to({}, {
-  duration: 0
-}); // ---- EXTRA PLUGINS --------------------------------------------------------
-
-var _getPluginPropTween = function _getPluginPropTween(plugin, prop) {
-  var pt = plugin._pt;
-
-  while (pt && pt.p !== prop && pt.op !== prop && pt.fp !== prop) {
-    pt = pt._next;
-  }
-
-  return pt;
-},
-    _addModifiers = function _addModifiers(tween, modifiers) {
-  var targets = tween._targets,
-      p,
-      i,
-      pt;
-
-  for (p in modifiers) {
-    i = targets.length;
-
-    while (i--) {
-      pt = tween._ptLookup[i][p];
-
-      if (pt && (pt = pt.d)) {
-        if (pt._pt) {
-          // is a plugin
-          pt = _getPluginPropTween(pt, p);
-        }
-
-        pt && pt.modifier && pt.modifier(modifiers[p], tween, targets[i], p);
-      }
-    }
-  }
-},
-    _buildModifierPlugin = function _buildModifierPlugin(name, modifier) {
-  return {
-    name: name,
-    rawVars: 1,
-    //don't pre-process function-based values or "random()" strings.
-    init: function init(target, vars, tween) {
-      tween._onInit = function (tween) {
-        var temp, p;
-
-        if (_isString(vars)) {
-          temp = {};
-
-          _forEachName(vars, function (name) {
-            return temp[name] = 1;
-          }); //if the user passes in a comma-delimited list of property names to roundProps, like "x,y", we round to whole numbers.
-
-
-          vars = temp;
-        }
-
-        if (modifier) {
-          temp = {};
-
-          for (p in vars) {
-            temp[p] = modifier(vars[p]);
-          }
-
-          vars = temp;
-        }
-
-        _addModifiers(tween, vars);
-      };
-    }
-  };
-}; //register core plugins
-
-
-var gsap = _gsap.registerPlugin({
-  name: "attr",
-  init: function init(target, vars, tween, index, targets) {
-    for (var p in vars) {
-      this.add(target, "setAttribute", (target.getAttribute(p) || 0) + "", vars[p], index, targets, 0, 0, p); //this.add(target, "setAttribute", (target.getAttribute((p in target.dataset ? (p = "data-" + p) : p)) || 0) + "", vars[p], index, targets, 0, 0, p);
-
-      this._props.push(p);
-    }
-  }
-}, {
-  name: "endArray",
-  init: function init(target, value) {
-    var i = value.length;
-
-    while (i--) {
-      this.add(target, i, target[i] || 0, value[i]);
-    }
-  }
-}, _buildModifierPlugin("roundProps", _roundModifier), _buildModifierPlugin("modifiers"), _buildModifierPlugin("snap", snap)) || _gsap; //to prevent the core plugins from being dropped via aggressive tree shaking, we must include them in the variable declaration in this way.
-
-
-exports.default = exports.gsap = gsap;
-Tween.version = Timeline.version = gsap.version = "3.0.2";
-_coreReady = 1;
-
-if (_windowExists()) {
-  _wake();
-}
-
-var Power0 = _easeMap.Power0,
-    Power1 = _easeMap.Power1,
-    Power2 = _easeMap.Power2,
-    Power3 = _easeMap.Power3,
-    Power4 = _easeMap.Power4,
-    Linear = _easeMap.Linear,
-    Quad = _easeMap.Quad,
-    Cubic = _easeMap.Cubic,
-    Quart = _easeMap.Quart,
-    Quint = _easeMap.Quint,
-    Strong = _easeMap.Strong,
-    Elastic = _easeMap.Elastic,
-    Back = _easeMap.Back,
-    SteppedEase = _easeMap.SteppedEase,
-    Bounce = _easeMap.Bounce,
-    Sine = _easeMap.Sine,
-    Expo = _easeMap.Expo,
-    Circ = _easeMap.Circ;
-exports.Circ = Circ;
-exports.Expo = Expo;
-exports.Sine = Sine;
-exports.Bounce = Bounce;
-exports.SteppedEase = SteppedEase;
-exports.Back = Back;
-exports.Elastic = Elastic;
-exports.Strong = Strong;
-exports.Quint = Quint;
-exports.Quart = Quart;
-exports.Cubic = Cubic;
-exports.Quad = Quad;
-exports.Linear = Linear;
-exports.Power4 = Power4;
-exports.Power3 = Power3;
-exports.Power2 = Power2;
-exports.Power1 = Power1;
-exports.Power0 = Power0;
-},{}],"node_modules/gsap/CSSPlugin.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.checkPrefix = exports._createElement = exports._getBBox = exports.default = exports.CSSPlugin = void 0;
-
-var _gsapCore = require("./gsap-core.js");
-
-/*!
- * CSSPlugin 3.0.2
- * https://greensock.com
- *
- * Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-var _win,
-    _doc,
-    _docElement,
-    _pluginInitted,
-    _tempDiv,
-    _tempDivStyler,
-    _recentSetterPlugin,
-    _windowExists = function _windowExists() {
-  return typeof window !== "undefined";
-},
-    _transformProps = {},
-    _RAD2DEG = 180 / Math.PI,
-    _DEG2RAD = Math.PI / 180,
-    _atan2 = Math.atan2,
-    _bigNum = 1e8,
-    _capsExp = /([A-Z])/g,
-    _numWithUnitExp = /[-+=\.]*\d+[\.e-]*\d*[a-z%]*/g,
-    _horizontalExp = /(?:left|right|width|margin|padding|x)/i,
-    _complexExp = /[\s,\(]\S/,
-    _propertyAliases = {
-  autoAlpha: "opacity,visibility",
-  scale: "scaleX,scaleY",
-  alpha: "opacity"
-},
-    _renderCSSProp = function _renderCSSProp(ratio, data) {
-  return data.set(data.t, data.p, ~~((data.s + data.c * ratio) * 1000) / 1000 + data.u, data);
-},
-    _renderPropWithEnd = function _renderPropWithEnd(ratio, data) {
-  return data.set(data.t, data.p, ratio === 1 ? data.e : ~~((data.s + data.c * ratio) * 1000) / 1000 + data.u, data);
-},
-    _renderCSSPropWithBeginning = function _renderCSSPropWithBeginning(ratio, data) {
-  return data.set(data.t, data.p, ratio ? ~~((data.s + data.c * ratio) * 1000) / 1000 + data.u : data.b, data);
-},
-    //if units change, we need a way to render the original unit/value when the tween goes all the way back to the beginning (ratio:0)
-_renderRoundedCSSProp = function _renderRoundedCSSProp(ratio, data) {
-  var value = data.s + data.c * ratio;
-  data.set(data.t, data.p, ~~(value + (value < 0 ? -.5 : .5)) + data.u, data);
-},
-    _renderNonTweeningValue = function _renderNonTweeningValue(ratio, data) {
-  return data.set(data.t, data.p, ratio ? data.e : data.b, data);
-},
-    _renderNonTweeningValueOnlyAtEnd = function _renderNonTweeningValueOnlyAtEnd(ratio, data) {
-  return data.set(data.t, data.p, ratio !== 1 ? data.b : data.e, data);
-},
-    _setterCSSStyle = function _setterCSSStyle(target, property, value) {
-  return target.style[property] = value;
-},
-    _setterCSSProp = function _setterCSSProp(target, property, value) {
-  return target.style.setProperty(property, value);
-},
-    _setterTransform = function _setterTransform(target, property, value) {
-  return target._gsap[property] = value;
-},
-    _setterScale = function _setterScale(target, property, value) {
-  return target._gsap.scaleX = target._gsap.scaleY = value;
-},
-    _setterScaleWithRender = function _setterScaleWithRender(target, property, value, data, ratio) {
-  var cache = target._gsap;
-  cache.scaleX = cache.scaleY = value;
-  cache.renderTransform(ratio, cache);
-},
-    _setterTransformWithRender = function _setterTransformWithRender(target, property, value, data, ratio) {
-  var cache = target._gsap;
-  cache[property] = value;
-  cache.renderTransform(ratio, cache);
-},
-    _transformProp = "transform",
-    _transformOriginProp = _transformProp + "Origin",
-    _supports3D,
-    _createElement = function _createElement(type, ns) {
-  var e = _doc.createElementNS ? _doc.createElementNS((ns || "http://www.w3.org/1999/xhtml").replace(/^https/, "http"), type) : _doc.createElement(type); //some servers swap in https for http in the namespace which can break things, making "style" inaccessible.
-
-  return e.style ? e : _doc.createElement(type); //some environments won't allow access to the element's style when created with a namespace in which case we default to the standard createElement() to work around the issue. Also note that when GSAP is embedded directly inside an SVG file, createElement() won't allow access to the style object in Firefox (see https://greensock.com/forums/topic/20215-problem-using-tweenmax-in-standalone-self-containing-svg-file-err-cannot-set-property-csstext-of-undefined/).
-},
-    _getComputedProperty = function _getComputedProperty(target, property, skipPrefixFallback) {
-  var cs = getComputedStyle(target);
-  return cs[property] || cs.getPropertyValue(property.replace(_capsExp, "-$1").toLowerCase()) || cs.getPropertyValue(property) || !skipPrefixFallback && _getComputedProperty(target, _checkPropPrefix(property) || property, 1) || ""; //css variables may not need caps swapped out for dashes and lowercase.
-},
-    _prefixes = "O,Moz,ms,Ms,Webkit".split(","),
-    _checkPropPrefix = function _checkPropPrefix(property, element) {
-  var e = element || _tempDiv,
-      s = e.style,
-      i = 5;
-
-  if (property in s) {
-    return property;
-  }
-
-  property = property.charAt(0).toUpperCase() + property.substr(1);
-
-  while (i-- && !(_prefixes[i] + property in s)) {}
-
-  return i < 0 ? null : (i === 3 ? "ms" : i >= 0 ? _prefixes[i] : "") + property;
-},
-    _initCore = function _initCore() {
-  if (_windowExists()) {
-    _win = window;
-    _doc = _win.document;
-    _docElement = _doc.documentElement;
-    _tempDiv = _createElement("div") || {
-      style: {}
-    };
-    _tempDivStyler = _createElement("div");
-    _transformProp = _checkPropPrefix(_transformProp);
-    _transformOriginProp = _checkPropPrefix(_transformOriginProp);
-    _tempDiv.style.cssText = "border-width:0;line-height:0;position:absolute;padding:0"; //make sure to override certain properties that may contaminate measurements, in case the user has overreaching style sheets.
-
-    _supports3D = !!_checkPropPrefix("perspective");
-    _pluginInitted = 1;
-  }
-},
-    _getBBoxHack = function _getBBoxHack(swapIfPossible) {
-  //works around issues in some browsers (like Firefox) that don't correctly report getBBox() on SVG elements inside a <defs> element and/or <mask>. We try creating an SVG, adding it to the documentElement and toss the element in there so that it's definitely part of the rendering tree, then grab the bbox and if it works, we actually swap out the original getBBox() method for our own that does these extra steps whenever getBBox is needed. This helps ensure that performance is optimal (only do all these extra steps when absolutely necessary...most elements don't need it).
-  var svg = _createElement("svg", this.ownerSVGElement && this.ownerSVGElement.getAttribute("xmlns") || "http://www.w3.org/2000/svg"),
-      oldParent = this.parentNode,
-      oldSibling = this.nextSibling,
-      oldCSS = this.style.cssText,
-      bbox;
-
-  _docElement.appendChild(svg);
-
-  svg.appendChild(this);
-  this.style.display = "block";
-
-  if (swapIfPossible) {
-    try {
-      bbox = this.getBBox();
-      this._gsapBBox = this.getBBox; //store the original
-
-      this.getBBox = _getBBoxHack;
-    } catch (e) {}
-  } else if (this._gsapBBox) {
-    bbox = this._gsapBBox();
-  }
-
-  if (oldSibling) {
-    oldParent.insertBefore(this, oldSibling);
-  } else {
-    oldParent.appendChild(this);
-  }
-
-  _docElement.removeChild(svg);
-
-  this.style.cssText = oldCSS;
-  return bbox;
-},
-    _getAttributeFallbacks = function _getAttributeFallbacks(target, attributesArray) {
-  var i = attributesArray.length;
-
-  while (i--) {
-    if (target.hasAttribute(attributesArray[i])) {
-      return target.getAttribute(attributesArray[i]);
-    }
-  }
-},
-    _getBBox = function _getBBox(target) {
-  var bounds;
-
-  try {
-    bounds = target.getBBox(); //Firefox throws errors if you try calling getBBox() on an SVG element that's not rendered (like in a <symbol> or <defs>). https://bugzilla.mozilla.org/show_bug.cgi?id=612118
-  } catch (error) {
-    bounds = _getBBoxHack.call(target, true);
-  } //some browsers (like Firefox) misreport the bounds if the element has zero width and height (it just assumes it's at x:0, y:0), thus we need to manually grab the position in that case.
-
-
-  return bounds && !bounds.width && !bounds.x && !bounds.y ? {
-    x: +_getAttributeFallbacks(target, ["x", "cx", "x1"]) || 0,
-    y: +_getAttributeFallbacks(target, ["y", "cy", "y1"]) || 0,
-    width: 0,
-    height: 0
-  } : bounds;
-},
-    _isSVG = function _isSVG(e) {
-  return !!(e.getCTM && (!e.parentNode || e.ownerSVGElement) && _getBBox(e));
-},
-    //reports if the element is an SVG on which getBBox() actually works
-_removeProperty = function _removeProperty(target, property) {
-  if (property) {
-    var style = target.style;
-
-    if (property in _transformProps) {
-      property = _transformProp;
-    }
-
-    if (style.removeProperty) {
-      if (property.substr(0, 2) === "ms" || property.substr(0, 6) === "webkit") {
-        //Microsoft and some Webkit browsers don't conform to the standard of capitalizing the first prefix character, so we adjust so that when we prefix the caps with a dash, it's correct (otherwise it'd be "ms-transform" instead of "-ms-transform" for IE9, for example)
-        property = "-" + property;
-      }
-
-      style.removeProperty(property.replace(_capsExp, "-$1").toLowerCase());
-    } else {
-      //note: old versions of IE use "removeAttribute()" instead of "removeProperty()"
-      style.removeAttribute(property);
-    }
-  }
-},
-    _addNonTweeningPT = function _addNonTweeningPT(plugin, target, property, beginning, end, onlySetAtEnd) {
-  var pt = new _gsapCore.PropTween(plugin._pt, target, property, 0, 1, onlySetAtEnd ? _renderNonTweeningValueOnlyAtEnd : _renderNonTweeningValue);
-  plugin._pt = pt;
-  pt.b = beginning;
-  pt.e = end;
-
-  plugin._props.push(property);
-
-  return pt;
-},
-    _nonConvertibleUnits = {
-  deg: 1,
-  rad: 1,
-  turn: 1
-},
-    //takes a single value like 20px and converts it to the unit specified, like "%", returning only the numeric amount.
-_convertToUnit = function _convertToUnit(target, property, value, unit) {
-  var curValue = parseFloat(value),
-      curUnit = (value + "").substr((curValue + "").length) || "px",
-      style = _tempDiv.style,
-      horizontal = _horizontalExp.test(property),
-      isRootSVG = target.tagName.toLowerCase() === "svg",
-      measureProperty = (isRootSVG ? "client" : "offset") + (horizontal ? "Width" : "Height"),
-      amount = 100,
-      toPixels = unit === "px",
-      px,
-      parent,
-      cache,
-      isSVG;
-
-  if (unit === curUnit || _nonConvertibleUnits[unit] || _nonConvertibleUnits[curUnit]) {
-    return curValue;
-  }
-
-  isSVG = target.getCTM && _isSVG(target);
-
-  if (unit === "%" && _transformProps[property]) {
-    //transforms are relative to the size of the element itself!
-    return (0, _gsapCore._round)(curValue / (isSVG ? target.getBBox()[horizontal ? "width" : "height"] : target[measureProperty]) * amount);
-  }
-
-  style[horizontal ? "width" : "height"] = amount + (toPixels ? curUnit : unit);
-  parent = unit === "em" && target.appendChild && !isRootSVG ? target : target.parentNode;
-
-  if (isSVG) {
-    parent = (target.ownerSVGElement || {}).parentNode;
-  }
-
-  if (!parent || parent === _doc || !parent.appendChild) {
-    parent = _doc.body;
-  }
-
-  cache = parent._gsap;
-
-  if (cache && unit === "%" && cache.width && horizontal && cache.time === _gsapCore._ticker.time) {
-    px = cache.width * curValue / amount;
-  } else {
-    parent.appendChild(_tempDiv);
-    px = _tempDiv[measureProperty];
-    parent.removeChild(_tempDiv);
-
-    if (horizontal && unit === "%") {
-      cache = (0, _gsapCore._getCache)(parent);
-      cache.time = _gsapCore._ticker.time;
-      cache.width = px / curValue * amount;
-    }
-  }
-
-  return (0, _gsapCore._round)(toPixels ? px * curValue / amount : amount / px * curValue);
-},
-    _get = function _get(target, property, unit, uncache) {
-  var value;
-
-  if (!_pluginInitted) {
-    _initCore();
-  }
-
-  if (property in _propertyAliases) {
-    property = _propertyAliases[property];
-
-    if (~property.indexOf(",")) {
-      property = property.split(",")[0];
-    }
-  }
-
-  if (_transformProps[property]) {
-    value = _parseTransform(target, uncache);
-    value = property !== "transformOrigin" ? value[property] : _firstTwoOnly(_getComputedProperty(target, _transformOriginProp)) + value.zOrigin + "px";
-  } else {
-    value = target.style[property];
-
-    if (!value || value === "auto" || uncache || ~value.indexOf("calc(")) {
-      value = _getComputedProperty(target, property) || (0, _gsapCore._getProperty)(target, property);
-    }
-  }
-
-  return unit ? _convertToUnit(target, property, value, unit) + unit : value;
-},
-    _tweenComplexCSSString = function _tweenComplexCSSString(target, prop, start, end) {
-  //note: we call _tweenComplexCSSString.call(pluginInstance...) to ensure that it's scoped properly. We may call it from within a plugin too, thus "this" would refer to the plugin.
-  var pt = new _gsapCore.PropTween(this._pt, target.style, prop, 0, 1, _gsapCore._renderComplexString),
-      index = 0,
-      matchIndex = 0,
-      a,
-      result,
-      startValues,
-      startNum,
-      color,
-      startValue,
-      endValue,
-      endNum,
-      chunk,
-      endUnit,
-      startUnit,
-      relative,
-      endValues;
-  pt.b = start;
-  pt.e = end;
-  start += ""; //ensure values are strings
-
-  end += "";
-
-  if (end === "auto") {
-    target.style[prop] = end;
-    end = _getComputedProperty(target, prop) || end;
-    target.style[prop] = start;
-  }
-
-  a = [start, end];
-  (0, _gsapCore._colorStringFilter)(a); //pass an array with the starting and ending values and let the filter do whatever it needs to the values.
-
-  start = a[0];
-  end = a[1];
-  startValues = start.match(_numWithUnitExp) || [];
-  endValues = end.match(_numWithUnitExp) || [];
-
-  if (endValues.length) {
-    while (result = _numWithUnitExp.exec(end)) {
-      endValue = result[0];
-      chunk = end.substring(index, result.index);
-
-      if (color) {
-        color = (color + 1) % 5;
-      } else if (chunk.substr(-5) === "rgba(") {
-        color = 1;
-      }
-
-      if (endValue !== (startValue = startValues[matchIndex++] || "")) {
-        startNum = parseFloat(startValue) || 0;
-        startUnit = startValue.substr((startNum + "").length);
-        relative = endValue.charAt(1) === "=" ? +(endValue.charAt(0) + "1") : 0;
-
-        if (relative) {
-          endValue = endValue.substr(2);
-        }
-
-        endNum = parseFloat(endValue);
-        endUnit = endValue.substr((endNum + "").length);
-        index = _numWithUnitExp.lastIndex - endUnit.length;
-
-        if (!endUnit) {
-          //if something like "perspective:300" is passed in and we must add a unit to the end
-          endUnit = endUnit || _gsapCore._config.units[prop] || startUnit;
-
-          if (index === end.length) {
-            end += endUnit;
-            pt.e += endUnit;
-          }
-        }
-
-        if (startUnit !== endUnit) {
-          startNum = _convertToUnit(target, prop, startValue, endUnit) || 0;
-        } //these nested PropTweens are handled in a special way - we'll never actually call a render or setter method on them. We'll just loop through them in the parent complex string PropTween's render method.
-
-
-        pt._pt = {
-          _next: pt._pt,
-          p: chunk || matchIndex === 1 ? chunk : ",",
-          //note: SVG spec allows omission of comma/space when a negative sign is wedged between two numbers, like 2.5-5.3 instead of 2.5,-5.3 but when tweening, the negative value may switch to positive, so we insert the comma just in case.
-          s: startNum,
-          c: relative ? relative * endNum : endNum - startNum,
-          m: color && color < 4 ? Math.round : 0
-        };
-      }
-    }
-
-    pt.c = index < end.length ? end.substring(index, end.length) : ""; //we use the "c" of the PropTween to store the final part of the string (after the last number)
-  } else {
-    pt.r = prop === "display" && end === "none" ? _renderNonTweeningValueOnlyAtEnd : _renderNonTweeningValue;
-  }
-
-  if (_gsapCore._relExp.test(end)) {
-    pt.e = 0; //if the end string contains relative values or dynamic random(...) values, delete the end it so that on the final render we don't actually set it to the string with += or -= characters (forces it to use the calculated value).
-  }
-
-  this._pt = pt; //start the linked list with this new PropTween. Remember, we call _tweenComplexCSSString.call(pluginInstance...) to ensure that it's scoped properly. We may call it from within another plugin too, thus "this" would refer to the plugin.
-
-  return pt;
-},
-    _keywordToPercent = {
-  top: "0%",
-  bottom: "100%",
-  left: "0%",
-  right: "100%",
-  center: "50%"
-},
-    _convertKeywordsToPercentages = function _convertKeywordsToPercentages(value) {
-  var split = value.split(" "),
-      x = split[0],
-      y = split[1] || "50%";
-
-  if (x === "top" || x === "bottom" || y === "left" || y === "right") {
-    //the user provided them in the wrong order, so flip them
-    value = x;
-    x = y;
-    y = value;
-  }
-
-  split[0] = _keywordToPercent[x] || x;
-  split[1] = _keywordToPercent[y] || y;
-  return split.join(" ");
-},
-    _renderClearProps = function _renderClearProps(ratio, data) {
-  if (data.tween && data.tween._time === data.tween._dur) {
-    var target = data.t,
-        style = target.style,
-        props = data.u,
-        prop,
-        clearTransforms,
-        i;
-
-    if (props === "all" || props === true) {
-      style.cssText = "";
-      clearTransforms = 1;
-    } else {
-      props = props.split(",");
-      i = props.length;
-
-      while (--i > -1) {
-        prop = props[i];
-
-        if (_transformProps[prop]) {
-          clearTransforms = 1;
-          prop = prop === "transformOrigin" ? _transformOriginProp : _transformProp;
-        }
-
-        _removeProperty(target, prop);
-      }
-    }
-
-    if (clearTransforms) {
-      _removeProperty(target, _transformProp);
-
-      clearTransforms = target._gsap;
-
-      if (clearTransforms) {
-        if (clearTransforms.svg) {
-          target.removeAttribute("transform");
-        }
-
-        clearTransforms.uncache = 1;
-      }
-    }
-  }
-},
-    // note: specialProps should return 1 if (and only if) they have a non-zero priority. It indicates we need to sort the linked list.
-_specialProps = {
-  clearProps: function clearProps(plugin, target, property, endValue, tween) {
-    if (tween.data !== "isFromStart") {
-      var pt = plugin._pt = new _gsapCore.PropTween(plugin._pt, target, property, 0, 0, _renderClearProps);
-      pt.u = endValue;
-      pt.pr = -10;
-      pt.tween = tween;
-
-      plugin._props.push(property);
-
-      return 1;
-    }
-  }
-  /* className feature (about 0.4kb gzipped).
-  , className(plugin, target, property, endValue, tween) {
-  	let _renderClassName = (ratio, data) => {
-  			data.css.render(ratio, data.css);
-  			if (!ratio || ratio === 1) {
-  				let inline = data.rmv,
-  					target = data.t,
-  					p;
-  				target.setAttribute("class", ratio ? data.e : data.b);
-  				for (p in inline) {
-  					_removeProperty(target, p);
-  				}
-  			}
-  		},
-  		_getAllStyles = (target) => {
-  			let styles = {},
-  				computed = getComputedStyle(target),
-  				p;
-  			for (p in computed) {
-  				if (isNaN(p) && p !== "cssText" && p !== "length") {
-  					styles[p] = computed[p];
-  				}
-  			}
-  			_setDefaults(styles, _parseTransform(target, 1));
-  			return styles;
-  		},
-  		startClassList = target.getAttribute("class"),
-  		style = target.style,
-  		cssText = style.cssText,
-  		cache = target._gsap,
-  		classPT = cache.classPT,
-  		inlineToRemoveAtEnd = {},
-  		data = {t:target, plugin:plugin, rmv:inlineToRemoveAtEnd, b:startClassList, e:(endValue.charAt(1) !== "=") ? endValue : startClassList.replace(new RegExp("(?:\\s|^)" + endValue.substr(2) + "(?![\\w-])"), "") + ((endValue.charAt(0) === "+") ? " " + endValue.substr(2) : "")},
-  		changingVars = {},
-  		startVars = _getAllStyles(target),
-  		transformRelated = /(transform|perspective)/i,
-  		endVars, p;
-  	if (classPT) {
-  		classPT.r(1, classPT.d);
-  		_removeLinkedListItem(classPT.d.plugin, classPT, "_pt");
-  	}
-  	target.setAttribute("class", data.e);
-  	endVars = _getAllStyles(target, true);
-  	target.setAttribute("class", startClassList);
-  	for (p in endVars) {
-  		if (endVars[p] !== startVars[p] && !transformRelated.test(p)) {
-  			changingVars[p] = endVars[p];
-  			if (!style[p] && style[p] !== "0") {
-  				inlineToRemoveAtEnd[p] = 1;
-  			}
-  		}
-  	}
-  	cache.classPT = plugin._pt = new PropTween(plugin._pt, target, "className", 0, 0, _renderClassName, data, 0, -11);
-  	if (style.cssText !== cssText) { //only apply if things change. Otherwise, in cases like a background-image that's pulled dynamically, it could cause a refresh. See https://greensock.com/forums/topic/20368-possible-gsap-bug-switching-classnames-in-chrome/.
-  		style.cssText = cssText; //we recorded cssText before we swapped classes and ran _getAllStyles() because in cases when a className tween is overwritten, we remove all the related tweening properties from that class change (otherwise class-specific stuff can't override properties we've directly set on the target's style object due to specificity).
-  	}
-  	_parseTransform(target, true); //to clear the caching of transforms
-  	data.css = new gsap.plugins.css();
-  	data.css.init(target, changingVars, tween);
-  	plugin._props.push(...data.css._props);
-  	return 1;
-  }
-  */
-
-},
-
-/*
- * --------------------------------------------------------------------------------------
- * TRANSFORMS
- * --------------------------------------------------------------------------------------
- */
-_identity2DMatrix = [1, 0, 0, 1, 0, 0],
-    _rotationalProperties = {},
-    _isNullTransform = function _isNullTransform(value) {
-  return value === "matrix(1, 0, 0, 1, 0, 0)" || value === "none" || !value;
-},
-    _getComputedTransformMatrixAsArray = function _getComputedTransformMatrixAsArray(target) {
-  var matrixString = _getComputedProperty(target, _transformProp);
-
-  return _isNullTransform(matrixString) ? _identity2DMatrix : matrixString.substr(7).match(_gsapCore._numExp).map(_gsapCore._round);
-},
-    _getMatrix = function _getMatrix(target, force2D) {
-  var cache = target._gsap,
-      style = target.style,
-      matrix = _getComputedTransformMatrixAsArray(target),
-      parent,
-      nextSibling,
-      temp,
-      addedToDOM;
-
-  if (cache.svg && target.getAttribute("transform")) {
-    temp = target.transform.baseVal.consolidate().matrix; //ensures that even complex values like "translate(50,60) rotate(135,0,0)" are parsed because it mashes it into a matrix.
-
-    matrix = [temp.a, temp.b, temp.c, temp.d, temp.e, temp.f];
-    return matrix.join(",") === "1,0,0,1,0,0" ? _identity2DMatrix : matrix;
-  } else if (matrix === _identity2DMatrix && !target.offsetParent && target !== _docElement && !cache.svg) {
-    //note: if offsetParent is null, that means the element isn't in the normal document flow, like if it has display:none or one of its ancestors has display:none). Firefox returns null for getComputedStyle() if the element is in an iframe that has display:none. https://bugzilla.mozilla.org/show_bug.cgi?id=548397
-    //browsers don't report transforms accurately unless the element is in the DOM and has a display value that's not "none". Firefox and Microsoft browsers have a partial bug where they'll report transforms even if display:none BUT not any percentage-based values like translate(-50%, 8px) will be reported as if it's translate(0, 8px).
-    temp = style.display;
-    style.display = "block";
-    parent = target.parentNode;
-
-    if (!parent || !target.offsetParent) {
-      addedToDOM = 1; //flag
-
-      nextSibling = target.nextSibling;
-
-      _docElement.appendChild(target); //we must add it to the DOM in order to get values properly
-
-    }
-
-    matrix = _getComputedTransformMatrixAsArray(target);
-
-    if (temp) {
-      style.display = temp;
-    } else {
-      _removeProperty(target, "display");
-    }
-
-    if (addedToDOM) {
-      if (nextSibling) {
-        parent.insertBefore(target, nextSibling);
-      } else if (parent) {
-        parent.appendChild(target);
-      } else {
-        _docElement.removeChild(target);
-      }
-    }
-  }
-
-  return force2D && matrix.length > 6 ? [matrix[0], matrix[1], matrix[4], matrix[5], matrix[12], matrix[13]] : matrix;
-},
-    _applySVGOrigin = function _applySVGOrigin(target, origin, originIsAbsolute, smooth, matrixArray, pluginToAddPropTweensTo) {
-  var cache = target._gsap,
-      matrix = matrixArray || _getMatrix(target, true),
-      xOriginOld = cache.xOrigin || 0,
-      yOriginOld = cache.yOrigin || 0,
-      xOffsetOld = cache.xOffset || 0,
-      yOffsetOld = cache.yOffset || 0,
-      a = matrix[0],
-      b = matrix[1],
-      c = matrix[2],
-      d = matrix[3],
-      tx = matrix[4],
-      ty = matrix[5],
-      originSplit = origin.split(" "),
-      xOrigin = parseFloat(originSplit[0]) || 0,
-      yOrigin = parseFloat(originSplit[1]) || 0,
-      bounds,
-      determinant,
-      x,
-      y;
-
-  if (!originIsAbsolute) {
-    bounds = _getBBox(target);
-    xOrigin = bounds.x + (~originSplit[0].indexOf("%") ? xOrigin / 100 * bounds.width : xOrigin);
-    yOrigin = bounds.y + (~(originSplit[1] || originSplit[0]).indexOf("%") ? yOrigin / 100 * bounds.height : yOrigin);
-  } else if (matrix !== _identity2DMatrix && (determinant = a * d - b * c)) {
-    //if it's zero (like if scaleX and scaleY are zero), skip it to avoid errors with dividing by zero.
-    x = xOrigin * (d / determinant) + yOrigin * (-c / determinant) + (c * ty - d * tx) / determinant;
-    y = xOrigin * (-b / determinant) + yOrigin * (a / determinant) - (a * ty - b * tx) / determinant;
-    xOrigin = x;
-    yOrigin = y;
-  }
-
-  if (smooth || smooth !== false && cache.smooth) {
-    tx = xOrigin - xOriginOld;
-    ty = yOrigin - yOriginOld;
-    cache.xOffset = xOffsetOld + (tx * a + ty * c) - tx;
-    cache.yOffset = yOffsetOld + (tx * b + ty * d) - ty;
-  } else {
-    cache.xOffset = cache.yOffset = 0;
-  }
-
-  cache.xOrigin = xOrigin;
-  cache.yOrigin = yOrigin;
-  cache.smooth = !!smooth;
-  cache.origin = origin;
-  cache.originIsAbsolute = !!originIsAbsolute;
-  target.style[_transformOriginProp] = "0px 0px"; //otherwise, if someone sets  an origin via CSS, it will likely interfere with the SVG transform attribute ones (because remember, we're baking the origin into the matrix() value).
-
-  if (pluginToAddPropTweensTo) {
-    _addNonTweeningPT(pluginToAddPropTweensTo, cache, "xOrigin", xOriginOld, xOrigin);
-
-    _addNonTweeningPT(pluginToAddPropTweensTo, cache, "yOrigin", yOriginOld, yOrigin);
-
-    _addNonTweeningPT(pluginToAddPropTweensTo, cache, "xOffset", xOffsetOld, cache.xOffset);
-
-    _addNonTweeningPT(pluginToAddPropTweensTo, cache, "yOffset", yOffsetOld, cache.yOffset);
-  }
-},
-    _parseTransform = function _parseTransform(target, uncache) {
-  var cache = target._gsap || new _gsapCore.GSCache(target);
-
-  if ("x" in cache && !uncache && !cache.uncache) {
-    return cache;
-  }
-
-  var style = target.style,
-      invertedScaleX = cache.scaleX < 0,
-      xOrigin = cache.xOrigin || 0,
-      yOrigin = cache.yOrigin || 0,
-      px = "px",
-      deg = "deg",
-      origin = _getComputedProperty(target, _transformOriginProp) || "0",
-      x,
-      y,
-      z,
-      scaleX,
-      scaleY,
-      rotation,
-      rotationX,
-      rotationY,
-      skewX,
-      skewY,
-      perspective,
-      matrix,
-      angle,
-      cos,
-      sin,
-      a,
-      b,
-      c,
-      d,
-      a12,
-      a22,
-      t1,
-      t2,
-      t3,
-      a13,
-      a23,
-      a33,
-      a42,
-      a43,
-      a32;
-  x = y = z = rotation = rotationX = rotationY = skewX = skewY = perspective = 0;
-  scaleX = scaleY = 1;
-  cache.svg = !!(target.getCTM && _isSVG(target));
-  matrix = _getMatrix(target, cache.svg);
-
-  if (cache.svg) {
-    _applySVGOrigin(target, origin, cache.originIsAbsolute, cache.smooth !== false, matrix);
-  }
-
-  if (matrix !== _identity2DMatrix) {
-    a = matrix[0]; //a11
-
-    b = matrix[1]; //a21
-
-    c = matrix[2]; //a31
-
-    d = matrix[3]; //a41
-
-    x = a12 = matrix[4];
-    y = a22 = matrix[5]; //2D matrix
-
-    if (matrix.length === 6) {
-      scaleX = Math.sqrt(a * a + b * b);
-      scaleY = Math.sqrt(d * d + c * c);
-      rotation = a || b ? _atan2(b, a) * _RAD2DEG : cache.rotation || 0; //note: if scaleX is 0, we cannot accurately measure rotation. Same for skewX with a scaleY of 0. Therefore, we default to the previously recorded value (or zero if that doesn't exist).
-
-      skewX = c || d ? _atan2(c, d) * _RAD2DEG + rotation : cache.skewX || 0;
-
-      if (cache.svg) {
-        x -= xOrigin - (xOrigin * a + yOrigin * c);
-        y -= yOrigin - (xOrigin * b + yOrigin * d);
-      } //3D matrix
-
-    } else {
-      a32 = matrix[6];
-      a42 = matrix[7];
-      a13 = matrix[8];
-      a23 = matrix[9];
-      a33 = matrix[10];
-      a43 = matrix[11];
-      x = matrix[12];
-      y = matrix[13];
-      z = matrix[14];
-      angle = _atan2(a32, a33);
-      rotationX = angle * _RAD2DEG; //rotationX
-
-      if (angle) {
-        cos = Math.cos(-angle);
-        sin = Math.sin(-angle);
-        t1 = a12 * cos + a13 * sin;
-        t2 = a22 * cos + a23 * sin;
-        t3 = a32 * cos + a33 * sin;
-        a13 = a12 * -sin + a13 * cos;
-        a23 = a22 * -sin + a23 * cos;
-        a33 = a32 * -sin + a33 * cos;
-        a43 = a42 * -sin + a43 * cos;
-        a12 = t1;
-        a22 = t2;
-        a32 = t3;
-      } //rotationY
-
-
-      angle = _atan2(-c, a33);
-      rotationY = angle * _RAD2DEG;
-
-      if (angle) {
-        cos = Math.cos(-angle);
-        sin = Math.sin(-angle);
-        t1 = a * cos - a13 * sin;
-        t2 = b * cos - a23 * sin;
-        t3 = c * cos - a33 * sin;
-        a43 = d * sin + a43 * cos;
-        a = t1;
-        b = t2;
-        c = t3;
-      } //rotationZ
-
-
-      angle = _atan2(b, a);
-      rotation = angle * _RAD2DEG;
-
-      if (angle) {
-        cos = Math.cos(angle);
-        sin = Math.sin(angle);
-        t1 = a * cos + b * sin;
-        t2 = a12 * cos + a22 * sin;
-        b = b * cos - a * sin;
-        a22 = a22 * cos - a12 * sin;
-        a = t1;
-        a12 = t2;
-      }
-
-      if (rotationX && Math.abs(rotationX) + Math.abs(rotation) > 359.9) {
-        //when rotationY is set, it will often be parsed as 180 degrees different than it should be, and rotationX and rotation both being 180 (it looks the same), so we adjust for that here.
-        rotationX = rotation = 0;
-        rotationY = 180 - rotationY;
-      }
-
-      scaleX = (0, _gsapCore._round)(Math.sqrt(a * a + b * b + c * c));
-      scaleY = (0, _gsapCore._round)(Math.sqrt(a22 * a22 + a32 * a32));
-      angle = _atan2(a12, a22);
-      skewX = Math.abs(angle) > 0.0002 ? angle * _RAD2DEG : 0;
-      perspective = a43 ? 1 / (a43 < 0 ? -a43 : a43) : 0;
-    }
-
-    if (cache.svg) {
-      //sense if there are CSS transforms applied on an SVG element in which case we must overwrite them when rendering. The transform attribute is more reliable cross-browser, but we can't just remove the CSS ones because they may be applied in a CSS rule somewhere (not just inline).
-      matrix = target.getAttribute("transform");
-      cache.forceCSS = target.setAttribute("transform", "") || !_isNullTransform(_getComputedProperty(target, _transformProp));
-      matrix && target.setAttribute("transform", matrix);
-    }
-  }
-
-  if (Math.abs(skewX) > 90 && Math.abs(skewX) < 270) {
-    if (invertedScaleX) {
-      scaleX *= -1;
-      skewX += rotation <= 0 ? 180 : -180;
-      rotation += rotation <= 0 ? 180 : -180;
-    } else {
-      scaleY *= -1;
-      skewX += skewX <= 0 ? 180 : -180;
-    }
-  }
-
-  cache.x = ((cache.xPercent = x && Math.round(target.offsetWidth / 2) === Math.round(-x) ? -50 : 0) ? 0 : x) + px;
-  cache.y = ((cache.yPercent = y && Math.round(target.offsetHeight / 2) === Math.round(-y) ? -50 : 0) ? 0 : y) + px;
-  cache.z = z + px;
-  cache.scaleX = (0, _gsapCore._round)(scaleX);
-  cache.scaleY = (0, _gsapCore._round)(scaleY);
-  cache.rotation = (0, _gsapCore._round)(rotation) + deg;
-  cache.rotationX = (0, _gsapCore._round)(rotationX) + deg;
-  cache.rotationY = (0, _gsapCore._round)(rotationY) + deg;
-  cache.skewX = skewX + deg;
-  cache.skewY = skewY + deg;
-  cache.transformPerspective = perspective + px;
-
-  if (cache.zOrigin = parseFloat(origin.split(" ")[2]) || 0) {
-    style[_transformOriginProp] = _firstTwoOnly(origin);
-  }
-
-  cache.xOffset = cache.yOffset = 0;
-  cache.force3D = _gsapCore._config.force3D;
-  cache.renderTransform = cache.svg ? _renderSVGTransforms : _supports3D ? _renderCSSTransforms : _renderNon3DTransforms;
-  cache.uncache = 0;
-  return cache;
-},
-    _firstTwoOnly = function _firstTwoOnly(value) {
-  return (value = value.split(" "))[0] + " " + value[1];
-},
-    //for handling transformOrigin values, stripping out the 3rd dimension
-_addPxTranslate = function _addPxTranslate(target, start, value) {
-  var unit = (0, _gsapCore.getUnit)(start);
-  return (0, _gsapCore._round)(parseFloat(start) + parseFloat(_convertToUnit(target, "x", value + "px", unit))) + unit;
-},
-    _renderNon3DTransforms = function _renderNon3DTransforms(ratio, cache) {
-  cache.z = "0px";
-  cache.rotationY = cache.rotationX = "0deg";
-  cache.force3D = 0;
-
-  _renderCSSTransforms(ratio, cache);
-},
-    _zeroDeg = "0deg",
-    _zeroPx = "0px",
-    _endParenthesis = ") ",
-    _renderCSSTransforms = function _renderCSSTransforms(ratio, cache) {
-  var _ref = cache || this,
-      xPercent = _ref.xPercent,
-      yPercent = _ref.yPercent,
-      x = _ref.x,
-      y = _ref.y,
-      z = _ref.z,
-      rotation = _ref.rotation,
-      rotationY = _ref.rotationY,
-      rotationX = _ref.rotationX,
-      skewX = _ref.skewX,
-      skewY = _ref.skewY,
-      scaleX = _ref.scaleX,
-      scaleY = _ref.scaleY,
-      transformPerspective = _ref.transformPerspective,
-      force3D = _ref.force3D,
-      target = _ref.target,
-      zOrigin = _ref.zOrigin,
-      transforms = "",
-      use3D = force3D === "auto" && ratio && ratio !== 1 || force3D === true; // Safari has a bug that causes it not to render 3D transform-origin values properly, so we force the z origin to 0, record it in the cache, and then do the math here to offset the translate values accordingly (basically do the 3D transform-origin part manually)
-
-
-  if (zOrigin && (rotationX !== _zeroDeg || rotationY !== _zeroDeg)) {
-    var angle = parseFloat(rotationY) * _DEG2RAD,
-        a13 = Math.sin(angle),
-        a33 = Math.cos(angle),
-        cos;
-
-    angle = parseFloat(rotationX) * _DEG2RAD;
-    cos = Math.cos(angle);
-    x = _addPxTranslate(target, x, a13 * cos * -zOrigin);
-    y = _addPxTranslate(target, y, -Math.sin(angle) * -zOrigin);
-    z = _addPxTranslate(target, z, a33 * cos * -zOrigin + zOrigin);
-  }
-
-  if (xPercent || yPercent) {
-    transforms = "translate(" + xPercent + "%, " + yPercent + "%) ";
-  }
-
-  if (use3D || x !== _zeroPx || y !== _zeroPx || z !== _zeroPx) {
-    transforms += z !== _zeroPx || use3D ? "translate3d(" + x + ", " + y + ", " + z + ") " : "translate(" + x + ", " + y + _endParenthesis;
-  }
-
-  if (transformPerspective !== _zeroPx) {
-    transforms += "perspective(" + transformPerspective + _endParenthesis;
-  }
-
-  if (rotation !== _zeroDeg) {
-    transforms += "rotate(" + rotation + _endParenthesis;
-  }
-
-  if (rotationY !== _zeroDeg) {
-    transforms += "rotateY(" + rotationY + _endParenthesis;
-  }
-
-  if (rotationX !== _zeroDeg) {
-    transforms += "rotateX(" + rotationX + _endParenthesis;
-  }
-
-  if (skewX !== _zeroDeg || skewY !== _zeroDeg) {
-    transforms += "skew(" + skewX + ", " + skewY + _endParenthesis;
-  }
-
-  if (scaleX !== 1 || scaleY !== 1) {
-    transforms += "scale(" + scaleX + ", " + scaleY + _endParenthesis;
-  }
-
-  target.style[_transformProp] = transforms || "translate(0, 0)";
-},
-    _renderSVGTransforms = function _renderSVGTransforms(ratio, cache) {
-  var _ref2 = cache || this,
-      xPercent = _ref2.xPercent,
-      yPercent = _ref2.yPercent,
-      x = _ref2.x,
-      y = _ref2.y,
-      rotation = _ref2.rotation,
-      skewX = _ref2.skewX,
-      skewY = _ref2.skewY,
-      scaleX = _ref2.scaleX,
-      scaleY = _ref2.scaleY,
-      target = _ref2.target,
-      xOrigin = _ref2.xOrigin,
-      yOrigin = _ref2.yOrigin,
-      xOffset = _ref2.xOffset,
-      yOffset = _ref2.yOffset,
-      forceCSS = _ref2.forceCSS,
-      tx = parseFloat(x),
-      ty = parseFloat(y),
-      a11,
-      a21,
-      a12,
-      a22,
-      temp;
-
-  rotation = parseFloat(rotation);
-  skewX = parseFloat(skewX);
-  skewY = parseFloat(skewY);
-
-  if (skewY) {
-    //for performance reasons, we combine all skewing into the skewX and rotation values. Remember, a skewY of 10 degrees looks the same as a rotation of 10 degrees plus a skewX of 10 degrees.
-    skewY = parseFloat(skewY);
-    skewX += skewY;
-    rotation += skewY;
-  }
-
-  if (rotation || skewX) {
-    rotation *= _DEG2RAD;
-    skewX *= _DEG2RAD;
-    a11 = Math.cos(rotation) * scaleX;
-    a21 = Math.sin(rotation) * scaleX;
-    a12 = Math.sin(rotation - skewX) * -scaleY;
-    a22 = Math.cos(rotation - skewX) * scaleY;
-
-    if (skewX) {
-      skewY *= _DEG2RAD;
-      temp = Math.tan(skewX - skewY);
-      temp = Math.sqrt(1 + temp * temp);
-      a12 *= temp;
-      a22 *= temp;
-
-      if (skewY) {
-        temp = Math.tan(skewY);
-        temp = Math.sqrt(1 + temp * temp);
-        a11 *= temp;
-        a21 *= temp;
-      }
-    }
-
-    a11 = (0, _gsapCore._round)(a11);
-    a21 = (0, _gsapCore._round)(a21);
-    a12 = (0, _gsapCore._round)(a12);
-    a22 = (0, _gsapCore._round)(a22);
-  } else {
-    a11 = scaleX;
-    a22 = scaleY;
-    a21 = a12 = 0;
-  }
-
-  if (tx && !~(x + "").indexOf("px") || ty && !~(y + "").indexOf("px")) {
-    tx = _convertToUnit(target, "x", x, "px");
-    ty = _convertToUnit(target, "y", y, "px");
-  }
-
-  if (xOrigin || yOrigin || xOffset || yOffset) {
-    tx = (0, _gsapCore._round)(tx + xOrigin - (xOrigin * a11 + yOrigin * a12) + xOffset);
-    ty = (0, _gsapCore._round)(ty + yOrigin - (xOrigin * a21 + yOrigin * a22) + yOffset);
-  }
-
-  if (xPercent || yPercent) {
-    //The SVG spec doesn't support percentage-based translation in the "transform" attribute, so we merge it into the translation to simulate it.
-    temp = target.getBBox();
-    tx = (0, _gsapCore._round)(tx + xPercent / 100 * temp.width);
-    ty = (0, _gsapCore._round)(ty + yPercent / 100 * temp.height);
-  }
-
-  temp = "matrix(" + a11 + "," + a21 + "," + a12 + "," + a22 + "," + tx + "," + ty + ")";
-  target.setAttribute("transform", temp);
-
-  if (forceCSS) {
-    //some browsers prioritize CSS transforms over the transform attribute. When we sense that the user has CSS transforms applied, we must overwrite them this way (otherwise some browser simply won't render the  transform attribute changes!)
-    target.style[_transformProp] = temp;
-  }
-},
-    _addRotationalPropTween = function _addRotationalPropTween(plugin, target, property, startNum, endValue, relative) {
-  var cap = 360,
-      isString = (0, _gsapCore._isString)(endValue),
-      endNum = parseFloat(endValue) * (isString && ~endValue.indexOf("rad") ? _RAD2DEG : 1),
-      change = relative ? endNum * relative : endNum - startNum,
-      finalValue = startNum + change + "deg",
-      direction,
-      pt;
-
-  if (isString) {
-    direction = endValue.split("_")[1];
-
-    if (direction === "short") {
-      change %= cap;
-
-      if (change !== change % (cap / 2)) {
-        change += change < 0 ? cap : -cap;
-      }
-    }
-
-    if (direction === "cw" && change < 0) {
-      change = (change + cap * _bigNum) % cap - ~~(change / cap) * cap;
-    } else if (direction === "ccw" && change > 0) {
-      change = (change - cap * _bigNum) % cap - ~~(change / cap) * cap;
-    }
-  }
-
-  plugin._pt = pt = new _gsapCore.PropTween(plugin._pt, target, property, startNum, change, _renderPropWithEnd);
-  pt.e = finalValue;
-  pt.u = "deg";
-
-  plugin._props.push(property);
-
-  return pt;
-},
-    _addRawTransformPTs = function _addRawTransformPTs(plugin, transforms, target) {
-  //for handling cases where someone passes in a whole transform string, like transform: "scale(2, 3) rotate(20deg) translateY(30em)"
-  var style = _tempDivStyler.style,
-      startCache = target._gsap,
-      endCache,
-      p,
-      startValue,
-      endValue,
-      startNum,
-      endNum,
-      startUnit,
-      endUnit;
-  style.cssText = getComputedStyle(target).cssText + ";position:absolute;display:block;"; //%-based translations will fail unless we set the width/height to match the original target (and padding/borders can affect it)
-
-  style[_transformProp] = transforms;
-
-  _doc.body.appendChild(_tempDivStyler);
-
-  endCache = _parseTransform(_tempDivStyler, 1);
-
-  for (p in _transformProps) {
-    startValue = startCache[p];
-    endValue = endCache[p];
-
-    if (startValue !== endValue && p !== "perspective") {
-      //tweening to no perspective gives very unintuitive results - just keep the same perspective in that case.
-      startUnit = (0, _gsapCore.getUnit)(startValue);
-      endUnit = (0, _gsapCore.getUnit)(endValue);
-      startNum = startUnit !== endUnit ? _convertToUnit(target, p, startValue, endUnit) : parseFloat(startValue);
-      endNum = parseFloat(endValue);
-      plugin._pt = new _gsapCore.PropTween(plugin._pt, startCache, p, startNum, endNum - startNum, _renderCSSProp);
-      plugin._pt.u = endUnit;
-
-      plugin._props.push(p);
-    }
-  }
-
-  _doc.body.removeChild(_tempDivStyler);
-};
-
-exports._getBBox = _getBBox;
-exports.checkPrefix = _checkPropPrefix;
-exports._createElement = _createElement;
-var CSSPlugin = {
-  name: "css",
-  register: _initCore,
-  targetTest: function targetTest(target) {
-    return target.style && target.nodeType;
-  },
-  init: function init(target, vars, tween, index, targets) {
-    var props = this._props,
-        style = target.style,
-        startValue,
-        endValue,
-        endNum,
-        startNum,
-        type,
-        specialProp,
-        p,
-        startUnit,
-        endUnit,
-        relative,
-        isTransformRelated,
-        transformPropTween,
-        cache,
-        smooth,
-        hasPriority;
-
-    if (!_pluginInitted) {
-      _initCore();
-    }
-
-    for (p in vars) {
-      if (p === "autoRound") {
-        continue;
-      }
-
-      endValue = vars[p];
-
-      if (_gsapCore._plugins[p] && (0, _gsapCore._checkPlugin)(p, vars, tween, index, target, targets)) {
-        //plugins
-        continue;
-      }
-
-      type = typeof endValue;
-      specialProp = _specialProps[p];
-
-      if (type === "function") {
-        endValue = endValue.call(tween, index, target, targets);
-        type = typeof endValue;
-      }
-
-      if (type === "string" && ~endValue.indexOf("random(")) {
-        endValue = (0, _gsapCore._replaceRandom)(endValue);
-      }
-
-      if (specialProp) {
-        if (specialProp(this, target, p, endValue, tween)) {
-          hasPriority = 1;
-        }
-      } else if (p.substr(0, 2) === "--") {
-        //CSS variable
-        this.add(style, "setProperty", getComputedStyle(target).getPropertyValue(p) + "", endValue + "", index, targets, 0, 0, p);
-      } else {
-        startValue = _get(target, p);
-        startNum = parseFloat(startValue);
-        relative = type === "string" && endValue.charAt(1) === "=" ? +(endValue.charAt(0) + "1") : 0;
-
-        if (relative) {
-          endValue = endValue.substr(2);
-        }
-
-        endNum = parseFloat(endValue);
-
-        if (p in _propertyAliases) {
-          if (p === "autoAlpha") {
-            //special case where we control the visibility along with opacity. We still allow the opacity value to pass through and get tweened.
-            if (startNum === 1 && _get(target, "visibility") === "hidden" && endNum) {
-              //if visibility is initially set to "hidden", we should interpret that as intent to make opacity 0 (a convenience)
-              startNum = 0;
-            }
-
-            _addNonTweeningPT(this, style, "visibility", startNum ? "inherit" : "hidden", endNum ? "inherit" : "hidden", !endNum);
-          }
-
-          if (p !== "scale") {
-            p = _propertyAliases[p];
-
-            if (~p.indexOf(",")) {
-              p = p.split(",")[0];
-            }
-          }
-        }
-
-        isTransformRelated = p in _transformProps; //--- TRANSFORM-RELATED ---
-
-        if (isTransformRelated) {
-          if (!transformPropTween) {
-            cache = target._gsap;
-            smooth = vars.smoothOrigin !== false && cache.smooth;
-            transformPropTween = this._pt = new _gsapCore.PropTween(this._pt, style, _transformProp, 0, 1, cache.renderTransform, cache, 0, -1); //the first time through, create the rendering PropTween so that it runs LAST (in the linked list, we keep adding to the beginning)
-
-            transformPropTween.dep = 1; //flag it as dependent so that if things get killed/overwritten and this is the only PropTween left, we can safely kill the whole tween.
-          }
-
-          if (p === "scale") {
-            this._pt = new _gsapCore.PropTween(this._pt, cache, "scaleY", cache.scaleY, relative ? relative * endNum : endNum - cache.scaleY);
-            props.push("scaleY", p);
-            p += "X";
-          } else if (p === "transformOrigin") {
-            endValue = _convertKeywordsToPercentages(endValue); //in case something like "left top" or "bottom right" is passed in. Convert to percentages.
-
-            if (cache.svg) {
-              _applySVGOrigin(target, endValue, 0, smooth, 0, this);
-            } else {
-              endUnit = parseFloat(endValue.split(" ")[2]); //handle the zOrigin separately!
-
-              if (endUnit !== cache.zOrigin) {
-                _addNonTweeningPT(this, cache, "zOrigin", cache.zOrigin, endUnit);
-              }
-
-              _addNonTweeningPT(this, style, p, _firstTwoOnly(startValue), _firstTwoOnly(endValue));
-            }
-
-            continue;
-          } else if (p === "svgOrigin") {
-            _applySVGOrigin(target, endValue, 1, smooth, 0, this);
-
-            continue;
-          } else if (p in _rotationalProperties) {
-            _addRotationalPropTween(this, cache, p, startNum, endValue, relative);
-
-            continue;
-          } else if (p === "smoothOrigin") {
-            _addNonTweeningPT(this, cache, "smooth", cache.smooth, endValue);
-
-            continue;
-          } else if (p === "force3D") {
-            cache[p] = endValue;
-            continue;
-          } else if (p === "transform") {
-            _addRawTransformPTs(this, endValue, target);
-
-            continue;
-          }
-        } else if (!(p in style)) {
-          p = _checkPropPrefix(p) || p;
-        }
-
-        if (isTransformRelated || (endNum || endNum === 0) && (startNum || startNum === 0) && !_complexExp.test(endValue) && p in style) {
-          startUnit = (startValue + "").substr((startNum + "").length);
-          endUnit = (endValue + "").substr((endNum + "").length) || (p in _gsapCore._config.units ? _gsapCore._config.units[p] : startUnit);
-
-          if (startUnit !== endUnit) {
-            startNum = _convertToUnit(target, p, startValue, endUnit);
-          }
-
-          this._pt = new _gsapCore.PropTween(this._pt, isTransformRelated ? cache : style, p, startNum, relative ? relative * endNum : endNum - startNum, endUnit === "px" && vars.autoRound !== false && !isTransformRelated ? _renderRoundedCSSProp : _renderCSSProp);
-          this._pt.u = endUnit || 0;
-
-          if (startUnit !== endUnit) {
-            //when the tween goes all the way back to the beginning, we need to revert it to the OLD/ORIGINAL value (with those units). We record that as a "b" (beginning) property and point to a render method that handles that. (performance optimization)
-            this._pt.b = startValue;
-            this._pt.r = _renderCSSPropWithBeginning;
-          }
-        } else if (!(p in style)) {
-          if (p in target) {
-            //maybe it's not a style - it could be a property added directly to an element in which case we'll try to animate that.
-            this.add(target, p, target[p], endValue, index, targets);
-          } else {
-            (0, _gsapCore._missingPlugin)(p, endValue);
-            continue;
-          }
-        } else {
-          _tweenComplexCSSString.call(this, target, p, startValue, endValue);
-        }
-
-        props.push(p);
-      }
-    }
-
-    if (hasPriority) {
-      (0, _gsapCore._sortPropTweensByPriority)(this);
-    }
-  },
-  get: _get,
-  aliases: _propertyAliases,
-  getSetter: function getSetter(target, property, plugin) {
-    //returns a setter function that accepts target, property, value and applies it accordingly. Remember, properties like "x" aren't as simple as target.style.property = value because they've got to be applied to a proxy object and then merged into a transform string in a renderer.
-    return property in _transformProps && property !== _transformOriginProp && (target._gsap.x || _get(target, "x")) ? plugin && _recentSetterPlugin === plugin ? property === "scale" ? _setterScale : _setterTransform : (_recentSetterPlugin = plugin || {}) && (property === "scale" ? _setterScaleWithRender : _setterTransformWithRender) : target.style && !(0, _gsapCore._isUndefined)(target.style[property]) ? _setterCSSStyle : ~property.indexOf("-") ? _setterCSSProp : (0, _gsapCore._getSetter)(target, property);
-  }
-};
-exports.default = exports.CSSPlugin = CSSPlugin;
-_gsapCore.gsap.utils.checkPrefix = _checkPropPrefix;
-
-(function (positionAndScale, rotation, others, aliases) {
-  var all = (0, _gsapCore._forEachName)(positionAndScale + "," + rotation + "," + others, function (name) {
-    _transformProps[name] = 1;
-  });
-  (0, _gsapCore._forEachName)(rotation, function (name) {
-    _gsapCore._config.units[name] = "deg";
-    _rotationalProperties[name] = 1;
-  });
-  _propertyAliases[all[13]] = positionAndScale + "," + rotation;
-  (0, _gsapCore._forEachName)(aliases, function (name) {
-    var split = name.split(":");
-    _propertyAliases[split[1]] = all[split[0]];
-  });
-})("x,y,z,scale,scaleX,scaleY,xPercent,yPercent", "rotation,rotationX,rotationY,skewX,skewY", "transform,transformOrigin,svgOrigin,force3D,smoothOrigin,transformPerspective", "0:translateX,1:translateY,2:translateZ,8:rotate,8:rotationZ,9:rotateX,10:rotateY");
-
-(0, _gsapCore._forEachName)("x,y,z,top,right,bottom,left,width,height,fontSize,padding,margin,perspective", function (name) {
-  _gsapCore._config.units[name] = "px";
-});
-
-_gsapCore.gsap.registerPlugin(CSSPlugin);
-},{"./gsap-core.js":"node_modules/gsap/gsap-core.js"}],"node_modules/gsap/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "Power0", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Power0;
-  }
-});
-Object.defineProperty(exports, "Power1", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Power1;
-  }
-});
-Object.defineProperty(exports, "Power2", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Power2;
-  }
-});
-Object.defineProperty(exports, "Power3", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Power3;
-  }
-});
-Object.defineProperty(exports, "Power4", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Power4;
-  }
-});
-Object.defineProperty(exports, "Linear", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Linear;
-  }
-});
-Object.defineProperty(exports, "Quad", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Quad;
-  }
-});
-Object.defineProperty(exports, "Cubic", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Cubic;
-  }
-});
-Object.defineProperty(exports, "Quart", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Quart;
-  }
-});
-Object.defineProperty(exports, "Quint", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Quint;
-  }
-});
-Object.defineProperty(exports, "Strong", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Strong;
-  }
-});
-Object.defineProperty(exports, "Elastic", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Elastic;
-  }
-});
-Object.defineProperty(exports, "Back", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Back;
-  }
-});
-Object.defineProperty(exports, "SteppedEase", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.SteppedEase;
-  }
-});
-Object.defineProperty(exports, "Bounce", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Bounce;
-  }
-});
-Object.defineProperty(exports, "Sine", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Sine;
-  }
-});
-Object.defineProperty(exports, "Expo", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Expo;
-  }
-});
-Object.defineProperty(exports, "Circ", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Circ;
-  }
-});
-Object.defineProperty(exports, "TweenMax", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.TweenMax;
-  }
-});
-Object.defineProperty(exports, "TweenLite", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.TweenLite;
-  }
-});
-Object.defineProperty(exports, "TimelineLite", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.TimelineLite;
-  }
-});
-Object.defineProperty(exports, "TimelineMax", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.TimelineMax;
-  }
-});
-Object.defineProperty(exports, "CSSPlugin", {
-  enumerable: true,
-  get: function () {
-    return _CSSPlugin.CSSPlugin;
-  }
-});
-exports.default = exports.gsap = void 0;
-
-var _gsapCore = require("./gsap-core.js");
-
-var _CSSPlugin = require("./CSSPlugin.js");
-
-var gsapWithCSS = _gsapCore.gsap.registerPlugin(_CSSPlugin.CSSPlugin) || _gsapCore.gsap; // to protect from tree shaking
-
-
-exports.default = exports.gsap = gsapWithCSS;
-},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"node_modules/gsap/PixiPlugin.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.PixiPlugin = void 0;
-
-/*!
- * PixiPlugin 3.0.2
- * https://greensock.com
- *
- * @license Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-var gsap,
-    _win,
-    _splitColor,
-    _coreInitted,
-    _PIXI,
-    PropTween,
-    _getSetter,
-    _windowExists = function _windowExists() {
-  return typeof window !== "undefined";
-},
-    _getGSAP = function _getGSAP() {
-  return gsap || _windowExists() && (gsap = window.gsap) && gsap.registerPlugin && gsap;
-},
-    _isFunction = function _isFunction(value) {
-  return typeof value === "function";
-},
-    _warn = function _warn(message) {
-  return console.warn(message);
-},
-    _idMatrix = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
-    _lumR = 0.212671,
-    _lumG = 0.715160,
-    _lumB = 0.072169,
-    _applyMatrix = function _applyMatrix(m, m2) {
-  var temp = [],
-      i = 0,
-      z = 0,
-      y,
-      x;
-
-  for (y = 0; y < 4; y++) {
-    for (x = 0; x < 5; x++) {
-      z = x === 4 ? m[i + 4] : 0;
-      temp[i + x] = m[i] * m2[x] + m[i + 1] * m2[x + 5] + m[i + 2] * m2[x + 10] + m[i + 3] * m2[x + 15] + z;
-    }
-
-    i += 5;
-  }
-
-  return temp;
-},
-    _setSaturation = function _setSaturation(m, n) {
-  var inv = 1 - n,
-      r = inv * _lumR,
-      g = inv * _lumG,
-      b = inv * _lumB;
-  return _applyMatrix([r + n, g, b, 0, 0, r, g + n, b, 0, 0, r, g, b + n, 0, 0, 0, 0, 0, 1, 0], m);
-},
-    _colorize = function _colorize(m, color, amount) {
-  var c = _splitColor(color),
-      r = c[0] / 255,
-      g = c[1] / 255,
-      b = c[2] / 255,
-      inv = 1 - amount;
-
-  return _applyMatrix([inv + amount * r * _lumR, amount * r * _lumG, amount * r * _lumB, 0, 0, amount * g * _lumR, inv + amount * g * _lumG, amount * g * _lumB, 0, 0, amount * b * _lumR, amount * b * _lumG, inv + amount * b * _lumB, 0, 0, 0, 0, 0, 1, 0], m);
-},
-    _setHue = function _setHue(m, n) {
-  n *= Math.PI / 180;
-  var c = Math.cos(n),
-      s = Math.sin(n);
-  return _applyMatrix([_lumR + c * (1 - _lumR) + s * -_lumR, _lumG + c * -_lumG + s * -_lumG, _lumB + c * -_lumB + s * (1 - _lumB), 0, 0, _lumR + c * -_lumR + s * 0.143, _lumG + c * (1 - _lumG) + s * 0.14, _lumB + c * -_lumB + s * -0.283, 0, 0, _lumR + c * -_lumR + s * -(1 - _lumR), _lumG + c * -_lumG + s * _lumG, _lumB + c * (1 - _lumB) + s * _lumB, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1], m);
-},
-    _setContrast = function _setContrast(m, n) {
-  return _applyMatrix([n, 0, 0, 0, 0.5 * (1 - n), 0, n, 0, 0, 0.5 * (1 - n), 0, 0, n, 0, 0.5 * (1 - n), 0, 0, 0, 1, 0], m);
-},
-    _getFilter = function _getFilter(target, type) {
-  var filterClass = _PIXI.filters[type],
-      filters = target.filters || [],
-      i = filters.length,
-      filter;
-
-  if (!filterClass) {
-    _warn(type + " not found. PixiPlugin.registerPIXI(PIXI)");
-  }
-
-  while (--i > -1) {
-    if (filters[i] instanceof filterClass) {
-      return filters[i];
-    }
-  }
-
-  filter = new filterClass();
-
-  if (type === "BlurFilter") {
-    filter.blur = 0;
-  }
-
-  filters.push(filter);
-  target.filters = filters;
-  return filter;
-},
-    _addColorMatrixFilterCacheTween = function _addColorMatrixFilterCacheTween(p, plugin, cache, vars) {
-  //we cache the ColorMatrixFilter components in a _gsColorMatrixFilter object attached to the target object so that it's easy to grab the current value at any time.
-  plugin.add(cache, p, cache[p], vars[p]);
-
-  plugin._props.push(p);
-},
-    _applyBrightnessToMatrix = function _applyBrightnessToMatrix(brightness, matrix) {
-  var temp = new _PIXI.filters.ColorMatrixFilter();
-  temp.matrix = matrix;
-  temp.brightness(brightness, true);
-  return temp.matrix;
-},
-    _copy = function _copy(obj) {
-  var copy = {},
-      p;
-
-  for (p in obj) {
-    copy[p] = obj[p];
-  }
-
-  return copy;
-},
-    _CMFdefaults = {
-  contrast: 1,
-  saturation: 1,
-  colorizeAmount: 0,
-  colorize: "rgb(255,255,255)",
-  hue: 0,
-  brightness: 1
-},
-    _parseColorMatrixFilter = function _parseColorMatrixFilter(target, v, pg) {
-  var filter = _getFilter(target, "ColorMatrixFilter"),
-      cache = target._gsColorMatrixFilter = target._gsColorMatrixFilter || _copy(_CMFdefaults),
-      combine = v.combineCMF && !("colorMatrixFilter" in v && !v.colorMatrixFilter),
-      i,
-      matrix,
-      startMatrix;
-
-  startMatrix = filter.matrix;
-
-  if (v.resolution) {
-    filter.resolution = v.resolution;
-  }
-
-  if (v.matrix && v.matrix.length === startMatrix.length) {
-    matrix = v.matrix;
-
-    if (cache.contrast !== 1) {
-      _addColorMatrixFilterCacheTween("contrast", pg, cache, _CMFdefaults);
-    }
-
-    if (cache.hue) {
-      _addColorMatrixFilterCacheTween("hue", pg, cache, _CMFdefaults);
-    }
-
-    if (cache.brightness !== 1) {
-      _addColorMatrixFilterCacheTween("brightness", pg, cache, _CMFdefaults);
-    }
-
-    if (cache.colorizeAmount) {
-      _addColorMatrixFilterCacheTween("colorize", pg, cache, _CMFdefaults);
-
-      _addColorMatrixFilterCacheTween("colorizeAmount", pg, cache, _CMFdefaults);
-    }
-
-    if (cache.saturation !== 1) {
-      _addColorMatrixFilterCacheTween("saturation", pg, cache, _CMFdefaults);
-    }
-  } else {
-    matrix = _idMatrix.slice();
-
-    if (v.contrast != null) {
-      matrix = _setContrast(matrix, +v.contrast);
-
-      _addColorMatrixFilterCacheTween("contrast", pg, cache, v);
-    } else if (cache.contrast !== 1) {
-      if (combine) {
-        matrix = _setContrast(matrix, cache.contrast);
-      } else {
-        _addColorMatrixFilterCacheTween("contrast", pg, cache, _CMFdefaults);
-      }
-    }
-
-    if (v.hue != null) {
-      matrix = _setHue(matrix, +v.hue);
-
-      _addColorMatrixFilterCacheTween("hue", pg, cache, v);
-    } else if (cache.hue) {
-      if (combine) {
-        matrix = _setHue(matrix, cache.hue);
-      } else {
-        _addColorMatrixFilterCacheTween("hue", pg, cache, _CMFdefaults);
-      }
-    }
-
-    if (v.brightness != null) {
-      matrix = _applyBrightnessToMatrix(+v.brightness, matrix);
-
-      _addColorMatrixFilterCacheTween("brightness", pg, cache, v);
-    } else if (cache.brightness !== 1) {
-      if (combine) {
-        matrix = _applyBrightnessToMatrix(cache.brightness, matrix);
-      } else {
-        _addColorMatrixFilterCacheTween("brightness", pg, cache, _CMFdefaults);
-      }
-    }
-
-    if (v.colorize != null) {
-      v.colorizeAmount = "colorizeAmount" in v ? +v.colorizeAmount : 1;
-      matrix = _colorize(matrix, v.colorize, v.colorizeAmount);
-
-      _addColorMatrixFilterCacheTween("colorize", pg, cache, v);
-
-      _addColorMatrixFilterCacheTween("colorizeAmount", pg, cache, v);
-    } else if (cache.colorizeAmount) {
-      if (combine) {
-        matrix = _colorize(matrix, cache.colorize, cache.colorizeAmount);
-      } else {
-        _addColorMatrixFilterCacheTween("colorize", pg, cache, _CMFdefaults);
-
-        _addColorMatrixFilterCacheTween("colorizeAmount", pg, cache, _CMFdefaults);
-      }
-    }
-
-    if (v.saturation != null) {
-      matrix = _setSaturation(matrix, +v.saturation);
-
-      _addColorMatrixFilterCacheTween("saturation", pg, cache, v);
-    } else if (cache.saturation !== 1) {
-      if (combine) {
-        matrix = _setSaturation(matrix, cache.saturation);
-      } else {
-        _addColorMatrixFilterCacheTween("saturation", pg, cache, _CMFdefaults);
-      }
-    }
-  }
-
-  i = matrix.length;
-
-  while (--i > -1) {
-    if (matrix[i] !== startMatrix[i]) {
-      pg.add(startMatrix, i, startMatrix[i], matrix[i], "colorMatrixFilter");
-    }
-  }
-
-  pg._props.push("colorMatrixFilter");
-},
-    _renderColor = function _renderColor(ratio, _ref) {
-  var t = _ref.t,
-      p = _ref.p,
-      color = _ref.color,
-      set = _ref.set;
-  set(t, p, color[0] << 16 | color[1] << 8 | color[2]);
-},
-    _renderDirtyCache = function _renderDirtyCache(ratio, _ref2) {
-  var g = _ref2.g;
-
-  if (g) {
-    //in order for PixiJS to actually redraw GraphicsData, we've gotta increment the "dirty" and "clearDirty" values. If we don't do this, the values will be tween properly, but not rendered.
-    g.dirty++;
-    g.clearDirty++;
-  }
-},
-    _renderAutoAlpha = function _renderAutoAlpha(ratio, data) {
-  data.t.visible = !!data.t.alpha;
-},
-    _addColorTween = function _addColorTween(target, p, value, plugin) {
-  var currentValue = target[p],
-      startColor = _splitColor(_isFunction(currentValue) ? target[p.indexOf("set") || !_isFunction(target["get" + p.substr(3)]) ? p : "get" + p.substr(3)]() : currentValue),
-      endColor = _splitColor(value);
-
-  plugin._pt = new PropTween(plugin._pt, target, p, 0, 0, _renderColor, {
-    t: target,
-    p: p,
-    color: startColor,
-    set: _getSetter(target, p)
-  });
-  plugin.add(startColor, 0, startColor[0], endColor[0]);
-  plugin.add(startColor, 1, startColor[1], endColor[1]);
-  plugin.add(startColor, 2, startColor[2], endColor[2]);
-},
-    _colorProps = {
-  tint: 1,
-  lineColor: 1,
-  fillColor: 1
-},
-    _xyContexts = "position,scale,skew,pivot,anchor,tilePosition,tileScale".split(","),
-    _contexts = {
-  x: "position",
-  y: "position",
-  tileX: "tilePosition",
-  tileY: "tilePosition"
-},
-    _colorMatrixFilterProps = {
-  colorMatrixFilter: 1,
-  saturation: 1,
-  contrast: 1,
-  hue: 1,
-  colorize: 1,
-  colorizeAmount: 1,
-  brightness: 1,
-  combineCMF: 1
-},
-    _DEG2RAD = Math.PI / 180,
-    _degreesToRadians = function _degreesToRadians(value) {
-  return typeof value === "string" && value.charAt(1) === "=" ? value.substr(0, 2) + parseFloat(value.substr(2)) * _DEG2RAD : value * _DEG2RAD;
-},
-    _initCore = function _initCore() {
-  if (_windowExists()) {
-    _win = window;
-    gsap = _coreInitted = _getGSAP();
-    _PIXI = _PIXI || _win.PIXI;
-    _splitColor = gsap.utils.splitColor;
-  }
-},
-    i,
-    p; //context setup...
-
-
-for (i = 0; i < _xyContexts.length; i++) {
-  p = _xyContexts[i];
-  _contexts[p + "X"] = p;
-  _contexts[p + "Y"] = p;
-}
-
-var PixiPlugin = {
-  version: "3.0.2",
-  name: "pixi",
-  register: function register(core, Plugin, propTween) {
-    gsap = core;
-    PropTween = propTween;
-    _getSetter = Plugin.getSetter;
-
-    _initCore();
-  },
-  registerPIXI: function registerPIXI(pixi) {
-    _PIXI = pixi;
-  },
-  init: function init(target, values, tween, index, targets) {
-    if (!_PIXI) {
-      _initCore();
-    }
-
-    if (!target instanceof _PIXI.DisplayObject) {
-      return false;
-    }
-
-    var isV4 = _PIXI.VERSION.charAt(0) === "4",
-        context,
-        axis,
-        value,
-        colorMatrix,
-        filter,
-        p,
-        padding,
-        i,
-        data;
-
-    for (p in values) {
-      context = _contexts[p];
-      value = values[p];
-
-      if (context) {
-        axis = ~p.charAt(p.length - 1).toLowerCase().indexOf("x") ? "x" : "y";
-        this.add(target[context], axis, target[context][axis], context === "skew" ? _degreesToRadians(value) : value);
-      } else if (p === "scale" || p === "anchor" || p === "pivot" || p === "tileScale") {
-        this.add(target[p], "x", target[p].x, value);
-        this.add(target[p], "y", target[p].y, value);
-      } else if (p === "rotation") {
-        //PIXI expects rotation in radians, but as a convenience we let folks define it in degrees and we do the conversion.
-        this.add(target, p, target.rotation, _degreesToRadians(value));
-      } else if (_colorMatrixFilterProps[p]) {
-        if (!colorMatrix) {
-          _parseColorMatrixFilter(target, values.colorMatrixFilter || values, this);
-
-          colorMatrix = true;
-        }
-      } else if (p === "blur" || p === "blurX" || p === "blurY" || p === "blurPadding") {
-        filter = _getFilter(target, "BlurFilter");
-        this.add(filter, p, filter[p], value);
-
-        if (values.blurPadding !== 0) {
-          padding = values.blurPadding || Math.max(filter[p], value) * 2;
-          i = target.filters.length;
-
-          while (--i > -1) {
-            target.filters[i].padding = Math.max(target.filters[i].padding, padding); //if we don't expand the padding on all the filters, it can look clipped.
-          }
-        }
-      } else if (_colorProps[p]) {
-        if ((p === "lineColor" || p === "fillColor") && target instanceof _PIXI.Graphics) {
-          data = (target.geometry || target).graphicsData; //"geometry" was introduced in PIXI version 5
-
-          this._pt = new PropTween(this._pt, target, p, 0, 0, _renderDirtyCache, {
-            g: target.geometry || target
-          });
-          i = data.length;
-
-          while (--i > -1) {
-            _addColorTween(isV4 ? data[i] : data[i][p.substr(0, 4) + "Style"], isV4 ? p : "color", value, this);
-          }
-        } else {
-          _addColorTween(target, p, value, this);
-        }
-      } else if (p === "autoAlpha") {
-        this._pt = new PropTween(this._pt, target, "visible", 0, 0, _renderAutoAlpha);
-        this.add(target, "alpha", target.alpha, value);
-
-        this._props.push("alpha", "visible");
-      } else {
-        this.add(target, p, "get", value);
-      }
-
-      this._props.push(p);
-    }
-  }
-};
-exports.default = exports.PixiPlugin = PixiPlugin;
-_getGSAP() && gsap.registerPlugin(PixiPlugin);
-},{}],"node_modules/gsap/utils/paths.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getRawPath = getRawPath;
-exports.copyRawPath = copyRawPath;
-exports.reverseSegment = reverseSegment;
-exports.convertToPath = convertToPath;
-exports.getRotationAtProgress = getRotationAtProgress;
-exports.sliceRawPath = sliceRawPath;
-exports.cacheRawPathMeasurements = cacheRawPathMeasurements;
-exports.subdivideSegment = subdivideSegment;
-exports.getPositionOnPath = getPositionOnPath;
-exports.transformRawPath = transformRawPath;
-exports.stringToRawPath = stringToRawPath;
-exports.bezierToPoints = bezierToPoints;
-exports.flatPointsToSegment = flatPointsToSegment;
-exports.pointsToSegment = pointsToSegment;
-exports.simplifyPoints = simplifyPoints;
-exports.getClosestData = getClosestData;
-exports.subdivideSegmentNear = subdivideSegmentNear;
-exports.rawPathToString = rawPathToString;
-
-/*!
- * paths 3.0.2
- * https://greensock.com
- *
- * Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-var _svgPathExp = /[achlmqstvz]|(-?\d*\.?\d*(?:e[\-+]?\d+)?)[0-9]/ig,
-    _numbersExp = /(?:(-)?\d*\.?\d*(?:e[\-+]?\d+)?)[0-9]/ig,
-    _scientific = /[\+\-]?\d*\.?\d+e[\+\-]?\d+/ig,
-    _selectorExp = /(^[#\.][a-z]|[a-y][a-z])/i,
-    _DEG2RAD = Math.PI / 180,
-    _RAD2DEG = 180 / Math.PI,
-    _sin = Math.sin,
-    _cos = Math.cos,
-    _abs = Math.abs,
-    _sqrt = Math.sqrt,
-    _atan2 = Math.atan2,
-    _largeNum = 1e8,
-    _isString = function _isString(value) {
-  return typeof value === "string";
-},
-    _isNumber = function _isNumber(value) {
-  return typeof value === "number";
-},
-    _isUndefined = function _isUndefined(value) {
-  return typeof value === "undefined";
-},
-    _temp = {},
-    _temp2 = {},
-    _roundingNum = 1e5,
-    _wrapProgress = function _wrapProgress(progress) {
-  return Math.round((progress + _largeNum) % 1 * _roundingNum) / _roundingNum || (progress < 0 ? 0 : 1);
-},
-    //if progress lands on 1, the % will make it 0 which is why we || 1, but not if it's negative because it makes more sense for motion to end at 0 in that case.
-_round = function _round(value) {
-  return ~~(value * _roundingNum + (value < 0 ? -.5 : .5)) / _roundingNum;
-},
-    _splitSegment = function _splitSegment(rawPath, segIndex, i, t) {
-  var segment = rawPath[segIndex],
-      shift = t === 1 ? 6 : subdivideSegment(segment, i, t);
-
-  if (shift && shift + i + 2 < segment.length) {
-    rawPath.splice(segIndex, 0, segment.slice(0, i + shift + 2));
-    segment.splice(0, i + shift);
-    return 1;
-  }
-},
-    _reverseRawPath = function _reverseRawPath(rawPath, skipOuter) {
-  var i = rawPath.length;
-
-  if (!skipOuter) {
-    rawPath.reverse();
-  }
-
-  while (i--) {
-    if (!rawPath[i].reversed) {
-      reverseSegment(rawPath[i]);
-    }
-  }
-},
-    _copyMetaData = function _copyMetaData(source, copy) {
-  copy.totalLength = source.totalLength;
-
-  if (source.samples) {
-    //segment
-    copy.samples = source.samples.slice(0);
-    copy.lookup = source.lookup.slice(0);
-    copy.minLength = source.minLength;
-    copy.resolution = source.resolution;
-  } else {
-    //rawPath
-    copy.totalPoints = source.totalPoints;
-  }
-
-  return copy;
-},
-    //pushes a new segment into a rawPath, but if its starting values match the ending values of the last segment, it'll merge it into that same segment (to reduce the number of segments)
-_appendOrMerge = function _appendOrMerge(rawPath, segment) {
-  var index = rawPath.length,
-      prevSeg = rawPath[index - 1] || [],
-      l = prevSeg.length;
-
-  if (segment[0] === prevSeg[l - 2] && segment[1] === prevSeg[l - 1]) {
-    segment = prevSeg.concat(segment.slice(2));
-    index--;
-  }
-
-  rawPath[index] = segment;
-},
-    _bestDistance;
-/* TERMINOLOGY
- - RawPath - an array of arrays, one for each Segment. A single RawPath could have multiple "M" commands, defining Segments (paths aren't always connected).
- - Segment - an array containing a sequence of Cubic Bezier coordinates in alternating x, y, x, y format. Starting anchor, then control point 1, control point 2, and ending anchor, then the next control point 1, control point 2, anchor, etc. Uses less memory than an array with a bunch of {x, y} points.
- - Bezier - a single cubic Bezier with a starting anchor, two control points, and an ending anchor.
- - the variable "t" is typically the position along an individual Bezier path (time) and it's NOT linear, meaning it could accelerate/decelerate based on the control points whereas the "p" or "progress" value is linearly mapped to the whole path, so it shouldn't really accelerate/decelerate based on control points. So a progress of 0.2 would be almost exactly 20% along the path. "t" is ONLY in an individual Bezier piece.
- */
-//accepts basic selector text, a path instance, a RawPath instance, or a Segment and returns a RawPath (makes it easy to homogenize things). If an element or selector text is passed in, it'll also cache the value so that if it's queried again, it'll just take the path data from there instead of parsing it all over again (as long as the path data itself hasn't changed - it'll check).
-
-
-function getRawPath(value) {
-  value = _isString(value) && _selectorExp.test(value) ? document.querySelector(value) || value : value;
-  var e = value.getAttribute ? value : 0,
-      rawPath;
-
-  if (e && (value = value.getAttribute("d"))) {
-    //implements caching
-    if (!e._gsPath) {
-      e._gsPath = {};
-    }
-
-    rawPath = e._gsPath[value];
-    return rawPath && !rawPath._dirty ? rawPath : e._gsPath[value] = stringToRawPath(value);
-  }
-
-  return !value ? console.warn("Expecting a <path> element or an SVG path data string") : _isString(value) ? stringToRawPath(value) : _isNumber(value[0]) ? [value] : value;
-} //copies a RawPath WITHOUT the length meta data (for speed)
-
-
-function copyRawPath(rawPath) {
-  var a = [],
-      i = 0;
-
-  for (; i < rawPath.length; i++) {
-    a[i] = _copyMetaData(rawPath[i], rawPath[i].slice(0));
-  }
-
-  return _copyMetaData(rawPath, a);
-}
-
-function reverseSegment(segment) {
-  var i = 0,
-      y;
-  segment.reverse(); //this will invert the order y, x, y, x so we must flip it back.
-
-  for (; i < segment.length; i += 2) {
-    y = segment[i];
-    segment[i] = segment[i + 1];
-    segment[i + 1] = y;
-  }
-
-  segment.reversed = !segment.reversed;
-}
-
-var _createPath = function _createPath(e, ignore) {
-  var path = document.createElementNS("http://www.w3.org/2000/svg", "path"),
-      attr = [].slice.call(e.attributes),
-      i = attr.length,
-      name;
-  ignore = "," + ignore + ",";
-
-  while (--i > -1) {
-    name = attr[i].nodeName.toLowerCase(); //in Microsoft Edge, if you don't set the attribute with a lowercase name, it doesn't render correctly! Super weird.
-
-    if (ignore.indexOf("," + name + ",") < 0) {
-      path.setAttributeNS(null, name, attr[i].nodeValue);
-    }
-  }
-
-  return path;
-},
-    _typeAttrs = {
-  rect: "rx,ry,x,y,width,height",
-  circle: "r,cx,cy",
-  ellipse: "rx,ry,cx,cy",
-  line: "x1,x2,y1,y2"
-},
-    _attrToObj = function _attrToObj(e, attrs) {
-  var props = attrs ? attrs.split(",") : [],
-      obj = {},
-      i = props.length;
-
-  while (--i > -1) {
-    obj[props[i]] = +e.getAttribute(props[i]) || 0;
-  }
-
-  return obj;
-}; //converts an SVG shape like <circle>, <rect>, <polygon>, <polyline>, <ellipse>, etc. to a <path>, swapping it in and copying the attributes to match.
-
-
-function convertToPath(element, swap) {
-  var type = element.tagName.toLowerCase(),
-      circ = 0.552284749831,
-      data,
-      x,
-      y,
-      r,
-      ry,
-      path,
-      rcirc,
-      rycirc,
-      points,
-      w,
-      h,
-      x2,
-      x3,
-      x4,
-      x5,
-      x6,
-      y2,
-      y3,
-      y4,
-      y5,
-      y6,
-      attr;
-
-  if (type === "path" || !element.getBBox) {
-    return element;
-  }
-
-  path = _createPath(element, "x,y,width,height,cx,cy,rx,ry,r,x1,x2,y1,y2,points");
-  attr = _attrToObj(element, _typeAttrs[type]);
-
-  if (type === "rect") {
-    r = attr.rx;
-    ry = attr.ry;
-    x = attr.x;
-    y = attr.y;
-    w = attr.width - r * 2;
-    h = attr.height - ry * 2;
-
-    if (r || ry) {
-      //if there are rounded corners, render cubic beziers
-      x2 = x + r * (1 - circ);
-      x3 = x + r;
-      x4 = x3 + w;
-      x5 = x4 + r * circ;
-      x6 = x4 + r;
-      y2 = y + ry * (1 - circ);
-      y3 = y + ry;
-      y4 = y3 + h;
-      y5 = y4 + ry * circ;
-      y6 = y4 + ry;
-      data = "M" + x6 + "," + y3 + " V" + y4 + " C" + [x6, y5, x5, y6, x4, y6, x4 - (x4 - x3) / 3, y6, x3 + (x4 - x3) / 3, y6, x3, y6, x2, y6, x, y5, x, y4, x, y4 - (y4 - y3) / 3, x, y3 + (y4 - y3) / 3, x, y3, x, y2, x2, y, x3, y, x3 + (x4 - x3) / 3, y, x4 - (x4 - x3) / 3, y, x4, y, x5, y, x6, y2, x6, y3].join(",") + "z";
-    } else {
-      data = "M" + (x + w) + "," + y + " v" + h + " h" + -w + " v" + -h + " h" + w + "z";
-    }
-  } else if (type === "circle" || type === "ellipse") {
-    if (type === "circle") {
-      r = ry = attr.r;
-      rycirc = r * circ;
-    } else {
-      r = attr.rx;
-      ry = attr.ry;
-      rycirc = ry * circ;
-    }
-
-    x = attr.cx;
-    y = attr.cy;
-    rcirc = r * circ;
-    data = "M" + (x + r) + "," + y + " C" + [x + r, y + rycirc, x + rcirc, y + ry, x, y + ry, x - rcirc, y + ry, x - r, y + rycirc, x - r, y, x - r, y - rycirc, x - rcirc, y - ry, x, y - ry, x + rcirc, y - ry, x + r, y - rycirc, x + r, y].join(",") + "z";
-  } else if (type === "line") {
-    data = "M" + attr.x1 + "," + attr.y1 + " L" + attr.x2 + "," + attr.y2; //previously, we just converted to "Mx,y Lx,y" but Safari has bugs that cause that not to render properly when using a stroke-dasharray that's not fully visible! Using a cubic bezier fixes that issue.
-  } else if (type === "polyline" || type === "polygon") {
-    points = (element.getAttribute("points") + "").match(_numbersExp) || [];
-    x = points.shift();
-    y = points.shift();
-    data = "M" + x + "," + y + " L" + points.join(",");
-
-    if (type === "polygon") {
-      data += "," + x + "," + y + "z";
-    }
-  }
-
-  path.setAttribute("d", rawPathToString(path._gsRawPath = stringToRawPath(data)));
-
-  if (swap && element.parentNode) {
-    element.parentNode.insertBefore(path, element);
-    element.parentNode.removeChild(element);
-  }
-
-  return path;
-} //returns the rotation (in degrees) at a particular progress on a rawPath (the slope of the tangent)
-
-
-function getRotationAtProgress(rawPath, progress) {
-  var d = getProgressData(rawPath, progress >= 1 ? 1 - 1e-9 : progress ? progress : 1e-9);
-  return getRotationAtBezierT(d.segment, d.i, d.t);
-}
-
-function getRotationAtBezierT(segment, i, t) {
-  var a = segment[i],
-      b = segment[i + 2],
-      c = segment[i + 4],
-      x;
-  a += (b - a) * t;
-  b += (c - b) * t;
-  a += (b - a) * t;
-  x = b + (c + (segment[i + 6] - c) * t - b) * t - a;
-  a = segment[i + 1];
-  b = segment[i + 3];
-  c = segment[i + 5];
-  a += (b - a) * t;
-  b += (c - b) * t;
-  a += (b - a) * t;
-  return _round(_atan2(b + (c + (segment[i + 7] - c) * t - b) * t - a, x) * _RAD2DEG);
-}
-
-function sliceRawPath(rawPath, start, end) {
-  if (_isUndefined(end)) {
-    end = 1;
-  }
-
-  start = start || 0;
-  var reverse = start > end,
-      loops = Math.max(0, ~~(_abs(end - start) - 1e-8));
-
-  if (reverse) {
-    reverse = end;
-    end = start;
-    start = reverse;
-    reverse = 1;
-    loops -= loops ? 1 : 0;
-  }
-
-  if (start < 0 || end < 0) {
-    var offset = ~~Math.min(start, end) + 1;
-    start += offset;
-    end += offset;
-  }
-
-  var path = copyRawPath(rawPath.totalLength ? rawPath : cacheRawPathMeasurements(rawPath)),
-      wrap = end > 1,
-      s = getProgressData(path, start, _temp),
-      e = getProgressData(path, end, _temp2),
-      eSeg = e.segment,
-      sSeg = s.segment,
-      eSegIndex = e.segIndex,
-      sSegIndex = s.segIndex,
-      ei = e.i,
-      si = s.i,
-      sameSegment = sSegIndex === eSegIndex,
-      sameBezier = ei === si && sameSegment,
-      invertedOrder = sameSegment && si > ei || sameBezier && s.t > e.t,
-      sShift,
-      eShift,
-      i,
-      copy,
-      totalSegments,
-      l,
-      j;
-
-  if (wrap || loops) {
-    if (_splitSegment(path, sSegIndex, si, s.t)) {
-      sShift = 1;
-      sSegIndex++;
-
-      if (sameBezier) {
-        if (invertedOrder) {
-          e.t /= s.t;
-        } else {
-          e.t = (e.t - s.t) / (1 - s.t);
-          eSegIndex++;
-          ei = 0;
-        }
-      } else if (sSegIndex <= eSegIndex + 1 && !invertedOrder) {
-        eSegIndex++;
-
-        if (sameSegment) {
-          ei -= si;
-        }
-      }
-    }
-
-    if (!e.t) {
-      eSegIndex--;
-
-      if (reverse) {
-        sSegIndex--;
-      }
-    } else if (_splitSegment(path, eSegIndex, ei, e.t)) {
-      if (invertedOrder && sShift) {
-        sSegIndex++;
-      }
-
-      if (reverse) {
-        eSegIndex++;
-      }
-    }
-
-    copy = [];
-    totalSegments = path.length;
-    l = 1 + totalSegments * loops;
-    j = sSegIndex;
-
-    if (reverse) {
-      eSegIndex = (eSegIndex || totalSegments) - 1;
-      l += (totalSegments - eSegIndex + sSegIndex) % totalSegments;
-
-      for (i = 0; i < l; i++) {
-        _appendOrMerge(copy, path[j]);
-
-        j = (j || totalSegments) - 1;
-      }
-    } else {
-      l += (totalSegments - sSegIndex + eSegIndex) % totalSegments;
-
-      for (i = 0; i < l; i++) {
-        _appendOrMerge(copy, path[j++ % totalSegments]);
-      }
-    }
-
-    path = copy;
-  } else {
-    eShift = e.t === 1 ? 6 : subdivideSegment(eSeg, ei, e.t);
-
-    if (start !== end) {
-      sShift = subdivideSegment(sSeg, si, sameBezier ? s.t / e.t : s.t);
-
-      if (sameSegment) {
-        eShift += sShift;
-      }
-
-      eSeg.splice(ei + eShift + 2);
-
-      if (sShift) {
-        sSeg.splice(0, si + sShift);
-      }
-
-      i = path.length;
-
-      while (i--) {
-        //chop off any extra segments
-        if (i < sSegIndex || i > eSegIndex) {
-          path.splice(i, 1);
-        }
-      }
-    } else {
-      eSeg.angle = getRotationAtBezierT(eSeg, ei + eShift, 0); //record the value before we chop because it'll be impossible to determine the angle after its length is 0!
-
-      ei += eShift;
-      s = eSeg[ei];
-      e = eSeg[ei + 1];
-      eSeg.length = eSeg.totalLength = 0;
-      eSeg.totalPoints = path.totalPoints = 8;
-      eSeg.push(s, e, s, e, s, e, s, e);
-    }
-  }
-
-  if (reverse) {
-    _reverseRawPath(path, wrap || loops);
-  }
-
-  path.totalLength = 0;
-  return path;
-} //measures a Segment according to its resolution (so if segment.resolution is 6, for example, it'll take 6 samples equally across each Bezier) and create/populate a "samples" array that has the length up to each of those sample points (always increasing from the start) as well as a "lookup" array that's broken up according to the smallest distance between 2 samples. This gives us a very fast way of looking up a progress position rather than looping through all the points/Beziers. You can optionally have it only measure a subset, starting at startIndex and going for a specific number of beziers (remember, there are 3 x/y pairs each, for a total of 6 elements for each Bezier). It will also populate a "totalLength" property, but that's not generally super accurate because by default it'll only take 6 samples per Bezier. But for performance reasons, it's perfectly adequate for measuring progress values along the path. If you need a more accurate totalLength, either increase the resolution or use the more advanced bezierToPoints() method which keeps adding points until they don't deviate by more than a certain precision value.
-
-
-function measureSegment(segment, startIndex, bezierQty) {
-  startIndex = startIndex || 0;
-
-  if (!segment.samples) {
-    segment.samples = [];
-    segment.lookup = [];
-  }
-
-  var resolution = ~~segment.resolution || 12,
-      inc = 1 / resolution,
-      endIndex = bezierQty ? startIndex + bezierQty * 6 + 1 : segment.length,
-      x1 = segment[startIndex],
-      y1 = segment[startIndex + 1],
-      samplesIndex = startIndex ? startIndex / 6 * resolution : 0,
-      samples = segment.samples,
-      lookup = segment.lookup,
-      min = (startIndex ? segment.minLength : _largeNum) || _largeNum,
-      prevLength = samples[samplesIndex + bezierQty * resolution - 1],
-      length = startIndex ? samples[samplesIndex - 1] : 0,
-      i,
-      j,
-      x4,
-      x3,
-      x2,
-      xd,
-      xd1,
-      y4,
-      y3,
-      y2,
-      yd,
-      yd1,
-      inv,
-      t,
-      lengthIndex,
-      l,
-      segLength;
-  samples.length = lookup.length = 0;
-
-  for (j = startIndex + 2; j < endIndex; j += 6) {
-    x4 = segment[j + 4] - x1;
-    x3 = segment[j + 2] - x1;
-    x2 = segment[j] - x1;
-    y4 = segment[j + 5] - y1;
-    y3 = segment[j + 3] - y1;
-    y2 = segment[j + 1] - y1;
-    xd = xd1 = yd = yd1 = 0;
-
-    if (_abs(x4) < 1e-5 && _abs(y4) < 1e-5 && _abs(x2) + _abs(y2) < 1e-5) {
-      //dump points that are sufficiently close (basically right on top of each other, making a bezier super tiny or 0 length)
-      if (segment.length > 8) {
-        segment.splice(j, 6);
-        j -= 6;
-        endIndex -= 6;
-      }
-    } else {
-      for (i = 1; i <= resolution; i++) {
-        t = inc * i;
-        inv = 1 - t;
-        xd = xd1 - (xd1 = (t * t * x4 + 3 * inv * (t * x3 + inv * x2)) * t);
-        yd = yd1 - (yd1 = (t * t * y4 + 3 * inv * (t * y3 + inv * y2)) * t);
-        l = _sqrt(yd * yd + xd * xd);
-
-        if (l < min) {
-          min = l;
-        }
-
-        length += l;
-        samples[samplesIndex++] = length;
-      }
-    }
-
-    x1 += x4;
-    y1 += y4;
-  }
-
-  if (prevLength) {
-    prevLength -= length;
-
-    for (; samplesIndex < samples.length; samplesIndex++) {
-      samples[samplesIndex] += prevLength;
-    }
-  }
-
-  if (samples.length && min) {
-    segment.totalLength = segLength = samples[samples.length - 1] || 0;
-    segment.minLength = min;
-    l = lengthIndex = 0;
-
-    for (i = 0; i < segLength; i += min) {
-      lookup[l++] = samples[lengthIndex] < i ? ++lengthIndex : lengthIndex;
-    }
-  } else {
-    segment.totalLength = samples[0] = 0;
-  }
-
-  return startIndex ? length - samples[startIndex / 2 - 1] : length;
-}
-
-function cacheRawPathMeasurements(rawPath, resolution) {
-  var pathLength, points, i;
-
-  for (i = pathLength = points = 0; i < rawPath.length; i++) {
-    rawPath[i].resolution = ~~resolution || 12; //steps per Bezier curve (anchor, 2 control points, to anchor)
-
-    points += rawPath[i].length;
-    pathLength += measureSegment(rawPath[i]);
-  }
-
-  rawPath.totalPoints = points;
-  rawPath.totalLength = pathLength;
-  return rawPath;
-} //divide segment[i] at position t (value between 0 and 1, progress along that particular cubic bezier segment that starts at segment[i]). Returns how many elements were spliced into the segment array (either 0 or 6)
-
-
-function subdivideSegment(segment, i, t) {
-  if (t <= 0 || t >= 1) {
-    return 0;
-  }
-
-  var ax = segment[i],
-      ay = segment[i + 1],
-      cp1x = segment[i + 2],
-      cp1y = segment[i + 3],
-      cp2x = segment[i + 4],
-      cp2y = segment[i + 5],
-      bx = segment[i + 6],
-      by = segment[i + 7],
-      x1a = ax + (cp1x - ax) * t,
-      x2 = cp1x + (cp2x - cp1x) * t,
-      y1a = ay + (cp1y - ay) * t,
-      y2 = cp1y + (cp2y - cp1y) * t,
-      x1 = x1a + (x2 - x1a) * t,
-      y1 = y1a + (y2 - y1a) * t,
-      x2a = cp2x + (bx - cp2x) * t,
-      y2a = cp2y + (by - cp2y) * t;
-  x2 += (x2a - x2) * t;
-  y2 += (y2a - y2) * t;
-  segment.splice(i + 2, 4, _round(x1a), //first control point
-  _round(y1a), _round(x1), //second control point
-  _round(y1), _round(x1 + (x2 - x1) * t), //new fabricated anchor on line
-  _round(y1 + (y2 - y1) * t), _round(x2), //third control point
-  _round(y2), _round(x2a), //fourth control point
-  _round(y2a));
-
-  if (segment.samples) {
-    segment.samples.splice(i / 6 * segment.resolution | 0, 0, 0, 0, 0, 0, 0, 0);
-  }
-
-  return 6;
-} // returns an object {path, segment, segIndex, i, t}
-
-
-function getProgressData(rawPath, progress, decoratee) {
-  decoratee = decoratee || {};
-
-  if (!rawPath.totalLength) {
-    cacheRawPathMeasurements(rawPath);
-  }
-
-  if (progress < 0 || progress > 1) {
-    progress = _wrapProgress(progress);
-  }
-
-  var segIndex = 0,
-      segment = rawPath[0],
-      samples,
-      resolution,
-      length,
-      min,
-      max,
-      i;
-
-  if (rawPath.length > 1) {
-    //speed optimization: most of the time, there's only one segment so skip the recursion.
-    length = rawPath.totalLength * progress;
-    max = i = 0;
-
-    while ((max += rawPath[i++].totalLength) < length) {
-      segIndex = i;
-    }
-
-    segment = rawPath[segIndex];
-    min = max - segment.totalLength;
-    progress = (length - min) / (max - min) || 0;
-  }
-
-  samples = segment.samples;
-  resolution = segment.resolution; //how many samples per cubic bezier chunk
-
-  length = segment.totalLength * progress;
-  i = segment.lookup[~~(length / segment.minLength)] || 0;
-  min = i ? samples[i - 1] : 0;
-  max = samples[i];
-
-  if (max < length) {
-    min = max;
-    max = samples[++i];
-  }
-
-  decoratee.path = rawPath;
-  decoratee.segment = segment;
-  decoratee.segIndex = segIndex;
-  decoratee.i = ~~(i / resolution) * 6;
-  decoratee.t = 1 / resolution * ((length - min) / (max - min) + i % resolution);
-  return decoratee;
-}
-
-function getPositionOnPath(rawPath, progress, includeAngle, point) {
-  var segment = rawPath[0],
-      result = point || {},
-      samples,
-      resolution,
-      length,
-      min,
-      max,
-      i,
-      t,
-      a,
-      inv;
-
-  if (progress < 0 || progress > 1) {
-    progress = _wrapProgress(progress);
-  }
-
-  if (rawPath.length > 1) {
-    //speed optimization: most of the time, there's only one segment so skip the recursion.
-    length = rawPath.totalLength * progress;
-    max = i = 0;
-
-    while ((max += rawPath[i++].totalLength) < length) {
-      segment = rawPath[i];
-    }
-
-    min = max - segment.totalLength;
-    progress = (length - min) / (max - min) || 0;
-  }
-
-  samples = segment.samples;
-  resolution = segment.resolution;
-  length = segment.totalLength * progress;
-  i = segment.lookup[~~(length / segment.minLength)] || 0;
-  min = i ? samples[i - 1] : 0;
-  max = samples[i];
-
-  if (max < length) {
-    min = max;
-    max = samples[++i];
-  }
-
-  t = 1 / resolution * ((length - min) / (max - min) + i % resolution) || 0;
-  inv = 1 - t;
-  i = ~~(i / resolution) * 6;
-  a = segment[i];
-  result.x = _round((t * t * (segment[i + 6] - a) + 3 * inv * (t * (segment[i + 4] - a) + inv * (segment[i + 2] - a))) * t + a);
-  result.y = _round((t * t * (segment[i + 7] - (a = segment[i + 1])) + 3 * inv * (t * (segment[i + 5] - a) + inv * (segment[i + 3] - a))) * t + a);
-
-  if (includeAngle) {
-    result.angle = segment.totalLength ? getRotationAtBezierT(segment, i, t >= 1 ? 1 - 1e-9 : t ? t : 1e-9) : segment.angle || 0;
-  }
-
-  return result;
-} //applies a matrix transform to RawPath (or a segment in a RawPath) and returns whatever was passed in (it transforms the values in the array(s), not a copy).
-
-
-function transformRawPath(rawPath, a, b, c, d, tx, ty) {
-  var j = rawPath.length,
-      segment,
-      l,
-      i,
-      x,
-      y;
-
-  while (--j > -1) {
-    segment = rawPath[j];
-    l = segment.length;
-
-    for (i = 0; i < l; i += 2) {
-      x = segment[i];
-      y = segment[i + 1];
-      segment[i] = x * a + y * c + tx;
-      segment[i + 1] = x * b + y * d + ty;
-    }
-  }
-
-  rawPath._dirty = 1;
-  return rawPath;
-} // translates SVG arc data into a segment (cubic beziers). Angle is in degrees.
-
-
-function arcToSegment(lastX, lastY, rx, ry, angle, largeArcFlag, sweepFlag, x, y) {
-  if (lastX === x && lastY === y) {
-    return;
-  }
-
-  rx = _abs(rx);
-  ry = _abs(ry);
-
-  var angleRad = angle % 360 * _DEG2RAD,
-      cosAngle = _cos(angleRad),
-      sinAngle = _sin(angleRad),
-      PI = Math.PI,
-      TWOPI = PI * 2,
-      dx2 = (lastX - x) / 2,
-      dy2 = (lastY - y) / 2,
-      x1 = cosAngle * dx2 + sinAngle * dy2,
-      y1 = -sinAngle * dx2 + cosAngle * dy2,
-      x1_sq = x1 * x1,
-      y1_sq = y1 * y1,
-      radiiCheck = x1_sq / (rx * rx) + y1_sq / (ry * ry);
-
-  if (radiiCheck > 1) {
-    rx = _sqrt(radiiCheck) * rx;
-    ry = _sqrt(radiiCheck) * ry;
-  }
-
-  var rx_sq = rx * rx,
-      ry_sq = ry * ry,
-      sq = (rx_sq * ry_sq - rx_sq * y1_sq - ry_sq * x1_sq) / (rx_sq * y1_sq + ry_sq * x1_sq);
-
-  if (sq < 0) {
-    sq = 0;
-  }
-
-  var coef = (largeArcFlag === sweepFlag ? -1 : 1) * _sqrt(sq),
-      cx1 = coef * (rx * y1 / ry),
-      cy1 = coef * -(ry * x1 / rx),
-      sx2 = (lastX + x) / 2,
-      sy2 = (lastY + y) / 2,
-      cx = sx2 + (cosAngle * cx1 - sinAngle * cy1),
-      cy = sy2 + (sinAngle * cx1 + cosAngle * cy1),
-      ux = (x1 - cx1) / rx,
-      uy = (y1 - cy1) / ry,
-      vx = (-x1 - cx1) / rx,
-      vy = (-y1 - cy1) / ry,
-      temp = ux * ux + uy * uy,
-      angleStart = (uy < 0 ? -1 : 1) * Math.acos(ux / _sqrt(temp)),
-      angleExtent = (ux * vy - uy * vx < 0 ? -1 : 1) * Math.acos((ux * vx + uy * vy) / _sqrt(temp * (vx * vx + vy * vy)));
-
-  if (isNaN(angleExtent)) {
-    //rare edge case. Math.cos(-1) is NaN.
-    angleExtent = PI;
-  }
-
-  if (!sweepFlag && angleExtent > 0) {
-    angleExtent -= TWOPI;
-  } else if (sweepFlag && angleExtent < 0) {
-    angleExtent += TWOPI;
-  }
-
-  angleStart %= TWOPI;
-  angleExtent %= TWOPI;
-
-  var segments = Math.ceil(_abs(angleExtent) / (TWOPI / 4)),
-      rawPath = [],
-      angleIncrement = angleExtent / segments,
-      controlLength = 4 / 3 * _sin(angleIncrement / 2) / (1 + _cos(angleIncrement / 2)),
-      ma = cosAngle * rx,
-      mb = sinAngle * rx,
-      mc = sinAngle * -ry,
-      md = cosAngle * ry,
-      i;
-
-  for (i = 0; i < segments; i++) {
-    angle = angleStart + i * angleIncrement;
-    x1 = _cos(angle);
-    y1 = _sin(angle);
-    ux = _cos(angle += angleIncrement);
-    uy = _sin(angle);
-    rawPath.push(x1 - controlLength * y1, y1 + controlLength * x1, ux + controlLength * uy, uy - controlLength * ux, ux, uy);
-  } //now transform according to the actual size of the ellipse/arc (the beziers were noramlized, between 0 and 1 on a circle).
-
-
-  for (i = 0; i < rawPath.length; i += 2) {
-    x1 = rawPath[i];
-    y1 = rawPath[i + 1];
-    rawPath[i] = x1 * ma + y1 * mc + cx;
-    rawPath[i + 1] = x1 * mb + y1 * md + cy;
-  }
-
-  rawPath[i - 2] = x; //always set the end to exactly where it's supposed to be
-
-  rawPath[i - 1] = y;
-  return rawPath;
-} //Spits back a RawPath with absolute coordinates. Each segment starts with a "moveTo" command (x coordinate, then y) and then 2 control points (x, y, x, y), then anchor. The goal is to minimize memory and maximize speed.
-
-
-function stringToRawPath(d) {
-  var a = (d + "").replace(_scientific, function (m) {
-    var n = +m;
-    return n < 0.0001 && n > -0.0001 ? 0 : n;
-  }).match(_svgPathExp) || [],
-      //some authoring programs spit out very small numbers in scientific notation like "1e-5", so make sure we round that down to 0 first.
-  path = [],
-      relativeX = 0,
-      relativeY = 0,
-      twoThirds = 2 / 3,
-      elements = a.length,
-      points = 0,
-      errorMessage = "ERROR: malformed path: " + d,
-      i,
-      j,
-      x,
-      y,
-      command,
-      isRelative,
-      segment,
-      startX,
-      startY,
-      difX,
-      difY,
-      beziers,
-      prevCommand,
-      line = function line(sx, sy, ex, ey) {
-    difX = (ex - sx) / 3;
-    difY = (ey - sy) / 3;
-    segment.push(sx + difX, sy + difY, ex - difX, ey - difY, ex, ey);
-  };
-
-  if (!d || !isNaN(a[0]) || isNaN(a[1])) {
-    console.log(errorMessage);
-    return path;
-  }
-
-  for (i = 0; i < elements; i++) {
-    prevCommand = command;
-
-    if (isNaN(a[i])) {
-      command = a[i].toUpperCase();
-      isRelative = command !== a[i]; //lower case means relative
-    } else {
-      //commands like "C" can be strung together without any new command characters between.
-      i--;
-    }
-
-    x = +a[i + 1];
-    y = +a[i + 2];
-
-    if (isRelative) {
-      x += relativeX;
-      y += relativeY;
-    }
-
-    if (!i) {
-      startX = x;
-      startY = y;
-    } // "M" (move)
-
-
-    if (command === "M") {
-      if (segment) {
-        if (segment.length < 8) {
-          //if the path data was funky and just had a M with no actual drawing anywhere, skip it.
-          path.length -= 1;
-        } else {
-          points += segment.length;
-        }
-      }
-
-      relativeX = startX = x;
-      relativeY = startY = y;
-      segment = [x, y];
-      path.push(segment);
-      i += 2;
-      command = "L"; //an "M" with more than 2 values gets interpreted as "lineTo" commands ("L").
-      // "C" (cubic bezier)
-    } else if (command === "C") {
-      if (!segment) {
-        segment = [0, 0];
-      }
-
-      if (!isRelative) {
-        relativeX = relativeY = 0;
-      } //note: "*1" is just a fast/short way to cast the value as a Number. WAAAY faster in Chrome, slightly slower in Firefox.
-
-
-      segment.push(x, y, relativeX + a[i + 3] * 1, relativeY + a[i + 4] * 1, relativeX += a[i + 5] * 1, relativeY += a[i + 6] * 1);
-      i += 6; // "S" (continuation of cubic bezier)
-    } else if (command === "S") {
-      difX = relativeX;
-      difY = relativeY;
-
-      if (prevCommand === "C" || prevCommand === "S") {
-        difX += relativeX - segment[segment.length - 4];
-        difY += relativeY - segment[segment.length - 3];
-      }
-
-      if (!isRelative) {
-        relativeX = relativeY = 0;
-      }
-
-      segment.push(difX, difY, x, y, relativeX += a[i + 3] * 1, relativeY += a[i + 4] * 1);
-      i += 4; // "Q" (quadratic bezier)
-    } else if (command === "Q") {
-      difX = relativeX + (x - relativeX) * twoThirds;
-      difY = relativeY + (y - relativeY) * twoThirds;
-
-      if (!isRelative) {
-        relativeX = relativeY = 0;
-      }
-
-      relativeX += a[i + 3] * 1;
-      relativeY += a[i + 4] * 1;
-      segment.push(difX, difY, relativeX + (x - relativeX) * twoThirds, relativeY + (y - relativeY) * twoThirds, relativeX, relativeY);
-      i += 4; // "T" (continuation of quadratic bezier)
-    } else if (command === "T") {
-      difX = relativeX - segment[segment.length - 4];
-      difY = relativeY - segment[segment.length - 3];
-      segment.push(relativeX + difX, relativeY + difY, x + (relativeX + difX * 1.5 - x) * twoThirds, y + (relativeY + difY * 1.5 - y) * twoThirds, relativeX = x, relativeY = y);
-      i += 2; // "H" (horizontal line)
-    } else if (command === "H") {
-      line(relativeX, relativeY, relativeX = x, relativeY);
-      i += 1; // "V" (vertical line)
-    } else if (command === "V") {
-      //adjust values because the first (and only one) isn't x in this case, it's y.
-      line(relativeX, relativeY, relativeX, relativeY = x + (isRelative ? relativeY - relativeX : 0));
-      i += 1; // "L" (line) or "Z" (close)
-    } else if (command === "L" || command === "Z") {
-      if (command === "Z") {
-        x = startX;
-        y = startY;
-        segment.closed = true;
-      }
-
-      if (command === "L" || _abs(relativeX - x) > 0.5 || _abs(relativeY - y) > 0.5) {
-        line(relativeX, relativeY, x, y);
-
-        if (command === "L") {
-          i += 2;
-        }
-      }
-
-      relativeX = x;
-      relativeY = y; // "A" (arc)
-    } else if (command === "A") {
-      beziers = arcToSegment(relativeX, relativeY, +a[i + 1], +a[i + 2], +a[i + 3], +a[i + 4], +a[i + 5], (isRelative ? relativeX : 0) + a[i + 6] * 1, (isRelative ? relativeY : 0) + a[i + 7] * 1);
-
-      if (beziers) {
-        for (j = 0; j < beziers.length; j++) {
-          segment.push(beziers[j]);
-        }
-      }
-
-      relativeX = segment[segment.length - 2];
-      relativeY = segment[segment.length - 1];
-      i += 7;
-    } else {
-      console.log(errorMessage);
-    }
-  }
-
-  i = segment.length;
-
-  if (i < 6) {
-    //in case there's odd SVG like a M0,0 command at the very end.
-    path.pop();
-    i = 0;
-  } else if (segment[0] === segment[i - 2] && segment[1] === segment[i - 1]) {
-    segment.closed = true;
-  }
-
-  path.totalPoints = points + i;
-  return path;
-} //populates the points array in alternating x/y values (like [x, y, x, y...] instead of individual point objects [{x, y}, {x, y}...] to conserve memory and stay in line with how we're handling segment arrays
-
-
-function bezierToPoints(x1, y1, x2, y2, x3, y3, x4, y4, threshold, points, index) {
-  var x12 = (x1 + x2) / 2,
-      y12 = (y1 + y2) / 2,
-      x23 = (x2 + x3) / 2,
-      y23 = (y2 + y3) / 2,
-      x34 = (x3 + x4) / 2,
-      y34 = (y3 + y4) / 2,
-      x123 = (x12 + x23) / 2,
-      y123 = (y12 + y23) / 2,
-      x234 = (x23 + x34) / 2,
-      y234 = (y23 + y34) / 2,
-      x1234 = (x123 + x234) / 2,
-      y1234 = (y123 + y234) / 2,
-      dx = x4 - x1,
-      dy = y4 - y1,
-      d2 = _abs((x2 - x4) * dy - (y2 - y4) * dx),
-      d3 = _abs((x3 - x4) * dy - (y3 - y4) * dx),
-      length;
-
-  if (!points) {
-    points = [x1, y1, x4, y4];
-    index = 2;
-  }
-
-  points.splice(index || points.length - 2, 0, x1234, y1234);
-
-  if ((d2 + d3) * (d2 + d3) > threshold * (dx * dx + dy * dy)) {
-    length = points.length;
-    bezierToPoints(x1, y1, x12, y12, x123, y123, x1234, y1234, threshold, points, index);
-    bezierToPoints(x1234, y1234, x234, y234, x34, y34, x4, y4, threshold, points, index + 2 + (points.length - length));
-  }
-
-  return points;
-}
-/*
-function getAngleBetweenPoints(x0, y0, x1, y1, x2, y2) { //angle between 3 points in radians
-	var dx1 = x1 - x0,
-		dy1 = y1 - y0,
-		dx2 = x2 - x1,
-		dy2 = y2 - y1,
-		dx3 = x2 - x0,
-		dy3 = y2 - y0,
-		a = dx1 * dx1 + dy1 * dy1,
-		b = dx2 * dx2 + dy2 * dy2,
-		c = dx3 * dx3 + dy3 * dy3;
-	return Math.acos( (a + b - c) / _sqrt(4 * a * b) );
-},
-*/
-//pointsToSegment() doesn't handle flat coordinates (where y is always 0) the way we need (the resulting control points are always right on top of the anchors), so this function basically makes the control points go directly up and down, varying in length based on the curviness (more curvy, further control points)
-
-
-function flatPointsToSegment(points, curviness) {
-  if (curviness === void 0) {
-    curviness = 1;
-  }
-
-  var x = points[0],
-      y = 0,
-      segment = [x, y],
-      i = 2;
-
-  for (; i < points.length; i += 2) {
-    segment.push(x, y, points[i], y = (points[i] - x) * curviness / 2, x = points[i], -y);
-  }
-
-  return segment;
-} //points is an array of x/y points, like [x, y, x, y, x, y]
-
-
-function pointsToSegment(points, curviness, cornerThreshold) {
-  //points = simplifyPoints(points, tolerance);
-  var l = points.length - 2,
-      x = +points[0],
-      y = +points[1],
-      nextX = +points[2],
-      nextY = +points[3],
-      segment = [x, y, x, y],
-      dx2 = nextX - x,
-      dy2 = nextY - y,
-      prevX,
-      prevY,
-      angle,
-      slope,
-      i,
-      dx1,
-      dx3,
-      dy1,
-      dy3,
-      d1,
-      d2,
-      a,
-      b,
-      c;
-
-  if (isNaN(cornerThreshold)) {
-    cornerThreshold = Math.PI / 10;
-  }
-
-  curviness = curviness || curviness === 0 ? +curviness : 1;
-
-  for (i = 2; i < l; i += 2) {
-    prevX = x;
-    prevY = y;
-    x = nextX;
-    y = nextY;
-    nextX = +points[i + 2];
-    nextY = +points[i + 3];
-    dx1 = dx2;
-    dy1 = dy2;
-    dx2 = nextX - x;
-    dy2 = nextY - y;
-    dx3 = nextX - prevX;
-    dy3 = nextY - prevY;
-    a = dx1 * dx1 + dy1 * dy1;
-    b = dx2 * dx2 + dy2 * dy2;
-    c = dx3 * dx3 + dy3 * dy3;
-    angle = Math.acos((a + b - c) / _sqrt(4 * a * b)); //angle between the 3 points
-
-    d2 = angle / Math.PI * curviness; //temporary precalculation for speed (reusing d2 variable)
-
-    d1 = _sqrt(a) * d2; //the tighter the angle, the shorter we make the handles in proportion.
-
-    d2 *= _sqrt(b);
-
-    if (x !== prevX || y !== prevY) {
-      if (angle > cornerThreshold) {
-        slope = _atan2(dy3, dx3);
-        segment.push(_round(x - _cos(slope) * d1), //first control point
-        _round(y - _sin(slope) * d1), _round(x), //anchor
-        _round(y), _round(x + _cos(slope) * d2), //second control point
-        _round(y + _sin(slope) * d2));
-      } else {
-        slope = _atan2(dy1, dx1);
-        segment.push(_round(x - _cos(slope) * d1), //first control point
-        _round(y - _sin(slope) * d1));
-        slope = _atan2(dy2, dx2);
-        segment.push(_round(x), //anchor
-        _round(y), _round(x + _cos(slope) * d2), //second control point
-        _round(y + _sin(slope) * d2));
-      }
-    }
-  }
-
-  segment.push(_round(nextX), _round(nextY), _round(nextX), _round(nextY));
-  return segment;
-} //returns the squared distance between an x/y coordinate and a segment between x1/y1 and x2/y2
-
-
-function pointToSegDist(x, y, x1, y1, x2, y2) {
-  var dx = x2 - x1,
-      dy = y2 - y1,
-      t;
-
-  if (dx || dy) {
-    t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
-
-    if (t > 1) {
-      x1 = x2;
-      y1 = y2;
-    } else if (t > 0) {
-      x1 += dx * t;
-      y1 += dy * t;
-    }
-  }
-
-  return Math.pow(x - x1, 2) + Math.pow(y - y1, 2);
-}
-
-function simplifyStep(points, first, last, tolerance, simplified) {
-  var maxSqDist = tolerance,
-      firstX = points[first],
-      firstY = points[first + 1],
-      lastX = points[last],
-      lastY = points[last + 1],
-      index,
-      i,
-      d;
-
-  for (i = first + 2; i < last; i += 2) {
-    d = pointToSegDist(points[i], points[i + 1], firstX, firstY, lastX, lastY);
-
-    if (d > maxSqDist) {
-      index = i;
-      maxSqDist = d;
-    }
-  }
-
-  if (maxSqDist > tolerance) {
-    if (index - first > 2) {
-      simplifyStep(points, first, index, tolerance, simplified);
-    }
-
-    simplified.push(points[index], points[index + 1]);
-
-    if (last - index > 2) {
-      simplifyStep(points, index, last, tolerance, simplified);
-    }
-  }
-} //points is an array of x/y values like [x, y, x, y, x, y]
-
-
-function simplifyPoints(points, tolerance) {
-  var prevX = parseFloat(points[0]),
-      prevY = parseFloat(points[1]),
-      temp = [prevX, prevY],
-      l = points.length - 2,
-      i,
-      x,
-      y,
-      dx,
-      dy,
-      result,
-      last;
-  tolerance = Math.pow(tolerance || 1, 2);
-
-  for (i = 2; i < l; i += 2) {
-    x = parseFloat(points[i]);
-    y = parseFloat(points[i + 1]);
-    dx = prevX - x;
-    dy = prevY - y;
-
-    if (dx * dx + dy * dy > tolerance) {
-      temp.push(x, y);
-      prevX = x;
-      prevY = y;
-    }
-  }
-
-  temp.push(parseFloat(points[l]), parseFloat(points[l + 1]));
-  last = temp.length - 2;
-  result = [temp[0], temp[1]];
-  simplifyStep(temp, 0, last, tolerance, result);
-  result.push(temp[last], temp[last + 1]);
-  return result;
-}
-
-function getClosestProgressOnBezier(iterations, px, py, start, end, slices, x0, y0, x1, y1, x2, y2, x3, y3) {
-  var inc = (end - start) / slices,
-      best = 0,
-      t = start,
-      x,
-      y,
-      d,
-      dx,
-      dy,
-      inv;
-  _bestDistance = _largeNum;
-
-  while (t <= end) {
-    inv = 1 - t;
-    x = inv * inv * inv * x0 + 3 * inv * inv * t * x1 + 3 * inv * t * t * x2 + t * t * t * x3;
-    y = inv * inv * inv * y0 + 3 * inv * inv * t * y1 + 3 * inv * t * t * y2 + t * t * t * y3;
-    dx = x - px;
-    dy = y - py;
-    d = dx * dx + dy * dy;
-
-    if (d < _bestDistance) {
-      _bestDistance = d;
-      best = t;
-    }
-
-    t += inc;
-  }
-
-  return iterations > 1 ? getClosestProgressOnBezier(iterations - 1, px, py, Math.max(best - inc, 0), Math.min(best + inc, 1), slices, x0, y0, x1, y1, x2, y2, x3, y3) : best;
-}
-
-function getClosestData(rawPath, x, y, slices) {
-  //returns an object with the closest j, i, and t (j is the segment index, i is the index of the point in that segment, and t is the time/progress along that bezier)
-  var closest = {
-    j: 0,
-    i: 0,
-    t: 0
-  },
-      bestDistance = _largeNum,
-      i,
-      j,
-      t,
-      segment;
-
-  for (j = 0; j < rawPath.length; j++) {
-    segment = rawPath[j];
-
-    for (i = 0; i < segment.length; i += 6) {
-      t = getClosestProgressOnBezier(1, x, y, 0, 1, slices || 20, segment[i], segment[i + 1], segment[i + 2], segment[i + 3], segment[i + 4], segment[i + 5], segment[i + 6], segment[i + 7]);
-
-      if (bestDistance > _bestDistance) {
-        bestDistance = _bestDistance;
-        closest.j = j;
-        closest.i = i;
-        closest.t = t;
-      }
-    }
-  }
-
-  return closest;
-} //subdivide a Segment closest to a specific x,y coordinate
-
-
-function subdivideSegmentNear(x, y, segment, slices, iterations) {
-  var l = segment.length,
-      bestDistance = _largeNum,
-      bestT = 0,
-      bestSegmentIndex = 0,
-      t,
-      i;
-  slices = slices || 20;
-  iterations = iterations || 3;
-
-  for (i = 0; i < l; i += 6) {
-    t = getClosestProgressOnBezier(1, x, y, 0, 1, slices, segment[i], segment[i + 1], segment[i + 2], segment[i + 3], segment[i + 4], segment[i + 5], segment[i + 6], segment[i + 7]);
-
-    if (bestDistance > _bestDistance) {
-      bestDistance = _bestDistance;
-      bestT = t;
-      bestSegmentIndex = i;
-    }
-  }
-
-  t = getClosestProgressOnBezier(iterations, x, y, bestT - 0.05, bestT + 0.05, slices, segment[bestSegmentIndex], segment[bestSegmentIndex + 1], segment[bestSegmentIndex + 2], segment[bestSegmentIndex + 3], segment[bestSegmentIndex + 4], segment[bestSegmentIndex + 5], segment[bestSegmentIndex + 6], segment[bestSegmentIndex + 7]);
-  subdivideSegment(segment, bestSegmentIndex, t);
-  return bestSegmentIndex + 6;
-}
-/*
-Takes any of the following and converts it to an all Cubic Bezier SVG data string:
-- A <path> data string like "M0,0 L2,4 v20,15 H100"
-- A RawPath, like [[x, y, x, y, x, y, x, y][[x, y, x, y, x, y, x, y]]
-- A Segment, like [x, y, x, y, x, y, x, y]
-
-Note: all numbers are rounded down to the closest 0.001 to minimize memory, maximize speed, and avoid odd numbers like 1e-13
-*/
-
-
-function rawPathToString(rawPath) {
-  if (_isNumber(rawPath[0])) {
-    //in case a segment is passed in instead
-    rawPath = [rawPath];
-  }
-
-  var result = "",
-      l = rawPath.length,
-      sl,
-      s,
-      i,
-      segment;
-
-  for (s = 0; s < l; s++) {
-    segment = rawPath[s];
-    result += "M" + _round(segment[0]) + "," + _round(segment[1]) + " C";
-    sl = segment.length;
-
-    for (i = 2; i < sl; i++) {
-      result += _round(segment[i++]) + "," + _round(segment[i++]) + " " + _round(segment[i++]) + "," + _round(segment[i++]) + " " + _round(segment[i++]) + "," + _round(segment[i]) + " ";
-    }
-
-    if (segment.closed) {
-      result += "z";
-    }
-  }
-
-  return result;
-}
-/*
-// takes a segment with coordinates [x, y, x, y, ...] and converts the control points into angles and lengths [x, y, angle, length, angle, length, x, y, angle, length, ...] so that it animates more cleanly and avoids odd breaks/kinks. For example, if you animate from 1 o'clock to 6 o'clock, it'd just go directly/linearly rather than around. So the length would be very short in the middle of the tween.
-export function cpCoordsToAngles(segment, copy) {
-	var result = copy ? segment.slice(0) : segment,
-		x, y, i;
-	for (i = 0; i < segment.length; i+=6) {
-		x = segment[i+2] - segment[i];
-		y = segment[i+3] - segment[i+1];
-		result[i+2] = Math.atan2(y, x);
-		result[i+3] = Math.sqrt(x * x + y * y);
-		x = segment[i+6] - segment[i+4];
-		y = segment[i+7] - segment[i+5];
-		result[i+4] = Math.atan2(y, x);
-		result[i+5] = Math.sqrt(x * x + y * y);
-	}
-	return result;
-}
-
-// takes a segment that was converted with cpCoordsToAngles() to have angles and lengths instead of coordinates for the control points, and converts it BACK into coordinates.
-export function cpAnglesToCoords(segment, copy) {
-	var result = copy ? segment.slice(0) : segment,
-		length = segment.length,
-		rnd = 1000,
-		angle, l, i, j;
-	for (i = 0; i < length; i+=6) {
-		angle = segment[i+2];
-		l = segment[i+3]; //length
-		result[i+2] = (((segment[i] + Math.cos(angle) * l) * rnd) | 0) / rnd;
-		result[i+3] = (((segment[i+1] + Math.sin(angle) * l) * rnd) | 0) / rnd;
-		angle = segment[i+4];
-		l = segment[i+5]; //length
-		result[i+4] = (((segment[i+6] - Math.cos(angle) * l) * rnd) | 0) / rnd;
-		result[i+5] = (((segment[i+7] - Math.sin(angle) * l) * rnd) | 0) / rnd;
-	}
-	return result;
-}
-
-//adds an "isSmooth" array to each segment and populates it with a boolean value indicating whether or not it's smooth (the control points have basically the same slope). For any smooth control points, it converts the coordinates into angle (x, in radians) and length (y) and puts them into the same index value in a smoothData array.
-export function populateSmoothData(rawPath) {
-	let j = rawPath.length,
-		smooth, segment, x, y, x2, y2, i, l, a, a2, isSmooth, smoothData;
-	while (--j > -1) {
-		segment = rawPath[j];
-		isSmooth = segment.isSmooth = segment.isSmooth || [0, 0, 0, 0];
-		smoothData = segment.smoothData = segment.smoothData || [0, 0, 0, 0];
-		isSmooth.length = 4;
-		l = segment.length - 2;
-		for (i = 6; i < l; i += 6) {
-			x = segment[i] - segment[i - 2];
-			y = segment[i + 1] - segment[i - 1];
-			x2 = segment[i + 2] - segment[i];
-			y2 = segment[i + 3] - segment[i + 1];
-			a = _atan2(y, x);
-			a2 = _atan2(y2, x2);
-			smooth = (Math.abs(a - a2) < 0.09);
-			if (smooth) {
-				smoothData[i - 2] = a;
-				smoothData[i + 2] = a2;
-				smoothData[i - 1] = _sqrt(x * x + y * y);
-				smoothData[i + 3] = _sqrt(x2 * x2 + y2 * y2);
-			}
-			isSmooth.push(smooth, smooth, 0, 0, smooth, smooth);
-		}
-		//if the first and last points are identical, check to see if there's a smooth transition. We must handle this a bit differently due to their positions in the array.
-		if (segment[l] === segment[0] && segment[l+1] === segment[1]) {
-			x = segment[0] - segment[l-2];
-			y = segment[1] - segment[l-1];
-			x2 = segment[2] - segment[0];
-			y2 = segment[3] - segment[1];
-			a = _atan2(y, x);
-			a2 = _atan2(y2, x2);
-			if (Math.abs(a - a2) < 0.09) {
-				smoothData[l-2] = a;
-				smoothData[2] = a2;
-				smoothData[l-1] = _sqrt(x * x + y * y);
-				smoothData[3] = _sqrt(x2 * x2 + y2 * y2);
-				isSmooth[l-2] = isSmooth[l-1] = true; //don't change indexes 2 and 3 because we'll trigger everything from the END, and this will optimize file size a bit.
-			}
-		}
-	}
-	return rawPath;
-}
-export function pointToScreen(svgElement, point) {
-	if (arguments.length < 2) { //by default, take the first set of coordinates in the path as the point
-		let rawPath = getRawPath(svgElement);
-		point = svgElement.ownerSVGElement.createSVGPoint();
-		point.x = rawPath[0][0];
-		point.y = rawPath[0][1];
-	}
-	return point.matrixTransform(svgElement.getScreenCTM());
-}
-
-*/
-},{}],"node_modules/gsap/utils/matrix.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getGlobalMatrix = getGlobalMatrix;
-exports.Matrix2D = void 0;
-
-/*!
- * matrix 3.0.2
- * https://greensock.com
- *
- * Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-var _doc,
-    _win,
-    _docElement,
-    _body,
-    _divContainer,
-    _svgContainer,
-    _identityMatrix,
-    _transformProp = "transform",
-    _transformOriginProp = _transformProp + "Origin",
-    _setDoc = function _setDoc(element) {
-  var doc = element.ownerDocument || element;
-
-  if (!(_transformProp in element.style) && "msTransform" in element.style) {
-    //to improve compatibility with old Microsoft browsers
-    _transformProp = "msTransform";
-    _transformOriginProp = _transformProp + "Origin";
-  }
-
-  while (doc.parentNode && (doc = doc.parentNode)) {}
-
-  _win = window;
-  _identityMatrix = new Matrix2D();
-
-  if (doc) {
-    _doc = doc;
-    _docElement = doc.documentElement;
-    _body = doc.body;
-  }
-
-  return doc;
-},
-    _svgTemps = [],
-    //we create 3 elements for SVG, and 3 for other DOM elements and cache them for performance reasons. They get nested in _divContainer and _svgContainer so that just one element is added to the DOM on each successive attempt. Again, performance is key.
-_divTemps = [],
-    _getDocScrollTop = function _getDocScrollTop() {
-  return _win.pageYOffset || _doc.scrollTop || _docElement.scrollTop || _body.scrollTop || 0;
-},
-    _getDocScrollLeft = function _getDocScrollLeft() {
-  return _win.pageXOffset || _doc.scrollLeft || _docElement.scrollLeft || _body.scrollLeft || 0;
-},
-    _svgOwner = function _svgOwner(element) {
-  return element.ownerSVGElement || ((element.tagName + "").toLowerCase() === "svg" ? element : null);
-},
-    _isFixed = function _isFixed(element) {
-  if (_win.getComputedStyle(element).position === "fixed") {
-    return true;
-  }
-
-  element = element.parentNode;
-
-  if (element && element.nodeType === 1) {
-    // avoid document fragments which will throw an error.
-    return _isFixed(element);
-  }
-},
-    _createSibling = function _createSibling(element, i) {
-  if (element.parentNode && (_doc || _setDoc(element))) {
-    var svg = _svgOwner(element),
-        ns = svg ? svg.getAttribute("xmlns") || "http://www.w3.org/2000/svg" : "http://www.w3.org/1999/xhtml",
-        type = svg ? i ? "rect" : "g" : "div",
-        x = i !== 2 ? 0 : 100,
-        y = i === 3 ? 100 : 0,
-        css = "position:absolute;display:block;",
-        e = _doc.createElementNS ? _doc.createElementNS(ns.replace(/^https/, "http"), type) : _doc.createElement(type);
-
-    if (i) {
-      if (!svg) {
-        if (!_divContainer) {
-          _divContainer = _createSibling(element);
-          _divContainer.style.cssText = css;
-        }
-
-        e.style.cssText = css + "width:1px;height:1px;top:" + y + "px;left:" + x + "px";
-
-        _divContainer.appendChild(e);
-      } else {
-        if (!_svgContainer) {
-          _svgContainer = _createSibling(element);
-        }
-
-        e.setAttribute("width", 1);
-        e.setAttribute("height", 1);
-        e.setAttribute("transform", "translate(" + x + "," + y + ")");
-
-        _svgContainer.appendChild(e);
-      }
-    }
-
-    return e;
-  }
-
-  throw "Need document and parent.";
-},
-    _placeSiblings = function _placeSiblings(element) {
-  var svg = _svgOwner(element),
-      isRootSVG = element === svg,
-      siblings = svg ? _svgTemps : _divTemps,
-      container,
-      m,
-      b,
-      x,
-      y;
-
-  if (element === _win) {
-    return element;
-  }
-
-  if (!siblings.length) {
-    siblings.push(_createSibling(element, 1), _createSibling(element, 2), _createSibling(element, 3));
-  }
-
-  container = svg ? _svgContainer : _divContainer;
-
-  if (svg) {
-    b = isRootSVG ? {
-      x: 0,
-      y: 0
-    } : element.getBBox();
-    m = element.transform ? element.transform.baseVal : []; // IE11 doesn't follow the spec.
-
-    if (m.length) {
-      m = m.consolidate().matrix;
-      x = m.a * b.x + m.c * b.y;
-      y = m.b * b.x + m.d * b.y;
-    } else {
-      m = _identityMatrix;
-
-      if (element.tagName.toLowerCase() === "g") {
-        x = y = 0;
-      } else {
-        x = b.x;
-        y = b.y;
-      }
-    }
-
-    container.setAttribute("transform", "matrix(" + m.a + "," + m.b + "," + m.c + "," + m.d + "," + (m.e + x) + "," + (m.f + y) + ")");
-    (isRootSVG ? svg : element.parentNode).appendChild(container);
-  } else {
-    container.style.top = element.offsetTop + "px";
-    container.style.left = element.offsetLeft + "px";
-    m = _win.getComputedStyle(element);
-    container.style[_transformProp] = m[_transformProp];
-    container.style[_transformOriginProp] = m[_transformOriginProp];
-    container.style.position = m.position === "fixed" ? "fixed" : "absolute";
-    element.parentNode.appendChild(container);
-  }
-
-  return container;
-},
-    _setMatrix = function _setMatrix(m, a, b, c, d, e, f) {
-  m.a = a;
-  m.b = b;
-  m.c = c;
-  m.d = d;
-  m.e = e;
-  m.f = f;
-  return m;
-};
-
-var Matrix2D =
-/*#__PURE__*/
-function () {
-  function Matrix2D(a, b, c, d, e, f) {
-    if (a === void 0) {
-      a = 1;
-    }
-
-    if (b === void 0) {
-      b = 0;
-    }
-
-    if (c === void 0) {
-      c = 0;
-    }
-
-    if (d === void 0) {
-      d = 1;
-    }
-
-    if (e === void 0) {
-      e = 0;
-    }
-
-    if (f === void 0) {
-      f = 0;
-    }
-
-    _setMatrix(this, a, b, c, d, e, f);
-  }
-
-  var _proto = Matrix2D.prototype;
-
-  _proto.inverse = function inverse() {
-    var a = this.a,
-        b = this.b,
-        c = this.c,
-        d = this.d,
-        e = this.e,
-        f = this.f,
-        determinant = a * d - b * c;
-    return _setMatrix(this, d / determinant, -b / determinant, -c / determinant, a / determinant, (c * f - d * e) / determinant, -(a * f - b * e) / determinant);
-  };
-
-  _proto.multiply = function multiply(matrix) {
-    var a = this.a,
-        b = this.b,
-        c = this.c,
-        d = this.d,
-        e = this.e,
-        f = this.f,
-        a2 = matrix.a,
-        b2 = matrix.c,
-        c2 = matrix.b,
-        d2 = matrix.d,
-        e2 = matrix.e,
-        f2 = matrix.f;
-    return _setMatrix(this, a2 * a + c2 * c, a2 * b + c2 * d, b2 * a + d2 * c, b2 * b + d2 * d, e + e2 * a + f2 * c, f + e2 * b + f2 * d);
-  };
-
-  _proto.equals = function equals(matrix) {
-    var a = this.a,
-        b = this.b,
-        c = this.c,
-        d = this.d,
-        e = this.e,
-        f = this.f;
-    return a === matrix.a && b === matrix.b && c === matrix.c && d === matrix.d && e === matrix.e && f === matrix.f;
-  };
-
-  _proto.apply = function apply(point, decoratee) {
-    if (decoratee === void 0) {
-      decoratee = {};
-    }
-
-    var x = point.x,
-        y = point.y,
-        a = this.a,
-        b = this.b,
-        c = this.c,
-        d = this.d,
-        e = this.e,
-        f = this.f;
-    decoratee.x = x * a + y * c + e;
-    decoratee.y = x * b + y * d + f;
-    return decoratee;
-  };
-
-  return Matrix2D;
-}(); //feed in an element and it'll return a 2D matrix (optionally inverted) so that you can translate between coordinate spaces.
-// Inverting lets you translate a global point into a local coordinate space. No inverting lets you go the other way.
-// We needed this to work around various browser bugs, like Firefox doesn't accurately report getScreenCTM() when there
-// are transforms applied to ancestor elements.
-// The matrix math to convert any x/y coordinate is:
-//     tx = m.a * x + m.c * y + m.e
-//     ty = m.b * x + m.d * y + m.f
-
-
-exports.Matrix2D = Matrix2D;
-
-function getGlobalMatrix(element, inverse) {
-  if (!element || !element.parentNode) {
-    return new Matrix2D();
-  }
-
-  var svg = _svgOwner(element),
-      temps = svg ? _svgTemps : _divTemps,
-      container = _placeSiblings(element),
-      b1 = temps[0].getBoundingClientRect(),
-      b2 = temps[1].getBoundingClientRect(),
-      b3 = temps[2].getBoundingClientRect(),
-      parent = container.parentNode,
-      isFixed = _isFixed(element),
-      m = new Matrix2D((b2.left - b1.left) / 100, (b2.top - b1.top) / 100, (b3.left - b1.left) / 100, (b3.top - b1.top) / 100, b1.left + (isFixed ? 0 : _getDocScrollLeft()), b1.top + (isFixed ? 0 : _getDocScrollTop()));
-
-  parent.removeChild(container);
-  return inverse ? m.inverse() : m;
-}
-},{}],"node_modules/gsap/MotionPathPlugin.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.MotionPathPlugin = void 0;
-
-var _paths = require("./utils/paths.js");
-
-var _matrix = require("./utils/matrix.js");
-
-/*!
- * MotionPathPlugin 3.0.2
- * https://greensock.com
- *
- * @license Copyright 2008-2019, GreenSock. All rights reserved.
- * Subject to the terms at https://greensock.com/standard-license or for
- * Club GreenSock members, the agreement issued with that membership.
- * @author: Jack Doyle, jack@greensock.com
-*/
-
-/* eslint-disable */
-var _xProps = ["x", "translateX", "left", "marginLeft"],
-    _yProps = ["y", "translateY", "top", "marginTop"],
-    _DEG2RAD = Math.PI / 180,
-    gsap,
-    PropTween,
-    _getUnit,
-    _toArray,
-    _getGSAP = function _getGSAP() {
-  return gsap || typeof window !== "undefined" && (gsap = window.gsap) && gsap.registerPlugin && gsap;
-},
-    _populateSegmentFromArray = function _populateSegmentFromArray(segment, values, property, mode) {
-  //mode: 0 = x but don't fill y yet, 1 = y.
-  var l = values.length,
-      si = mode,
-      i = 0;
-
-  for (; i < l; i++) {
-    segment[si] = parseFloat(values[i][property]);
-    si += 2;
-  }
-
-  return segment;
-},
-    _getPropNum = function _getPropNum(target, prop, unit) {
-  return parseFloat(target._gsap.get(target, prop, unit || "px")) || 0;
-},
-    _relativize = function _relativize(segment) {
-  var x = segment[0],
-      y = segment[1],
-      i;
-
-  for (i = 2; i < segment.length; i += 2) {
-    x = segment[i] += x;
-    y = segment[i + 1] += y;
-  }
-},
-    _segmentToRawPath = function _segmentToRawPath(plugin, segment, target, x, y, slicer, vars) {
-  if (vars.type === "cubic") {
-    segment = [segment];
-  } else {
-    segment.unshift(_getPropNum(target, x, vars.unitX), y ? _getPropNum(target, y, vars.unitY) : 0);
-
-    if (vars.relative) {
-      _relativize(segment);
-    }
-
-    var pointFunc = y ? _paths.pointsToSegment : _paths.flatPointsToSegment;
-    segment = [pointFunc(segment, vars.curviness)];
-  }
-
-  segment = slicer(_align(segment, target, vars));
-
-  _addDimensionalPropTween(plugin, target, x, segment, "x", vars.unitX);
-
-  if (y) {
-    _addDimensionalPropTween(plugin, target, y, segment, "y", vars.unitY);
-  }
-
-  return (0, _paths.cacheRawPathMeasurements)(segment, vars.resolution || (vars.curviness === 0 ? 20 : 12)); //when curviness is 0, it creates control points right on top of the anchors which makes it more sensitive to resolution, thus we change the default accordingly.
-},
-    _emptyFunc = function _emptyFunc(v) {
-  return v;
-},
-    _align = function _align(rawPath, target, _ref) {
-  var align = _ref.align,
-      matrix = _ref.matrix,
-      offsetX = _ref.offsetX,
-      offsetY = _ref.offsetY;
-  var x, y, tween, targetMatrix, alignTarget, alignPath, alignMatrix, invertedMatrix, tx, ty;
-
-  if (!rawPath || !rawPath.length) {
-    return (0, _paths.getRawPath)("M0,0L0,0");
-  }
-
-  if (align) {
-    if (align === "self" || (alignTarget = _toArray(align)[0] || target) === target) {
-      x = _getPropNum(target, "x") - rawPath[0][0];
-      y = _getPropNum(target, "y") - rawPath[0][1];
-      (0, _paths.transformRawPath)(rawPath, 1, 0, 0, 1, x, y);
-    } else {
-      tween = gsap.to(target, {
-        xPercent: 0,
-        yPercent: 0,
-        x: 0,
-        y: 0
-      }).progress(1); //get rid of transforms, otherwise they'll throw off the measurements.
-
-      targetMatrix = (0, _matrix.getGlobalMatrix)(target); //we cannot use something like getScreenCTM() because of a major bug in Firefox that has existed for years and prevents values from being reported correctly when an ancestor element has transforms applied. Our proprietary getGlobalMatrix() works across all browsers.
-
-      tween.render(-1).kill();
-
-      if (alignTarget.getTotalLength && alignTarget.tagName.toLowerCase() === "path") {
-        //path
-        alignPath = (0, _paths.getRawPath)(alignTarget);
-        alignMatrix = (0, _matrix.getGlobalMatrix)(alignTarget.parentNode);
-        x = alignPath[0][0];
-        y = alignPath[0][1];
-      } else {
-        alignMatrix = (0, _matrix.getGlobalMatrix)(alignTarget);
-        x = 0;
-        y = 0;
-      }
-
-      tx = alignMatrix.a * x + alignMatrix.c * y + alignMatrix.e - targetMatrix.e;
-      ty = alignMatrix.b * x + alignMatrix.d * y + alignMatrix.f - targetMatrix.f;
-      invertedMatrix = (0, _matrix.getGlobalMatrix)(target.parentNode, true);
-      x = invertedMatrix.a * tx + invertedMatrix.c * ty;
-      y = invertedMatrix.b * tx + invertedMatrix.d * ty;
-      tx = rawPath[0][0];
-      ty = rawPath[0][1];
-      alignMatrix.multiply(invertedMatrix);
-      x -= alignMatrix.a * tx + alignMatrix.c * ty;
-      y -= alignMatrix.b * tx + alignMatrix.d * ty;
-      (0, _paths.transformRawPath)(rawPath, alignMatrix.a, alignMatrix.b, alignMatrix.c, alignMatrix.d, x, y);
-    }
-  }
-
-  if (matrix) {
-    (0, _paths.transformRawPath)(rawPath, matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
-  } else if (offsetX || offsetY) {
-    (0, _paths.transformRawPath)(rawPath, 1, 0, 0, 1, offsetX || 0, offsetY || 0);
-  }
-
-  return rawPath;
-},
-    _addDimensionalPropTween = function _addDimensionalPropTween(plugin, target, property, rawPath, pathProperty, forceUnit) {
-  var cache = target._gsap,
-      pt = plugin._pt = new PropTween(plugin._pt, target, property, 0, 0, _emptyFunc, 0, cache.set(target, property, plugin));
-  pt.u = _getUnit(cache.get(target, property, forceUnit)) || 0;
-  pt.path = rawPath;
-  pt.pp = pathProperty;
-
-  plugin._props.push(property);
-},
-    _sliceModifier = function _sliceModifier(start, end) {
-  return function (rawPath) {
-    return start || end !== 1 ? (0, _paths.sliceRawPath)(rawPath, start, end) : rawPath;
-  };
-};
-
-var MotionPathPlugin = {
-  version: "3.0.2",
-  name: "motionPath",
-  register: function register(core, Plugin, propTween) {
-    gsap = core;
-    _getUnit = gsap.utils.getUnit;
-    _toArray = gsap.utils.toArray;
-    PropTween = propTween;
-  },
-  init: function init(target, vars, tween, index, targets) {
-    if (!gsap) {
-      console.warn("Please gsap.registerPlugin(MotionPathPlugin)");
-      return false;
-    }
-
-    if (!(typeof vars === "object" && !vars.style) || !vars.path) {
-      vars = {
-        path: vars
-      };
-    }
-
-    var rawPaths = [],
-        path = vars.path,
-        firstObj = path[0],
-        autoRotate = vars.autoRotate,
-        slicer = _sliceModifier(vars.start, "end" in vars ? vars.end : 1),
-        rawPath,
-        p,
-        x,
-        y;
-
-    this.rawPaths = rawPaths;
-    this.target = target;
-
-    if (this.rotate = autoRotate || autoRotate === 0) {
-      //get the rotational data FIRST so that the setTransform() method is called in the correct order in the render() loop - rotation gets set last.
-      this.rOffset = parseFloat(autoRotate) || 0;
-      this.radians = !!vars.useRadians;
-      this.rProp = vars.rotation || "rotation"; // rotation property
-
-      this.rSet = target._gsap.set(target, this.rProp, this); // rotation setter
-
-      this.ru = _getUnit(target._gsap.get(target, this.rProp)) || 0; // rotation units
-    }
-
-    if (Array.isArray(path) && !("closed" in path) && typeof firstObj !== "number") {
-      for (p in firstObj) {
-        if (~_xProps.indexOf(p)) {
-          x = p;
-        } else if (~_yProps.indexOf(p)) {
-          y = p;
-        }
-      }
-
-      if (x && y) {
-        //correlated values
-        rawPaths.push(_segmentToRawPath(this, _populateSegmentFromArray(_populateSegmentFromArray([], path, x, 0), path, y, 1), target, vars.x || x, vars.y || y, slicer, vars));
-      } else {
-        x = y = 0;
-      }
-
-      for (p in firstObj) {
-        if (p !== x && p !== y) {
-          rawPaths.push(_segmentToRawPath(this, _populateSegmentFromArray([], path, p, 0), target, p, 0, slicer, vars));
-        }
-      }
-    } else {
-      rawPath = slicer(_align((0, _paths.getRawPath)(vars.path), target, vars));
-      (0, _paths.cacheRawPathMeasurements)(rawPath, vars.resolution);
-      rawPaths.push(rawPath);
-
-      _addDimensionalPropTween(this, target, vars.x || "x", rawPath, "x", vars.unitX || "px");
-
-      _addDimensionalPropTween(this, target, vars.y || "y", rawPath, "y", vars.unitY || "px");
-    }
-  },
-  render: function render(ratio, data) {
-    var rawPaths = data.rawPaths,
-        i = rawPaths.length,
-        pt = data._pt;
-
-    if (ratio > 1) {
-      ratio = 1;
-    } else if (ratio < 0) {
-      ratio = 0;
-    }
-
-    while (i--) {
-      (0, _paths.getPositionOnPath)(rawPaths[i], ratio, !i && data.rotate, rawPaths[i]);
-    }
-
-    while (pt) {
-      pt.set(pt.t, pt.p, pt.path[pt.pp] + pt.u, pt.d, ratio);
-      pt = pt._next;
-    }
-
-    if (data.rotate) {
-      data.rSet(data.target, data.rProp, rawPaths[0].angle * (data.radians ? _DEG2RAD : 1) + data.rOffset + data.ru, data, ratio);
-    }
-  },
-  getLength: function getLength(path) {
-    return (0, _paths.cacheRawPathMeasurements)((0, _paths.getRawPath)(path)).totalLength;
-  },
-  sliceRawPath: _paths.sliceRawPath,
-  getRawPath: _paths.getRawPath,
-  pointsToSegment: _paths.pointsToSegment,
-  stringToRawPath: _paths.stringToRawPath,
-  rawPathToString: _paths.rawPathToString,
-  transformRawPath: _paths.transformRawPath,
-  convertToPath: function convertToPath(targets, swap) {
-    return _toArray(targets).map(function (target) {
-      return (0, _paths.convertToPath)(target, swap !== false);
-    });
-  },
-  getGlobalMatrix: _matrix.getGlobalMatrix,
-  getPositionOnPath: _paths.getPositionOnPath,
-  cacheRawPathMeasurements: _paths.cacheRawPathMeasurements,
-  arrayToRawPath: function arrayToRawPath(value, vars) {
-    vars = vars || {};
-
-    var segment = _populateSegmentFromArray(_populateSegmentFromArray([], value, vars.x || "x", 0), value, vars.y || "y", 1);
-
-    if (vars.relative) {
-      _relativize(segment);
-    }
-
-    return [vars.type === "cubic" ? segment : (0, _paths.pointsToSegment)(segment, vars.curviness)];
-  }
-};
-exports.default = exports.MotionPathPlugin = MotionPathPlugin;
-_getGSAP() && gsap.registerPlugin(MotionPathPlugin);
-},{"./utils/paths.js":"node_modules/gsap/utils/paths.js","./utils/matrix.js":"node_modules/gsap/utils/matrix.js"}],"node_modules/process/browser.js":[function(require,module,exports) {
+})({"node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
@@ -37632,30 +29647,11048 @@ var widgetsTooltip = $.ui.tooltip;
 
 
 }));
-},{}],"app/app.js":[function(require,module,exports) {
+},{}],"node_modules/@babel/runtime/helpers/interopRequireDefault.js":[function(require,module,exports) {
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    "default": obj
+  };
+}
+
+module.exports = _interopRequireDefault;
+},{}],"node_modules/@babel/runtime/helpers/classCallCheck.js":[function(require,module,exports) {
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+module.exports = _classCallCheck;
+},{}],"node_modules/@babel/runtime/helpers/typeof.js":[function(require,module,exports) {
+function _typeof(obj) {
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return typeof obj;
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+},{}],"node_modules/@babel/runtime/helpers/assertThisInitialized.js":[function(require,module,exports) {
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+module.exports = _assertThisInitialized;
+},{}],"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js":[function(require,module,exports) {
+var _typeof = require("../helpers/typeof");
+
+var assertThisInitialized = require("./assertThisInitialized");
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return assertThisInitialized(self);
+}
+
+module.exports = _possibleConstructorReturn;
+},{"../helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","./assertThisInitialized":"node_modules/@babel/runtime/helpers/assertThisInitialized.js"}],"node_modules/@babel/runtime/helpers/getPrototypeOf.js":[function(require,module,exports) {
+function _getPrototypeOf(o) {
+  module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+module.exports = _getPrototypeOf;
+},{}],"node_modules/@babel/runtime/helpers/setPrototypeOf.js":[function(require,module,exports) {
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+},{}],"node_modules/@babel/runtime/helpers/inherits.js":[function(require,module,exports) {
+var setPrototypeOf = require("./setPrototypeOf");
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf(subClass, superClass);
+}
+
+module.exports = _inherits;
+},{"./setPrototypeOf":"node_modules/@babel/runtime/helpers/setPrototypeOf.js"}],"node_modules/@babel/runtime/helpers/superPropBase.js":[function(require,module,exports) {
+var getPrototypeOf = require("./getPrototypeOf");
+
+function _superPropBase(object, property) {
+  while (!Object.prototype.hasOwnProperty.call(object, property)) {
+    object = getPrototypeOf(object);
+    if (object === null) break;
+  }
+
+  return object;
+}
+
+module.exports = _superPropBase;
+},{"./getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js"}],"node_modules/@babel/runtime/helpers/get.js":[function(require,module,exports) {
+var superPropBase = require("./superPropBase");
+
+function _get(target, property, receiver) {
+  if (typeof Reflect !== "undefined" && Reflect.get) {
+    module.exports = _get = Reflect.get;
+  } else {
+    module.exports = _get = function _get(target, property, receiver) {
+      var base = superPropBase(target, property);
+      if (!base) return;
+      var desc = Object.getOwnPropertyDescriptor(base, property);
+
+      if (desc.get) {
+        return desc.get.call(receiver);
+      }
+
+      return desc.value;
+    };
+  }
+
+  return _get(target, property, receiver || target);
+}
+
+module.exports = _get;
+},{"./superPropBase":"node_modules/@babel/runtime/helpers/superPropBase.js"}],"node_modules/@babel/runtime/helpers/createClass.js":[function(require,module,exports) {
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+module.exports = _createClass;
+},{}],"node_modules/yaml/browser/dist/constants.js":[function(require,module,exports) {
 "use strict";
 
-var _gsap = require("gsap");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Type = exports.Char = void 0;
+var Char = {
+  ANCHOR: '&',
+  COMMENT: '#',
+  TAG: '!',
+  DIRECTIVES_END: '-',
+  DOCUMENT_END: '.'
+};
+exports.Char = Char;
+var Type = {
+  ALIAS: 'ALIAS',
+  BLANK_LINE: 'BLANK_LINE',
+  BLOCK_FOLDED: 'BLOCK_FOLDED',
+  BLOCK_LITERAL: 'BLOCK_LITERAL',
+  COMMENT: 'COMMENT',
+  DIRECTIVE: 'DIRECTIVE',
+  DOCUMENT: 'DOCUMENT',
+  FLOW_MAP: 'FLOW_MAP',
+  FLOW_SEQ: 'FLOW_SEQ',
+  MAP: 'MAP',
+  MAP_KEY: 'MAP_KEY',
+  MAP_VALUE: 'MAP_VALUE',
+  PLAIN: 'PLAIN',
+  QUOTE_DOUBLE: 'QUOTE_DOUBLE',
+  QUOTE_SINGLE: 'QUOTE_SINGLE',
+  SEQ: 'SEQ',
+  SEQ_ITEM: 'SEQ_ITEM'
+};
+exports.Type = Type;
+},{}],"node_modules/@babel/runtime/helpers/isNativeFunction.js":[function(require,module,exports) {
+function _isNativeFunction(fn) {
+  return Function.toString.call(fn).indexOf("[native code]") !== -1;
+}
 
-var _PixiPlugin = require("gsap/PixiPlugin.js");
+module.exports = _isNativeFunction;
+},{}],"node_modules/@babel/runtime/helpers/construct.js":[function(require,module,exports) {
+var setPrototypeOf = require("./setPrototypeOf");
 
-var _MotionPathPlugin = require("gsap/MotionPathPlugin.js");
+function isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+  if (Reflect.construct.sham) return false;
+  if (typeof Proxy === "function") return true;
+
+  try {
+    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function _construct(Parent, args, Class) {
+  if (isNativeReflectConstruct()) {
+    module.exports = _construct = Reflect.construct;
+  } else {
+    module.exports = _construct = function _construct(Parent, args, Class) {
+      var a = [null];
+      a.push.apply(a, args);
+      var Constructor = Function.bind.apply(Parent, a);
+      var instance = new Constructor();
+      if (Class) setPrototypeOf(instance, Class.prototype);
+      return instance;
+    };
+  }
+
+  return _construct.apply(null, arguments);
+}
+
+module.exports = _construct;
+},{"./setPrototypeOf":"node_modules/@babel/runtime/helpers/setPrototypeOf.js"}],"node_modules/@babel/runtime/helpers/wrapNativeSuper.js":[function(require,module,exports) {
+var getPrototypeOf = require("./getPrototypeOf");
+
+var setPrototypeOf = require("./setPrototypeOf");
+
+var isNativeFunction = require("./isNativeFunction");
+
+var construct = require("./construct");
+
+function _wrapNativeSuper(Class) {
+  var _cache = typeof Map === "function" ? new Map() : undefined;
+
+  module.exports = _wrapNativeSuper = function _wrapNativeSuper(Class) {
+    if (Class === null || !isNativeFunction(Class)) return Class;
+
+    if (typeof Class !== "function") {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    if (typeof _cache !== "undefined") {
+      if (_cache.has(Class)) return _cache.get(Class);
+
+      _cache.set(Class, Wrapper);
+    }
+
+    function Wrapper() {
+      return construct(Class, arguments, getPrototypeOf(this).constructor);
+    }
+
+    Wrapper.prototype = Object.create(Class.prototype, {
+      constructor: {
+        value: Wrapper,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    return setPrototypeOf(Wrapper, Class);
+  };
+
+  return _wrapNativeSuper(Class);
+}
+
+module.exports = _wrapNativeSuper;
+},{"./getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","./setPrototypeOf":"node_modules/@babel/runtime/helpers/setPrototypeOf.js","./isNativeFunction":"node_modules/@babel/runtime/helpers/isNativeFunction.js","./construct":"node_modules/@babel/runtime/helpers/construct.js"}],"node_modules/@babel/runtime/helpers/arrayWithHoles.js":[function(require,module,exports) {
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+module.exports = _arrayWithHoles;
+},{}],"node_modules/@babel/runtime/helpers/iterableToArrayLimit.js":[function(require,module,exports) {
+function _iterableToArrayLimit(arr, i) {
+  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+    return;
+  }
+
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+module.exports = _iterableToArrayLimit;
+},{}],"node_modules/@babel/runtime/helpers/nonIterableRest.js":[function(require,module,exports) {
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
+module.exports = _nonIterableRest;
+},{}],"node_modules/@babel/runtime/helpers/slicedToArray.js":[function(require,module,exports) {
+var arrayWithHoles = require("./arrayWithHoles");
+
+var iterableToArrayLimit = require("./iterableToArrayLimit");
+
+var nonIterableRest = require("./nonIterableRest");
+
+function _slicedToArray(arr, i) {
+  return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || nonIterableRest();
+}
+
+module.exports = _slicedToArray;
+},{"./arrayWithHoles":"node_modules/@babel/runtime/helpers/arrayWithHoles.js","./iterableToArrayLimit":"node_modules/@babel/runtime/helpers/iterableToArrayLimit.js","./nonIterableRest":"node_modules/@babel/runtime/helpers/nonIterableRest.js"}],"node_modules/yaml/browser/dist/cst/source-utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getLinePos = getLinePos;
+exports.getLine = getLine;
+exports.getPrettyContext = getPrettyContext;
+
+function findLineStarts(src) {
+  var ls = [0];
+  var offset = src.indexOf('\n');
+
+  while (offset !== -1) {
+    offset += 1;
+    ls.push(offset);
+    offset = src.indexOf('\n', offset);
+  }
+
+  return ls;
+}
+
+function getSrcInfo(cst) {
+  var lineStarts, src;
+
+  if (typeof cst === 'string') {
+    lineStarts = findLineStarts(cst);
+    src = cst;
+  } else {
+    if (Array.isArray(cst)) cst = cst[0];
+
+    if (cst && cst.context) {
+      if (!cst.lineStarts) cst.lineStarts = findLineStarts(cst.context.src);
+      lineStarts = cst.lineStarts;
+      src = cst.context.src;
+    }
+  }
+
+  return {
+    lineStarts: lineStarts,
+    src: src
+  };
+}
+/**
+ * @typedef {Object} LinePos - One-indexed position in the source
+ * @property {number} line
+ * @property {number} col
+ */
+
+/**
+ * Determine the line/col position matching a character offset.
+ *
+ * Accepts a source string or a CST document as the second parameter. With
+ * the latter, starting indices for lines are cached in the document as
+ * `lineStarts: number[]`.
+ *
+ * Returns a one-indexed `{ line, col }` location if found, or
+ * `undefined` otherwise.
+ *
+ * @param {number} offset
+ * @param {string|Document|Document[]} cst
+ * @returns {?LinePos}
+ */
+
+
+function getLinePos(offset, cst) {
+  if (typeof offset !== 'number' || offset < 0) return null;
+
+  var _getSrcInfo = getSrcInfo(cst),
+      lineStarts = _getSrcInfo.lineStarts,
+      src = _getSrcInfo.src;
+
+  if (!lineStarts || !src || offset > src.length) return null;
+
+  for (var i = 0; i < lineStarts.length; ++i) {
+    var start = lineStarts[i];
+
+    if (offset < start) {
+      return {
+        line: i,
+        col: offset - lineStarts[i - 1] + 1
+      };
+    }
+
+    if (offset === start) return {
+      line: i + 1,
+      col: 1
+    };
+  }
+
+  var line = lineStarts.length;
+  return {
+    line: line,
+    col: offset - lineStarts[line - 1] + 1
+  };
+}
+/**
+ * Get a specified line from the source.
+ *
+ * Accepts a source string or a CST document as the second parameter. With
+ * the latter, starting indices for lines are cached in the document as
+ * `lineStarts: number[]`.
+ *
+ * Returns the line as a string if found, or `null` otherwise.
+ *
+ * @param {number} line One-indexed line number
+ * @param {string|Document|Document[]} cst
+ * @returns {?string}
+ */
+
+
+function getLine(line, cst) {
+  var _getSrcInfo2 = getSrcInfo(cst),
+      lineStarts = _getSrcInfo2.lineStarts,
+      src = _getSrcInfo2.src;
+
+  if (!lineStarts || !(line >= 1) || line > lineStarts.length) return null;
+  var start = lineStarts[line - 1];
+  var end = lineStarts[line]; // undefined for last line; that's ok for slice()
+
+  while (end && end > start && src[end - 1] === '\n') {
+    --end;
+  }
+
+  return src.slice(start, end);
+}
+/**
+ * Pretty-print the starting line from the source indicated by the range `pos`
+ *
+ * Trims output to `maxWidth` chars while keeping the starting column visible,
+ * using `…` at either end to indicate dropped characters.
+ *
+ * Returns a two-line string (or `null`) with `\n` as separator; the second line
+ * will hold appropriately indented `^` marks indicating the column range.
+ *
+ * @param {Object} pos
+ * @param {LinePos} pos.start
+ * @param {LinePos} [pos.end]
+ * @param {string|Document|Document[]*} cst
+ * @param {number} [maxWidth=80]
+ * @returns {?string}
+ */
+
+
+function getPrettyContext(_ref, cst) {
+  var start = _ref.start,
+      end = _ref.end;
+  var maxWidth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 80;
+  var src = getLine(start.line, cst);
+  if (!src) return null;
+  var col = start.col;
+
+  if (src.length > maxWidth) {
+    if (col <= maxWidth - 10) {
+      src = src.substr(0, maxWidth - 1) + '…';
+    } else {
+      var halfWidth = Math.round(maxWidth / 2);
+      if (src.length > col + halfWidth) src = src.substr(0, col + halfWidth - 1) + '…';
+      col -= src.length - maxWidth;
+      src = '…' + src.substr(1 - maxWidth);
+    }
+  }
+
+  var errLen = 1;
+  var errEnd = '';
+
+  if (end) {
+    if (end.line === start.line && col + (end.col - start.col) <= maxWidth + 1) {
+      errLen = end.col - start.col;
+    } else {
+      errLen = Math.min(src.length + 1, maxWidth) - col;
+      errEnd = '…';
+    }
+  }
+
+  var offset = col > 1 ? ' '.repeat(col - 1) : '';
+  var err = '^'.repeat(errLen);
+  return "".concat(src, "\n").concat(offset).concat(err).concat(errEnd);
+}
+},{}],"node_modules/yaml/browser/dist/cst/Range.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var Range =
+/*#__PURE__*/
+function () {
+  (0, _createClass2.default)(Range, null, [{
+    key: "copy",
+    value: function copy(orig) {
+      return new Range(orig.start, orig.end);
+    }
+  }]);
+
+  function Range(start, end) {
+    (0, _classCallCheck2.default)(this, Range);
+    this.start = start;
+    this.end = end || start;
+  }
+
+  (0, _createClass2.default)(Range, [{
+    key: "isEmpty",
+    value: function isEmpty() {
+      return typeof this.start !== 'number' || !this.end || this.end <= this.start;
+    }
+    /**
+     * Set `origStart` and `origEnd` to point to the original source range for
+     * this node, which may differ due to dropped CR characters.
+     *
+     * @param {number[]} cr - Positions of dropped CR characters
+     * @param {number} offset - Starting index of `cr` from the last call
+     * @returns {number} - The next offset, matching the one found for `origStart`
+     */
+
+  }, {
+    key: "setOrigRange",
+    value: function setOrigRange(cr, offset) {
+      var start = this.start,
+          end = this.end;
+
+      if (cr.length === 0 || end <= cr[0]) {
+        this.origStart = start;
+        this.origEnd = end;
+        return offset;
+      }
+
+      var i = offset;
+
+      while (i < cr.length) {
+        if (cr[i] > start) break;else ++i;
+      }
+
+      this.origStart = start + i;
+      var nextOffset = i;
+
+      while (i < cr.length) {
+        // if end was at \n, it should now be at \r
+        if (cr[i] >= end) break;else ++i;
+      }
+
+      this.origEnd = end + i;
+      return nextOffset;
+    }
+  }]);
+  return Range;
+}();
+
+exports.default = Range;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js"}],"node_modules/yaml/browser/dist/cst/Node.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _constants = require("../constants");
+
+var _sourceUtils = require("./source-utils");
+
+var _Range = _interopRequireDefault(require("./Range"));
+/** Root class of all nodes */
+
+
+var Node =
+/*#__PURE__*/
+function () {
+  (0, _createClass2.default)(Node, null, [{
+    key: "addStringTerminator",
+    value: function addStringTerminator(src, offset, str) {
+      if (str[str.length - 1] === '\n') return str;
+      var next = Node.endOfWhiteSpace(src, offset);
+      return next >= src.length || src[next] === '\n' ? str + '\n' : str;
+    } // ^(---|...)
+
+  }, {
+    key: "atDocumentBoundary",
+    value: function atDocumentBoundary(src, offset, sep) {
+      var ch0 = src[offset];
+      if (!ch0) return true;
+      var prev = src[offset - 1];
+      if (prev && prev !== '\n') return false;
+
+      if (sep) {
+        if (ch0 !== sep) return false;
+      } else {
+        if (ch0 !== _constants.Char.DIRECTIVES_END && ch0 !== _constants.Char.DOCUMENT_END) return false;
+      }
+
+      var ch1 = src[offset + 1];
+      var ch2 = src[offset + 2];
+      if (ch1 !== ch0 || ch2 !== ch0) return false;
+      var ch3 = src[offset + 3];
+      return !ch3 || ch3 === '\n' || ch3 === '\t' || ch3 === ' ';
+    }
+  }, {
+    key: "endOfIdentifier",
+    value: function endOfIdentifier(src, offset) {
+      var ch = src[offset];
+      var isVerbatim = ch === '<';
+      var notOk = isVerbatim ? ['\n', '\t', ' ', '>'] : ['\n', '\t', ' ', '[', ']', '{', '}', ','];
+
+      while (ch && notOk.indexOf(ch) === -1) {
+        ch = src[offset += 1];
+      }
+
+      if (isVerbatim && ch === '>') offset += 1;
+      return offset;
+    }
+  }, {
+    key: "endOfIndent",
+    value: function endOfIndent(src, offset) {
+      var ch = src[offset];
+
+      while (ch === ' ') {
+        ch = src[offset += 1];
+      }
+
+      return offset;
+    }
+  }, {
+    key: "endOfLine",
+    value: function endOfLine(src, offset) {
+      var ch = src[offset];
+
+      while (ch && ch !== '\n') {
+        ch = src[offset += 1];
+      }
+
+      return offset;
+    }
+  }, {
+    key: "endOfWhiteSpace",
+    value: function endOfWhiteSpace(src, offset) {
+      var ch = src[offset];
+
+      while (ch === '\t' || ch === ' ') {
+        ch = src[offset += 1];
+      }
+
+      return offset;
+    }
+  }, {
+    key: "startOfLine",
+    value: function startOfLine(src, offset) {
+      var ch = src[offset - 1];
+      if (ch === '\n') return offset;
+
+      while (ch && ch !== '\n') {
+        ch = src[offset -= 1];
+      }
+
+      return offset + 1;
+    }
+    /**
+     * End of indentation, or null if the line's indent level is not more
+     * than `indent`
+     *
+     * @param {string} src
+     * @param {number} indent
+     * @param {number} lineStart
+     * @returns {?number}
+     */
+
+  }, {
+    key: "endOfBlockIndent",
+    value: function endOfBlockIndent(src, indent, lineStart) {
+      var inEnd = Node.endOfIndent(src, lineStart);
+
+      if (inEnd > lineStart + indent) {
+        return inEnd;
+      } else {
+        var wsEnd = Node.endOfWhiteSpace(src, inEnd);
+        var ch = src[wsEnd];
+        if (!ch || ch === '\n') return wsEnd;
+      }
+
+      return null;
+    }
+  }, {
+    key: "atBlank",
+    value: function atBlank(src, offset, endAsBlank) {
+      var ch = src[offset];
+      return ch === '\n' || ch === '\t' || ch === ' ' || endAsBlank && !ch;
+    }
+  }, {
+    key: "atCollectionItem",
+    value: function atCollectionItem(src, offset) {
+      var ch = src[offset];
+      return (ch === '?' || ch === ':' || ch === '-') && Node.atBlank(src, offset + 1, true);
+    }
+  }, {
+    key: "nextNodeIsIndented",
+    value: function nextNodeIsIndented(ch, indentDiff, indicatorAsIndent) {
+      if (!ch || indentDiff < 0) return false;
+      if (indentDiff > 0) return true;
+      return indicatorAsIndent && ch === '-';
+    } // should be at line or string end, or at next non-whitespace char
+
+  }, {
+    key: "normalizeOffset",
+    value: function normalizeOffset(src, offset) {
+      var ch = src[offset];
+      return !ch ? offset : ch !== '\n' && src[offset - 1] === '\n' ? offset - 1 : Node.endOfWhiteSpace(src, offset);
+    } // fold single newline into space, multiple newlines to N - 1 newlines
+    // presumes src[offset] === '\n'
+
+  }, {
+    key: "foldNewline",
+    value: function foldNewline(src, offset, indent) {
+      var inCount = 0;
+      var error = false;
+      var fold = '';
+      var ch = src[offset + 1];
+
+      while (ch === ' ' || ch === '\t' || ch === '\n') {
+        switch (ch) {
+          case '\n':
+            inCount = 0;
+            offset += 1;
+            fold += '\n';
+            break;
+
+          case '\t':
+            if (inCount <= indent) error = true;
+            offset = Node.endOfWhiteSpace(src, offset + 2) - 1;
+            break;
+
+          case ' ':
+            inCount += 1;
+            offset += 1;
+            break;
+        }
+
+        ch = src[offset + 1];
+      }
+
+      if (!fold) fold = ' ';
+      if (ch && inCount <= indent) error = true;
+      return {
+        fold: fold,
+        offset: offset,
+        error: error
+      };
+    }
+  }]);
+
+  function Node(type, props, context) {
+    (0, _classCallCheck2.default)(this, Node);
+    Object.defineProperty(this, 'context', {
+      value: context || null,
+      writable: true
+    });
+    this.error = null;
+    this.range = null;
+    this.valueRange = null;
+    this.props = props || [];
+    this.type = type;
+    this.value = null;
+  }
+
+  (0, _createClass2.default)(Node, [{
+    key: "getPropValue",
+    value: function getPropValue(idx, key, skipKey) {
+      if (!this.context) return null;
+      var src = this.context.src;
+      var prop = this.props[idx];
+      return prop && src[prop.start] === key ? src.slice(prop.start + (skipKey ? 1 : 0), prop.end) : null;
+    }
+  }, {
+    key: "commentHasRequiredWhitespace",
+    value: function commentHasRequiredWhitespace(start) {
+      var src = this.context.src;
+      if (this.header && start === this.header.end) return false;
+      if (!this.valueRange) return false;
+      var end = this.valueRange.end;
+      return start !== end || Node.atBlank(src, end - 1);
+    }
+  }, {
+    key: "parseComment",
+    value: function parseComment(start) {
+      var src = this.context.src;
+
+      if (src[start] === _constants.Char.COMMENT) {
+        var end = Node.endOfLine(src, start + 1);
+        var commentRange = new _Range.default(start, end);
+        this.props.push(commentRange);
+        return end;
+      }
+
+      return start;
+    }
+    /**
+     * Populates the `origStart` and `origEnd` values of all ranges for this
+     * node. Extended by child classes to handle descendant nodes.
+     *
+     * @param {number[]} cr - Positions of dropped CR characters
+     * @param {number} offset - Starting index of `cr` from the last call
+     * @returns {number} - The next offset, matching the one found for `origStart`
+     */
+
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      if (this.range) offset = this.range.setOrigRange(cr, offset);
+      if (this.valueRange) this.valueRange.setOrigRange(cr, offset);
+      this.props.forEach(function (prop) {
+        return prop.setOrigRange(cr, offset);
+      });
+      return offset;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      var src = this.context.src,
+          range = this.range,
+          value = this.value;
+      if (value != null) return value;
+      var str = src.slice(range.start, range.end);
+      return Node.addStringTerminator(src, range.end, str);
+    }
+  }, {
+    key: "anchor",
+    get: function get() {
+      for (var i = 0; i < this.props.length; ++i) {
+        var anchor = this.getPropValue(i, _constants.Char.ANCHOR, true);
+        if (anchor != null) return anchor;
+      }
+
+      return null;
+    }
+  }, {
+    key: "comment",
+    get: function get() {
+      var comments = [];
+
+      for (var i = 0; i < this.props.length; ++i) {
+        var comment = this.getPropValue(i, _constants.Char.COMMENT, true);
+        if (comment != null) comments.push(comment);
+      }
+
+      return comments.length > 0 ? comments.join('\n') : null;
+    }
+  }, {
+    key: "hasComment",
+    get: function get() {
+      if (this.context) {
+        var src = this.context.src;
+
+        for (var i = 0; i < this.props.length; ++i) {
+          if (src[this.props[i].start] === _constants.Char.COMMENT) return true;
+        }
+      }
+
+      return false;
+    }
+  }, {
+    key: "hasProps",
+    get: function get() {
+      if (this.context) {
+        var src = this.context.src;
+
+        for (var i = 0; i < this.props.length; ++i) {
+          if (src[this.props[i].start] !== _constants.Char.COMMENT) return true;
+        }
+      }
+
+      return false;
+    }
+  }, {
+    key: "includesTrailingLines",
+    get: function get() {
+      return false;
+    }
+  }, {
+    key: "jsonLike",
+    get: function get() {
+      var jsonLikeTypes = [_constants.Type.FLOW_MAP, _constants.Type.FLOW_SEQ, _constants.Type.QUOTE_DOUBLE, _constants.Type.QUOTE_SINGLE];
+      return jsonLikeTypes.indexOf(this.type) !== -1;
+    }
+  }, {
+    key: "rangeAsLinePos",
+    get: function get() {
+      if (!this.range || !this.context) return undefined;
+      var start = (0, _sourceUtils.getLinePos)(this.range.start, this.context.root);
+      if (!start) return undefined;
+      var end = (0, _sourceUtils.getLinePos)(this.range.end, this.context.root);
+      return {
+        start: start,
+        end: end
+      };
+    }
+  }, {
+    key: "rawValue",
+    get: function get() {
+      if (!this.valueRange || !this.context) return null;
+      var _this$valueRange = this.valueRange,
+          start = _this$valueRange.start,
+          end = _this$valueRange.end;
+      return this.context.src.slice(start, end);
+    }
+  }, {
+    key: "tag",
+    get: function get() {
+      for (var i = 0; i < this.props.length; ++i) {
+        var tag = this.getPropValue(i, _constants.Char.TAG, false);
+
+        if (tag != null) {
+          if (tag[1] === '<') {
+            return {
+              verbatim: tag.slice(2, -1)
+            };
+          } else {
+            // eslint-disable-next-line no-unused-vars
+            var _tag$match = tag.match(/^(.*!)([^!]*)$/),
+                _tag$match2 = (0, _slicedToArray2.default)(_tag$match, 3),
+                _ = _tag$match2[0],
+                handle = _tag$match2[1],
+                suffix = _tag$match2[2];
+
+            return {
+              handle: handle,
+              suffix: suffix
+            };
+          }
+        }
+      }
+
+      return null;
+    }
+  }, {
+    key: "valueRangeContainsNewline",
+    get: function get() {
+      if (!this.valueRange || !this.context) return false;
+      var _this$valueRange2 = this.valueRange,
+          start = _this$valueRange2.start,
+          end = _this$valueRange2.end;
+      var src = this.context.src;
+
+      for (var i = start; i < end; ++i) {
+        if (src[i] === '\n') return true;
+      }
+
+      return false;
+    }
+  }]);
+  return Node;
+}();
+
+exports.default = Node;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/slicedToArray":"node_modules/@babel/runtime/helpers/slicedToArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","../constants":"node_modules/yaml/browser/dist/constants.js","./source-utils":"node_modules/yaml/browser/dist/cst/source-utils.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/errors.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.YAMLWarning = exports.YAMLSyntaxError = exports.YAMLSemanticError = exports.YAMLReferenceError = exports.YAMLError = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _wrapNativeSuper2 = _interopRequireDefault(require("@babel/runtime/helpers/wrapNativeSuper"));
+
+var _Node = _interopRequireDefault(require("./cst/Node"));
+
+var _sourceUtils = require("./cst/source-utils");
+
+var _Range = _interopRequireDefault(require("./cst/Range"));
+
+var YAMLError =
+/*#__PURE__*/
+function (_Error) {
+  (0, _inherits2.default)(YAMLError, _Error);
+
+  function YAMLError(name, source, message) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, YAMLError);
+    if (!message || !(source instanceof _Node.default)) throw new Error("Invalid arguments for new ".concat(name));
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLError).call(this));
+    _this.name = name;
+    _this.message = message;
+    _this.source = source;
+    return _this;
+  }
+
+  (0, _createClass2.default)(YAMLError, [{
+    key: "makePretty",
+    value: function makePretty() {
+      if (!this.source) return;
+      this.nodeType = this.source.type;
+      var cst = this.source.context && this.source.context.root;
+
+      if (typeof this.offset === 'number') {
+        this.range = new _Range.default(this.offset, this.offset + 1);
+        var start = cst && (0, _sourceUtils.getLinePos)(this.offset, cst);
+
+        if (start) {
+          var end = {
+            line: start.line,
+            col: start.col + 1
+          };
+          this.linePos = {
+            start: start,
+            end: end
+          };
+        }
+
+        delete this.offset;
+      } else {
+        this.range = this.source.range;
+        this.linePos = this.source.rangeAsLinePos;
+      }
+
+      if (this.linePos) {
+        var _this$linePos$start = this.linePos.start,
+            line = _this$linePos$start.line,
+            col = _this$linePos$start.col;
+        this.message += " at line ".concat(line, ", column ").concat(col);
+        var ctx = cst && (0, _sourceUtils.getPrettyContext)(this.linePos, cst);
+        if (ctx) this.message += ":\n\n".concat(ctx, "\n");
+      }
+
+      delete this.source;
+    }
+  }]);
+  return YAMLError;
+}((0, _wrapNativeSuper2.default)(Error));
+
+exports.YAMLError = YAMLError;
+
+var YAMLReferenceError =
+/*#__PURE__*/
+function (_YAMLError) {
+  (0, _inherits2.default)(YAMLReferenceError, _YAMLError);
+
+  function YAMLReferenceError(source, message) {
+    (0, _classCallCheck2.default)(this, YAMLReferenceError);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLReferenceError).call(this, 'YAMLReferenceError', source, message));
+  }
+
+  return YAMLReferenceError;
+}(YAMLError);
+
+exports.YAMLReferenceError = YAMLReferenceError;
+
+var YAMLSemanticError =
+/*#__PURE__*/
+function (_YAMLError2) {
+  (0, _inherits2.default)(YAMLSemanticError, _YAMLError2);
+
+  function YAMLSemanticError(source, message) {
+    (0, _classCallCheck2.default)(this, YAMLSemanticError);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLSemanticError).call(this, 'YAMLSemanticError', source, message));
+  }
+
+  return YAMLSemanticError;
+}(YAMLError);
+
+exports.YAMLSemanticError = YAMLSemanticError;
+
+var YAMLSyntaxError =
+/*#__PURE__*/
+function (_YAMLError3) {
+  (0, _inherits2.default)(YAMLSyntaxError, _YAMLError3);
+
+  function YAMLSyntaxError(source, message) {
+    (0, _classCallCheck2.default)(this, YAMLSyntaxError);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLSyntaxError).call(this, 'YAMLSyntaxError', source, message));
+  }
+
+  return YAMLSyntaxError;
+}(YAMLError);
+
+exports.YAMLSyntaxError = YAMLSyntaxError;
+
+var YAMLWarning =
+/*#__PURE__*/
+function (_YAMLError4) {
+  (0, _inherits2.default)(YAMLWarning, _YAMLError4);
+
+  function YAMLWarning(source, message) {
+    (0, _classCallCheck2.default)(this, YAMLWarning);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLWarning).call(this, 'YAMLWarning', source, message));
+  }
+
+  return YAMLWarning;
+}(YAMLError);
+
+exports.YAMLWarning = YAMLWarning;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/wrapNativeSuper":"node_modules/@babel/runtime/helpers/wrapNativeSuper.js","./cst/Node":"node_modules/yaml/browser/dist/cst/Node.js","./cst/source-utils":"node_modules/yaml/browser/dist/cst/source-utils.js","./cst/Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/BlankLine.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var BlankLine =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(BlankLine, _Node);
+
+  function BlankLine() {
+    (0, _classCallCheck2.default)(this, BlankLine);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(BlankLine).call(this, _constants.Type.BLANK_LINE));
+  }
+
+  (0, _createClass2.default)(BlankLine, [{
+    key: "parse",
+
+    /**
+     * Parses blank lines from the source
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first \n character
+     * @returns {number} - Index of the character after this
+     */
+    value: function parse(context, start) {
+      this.context = context;
+      var src = context.src;
+      var offset = start + 1;
+
+      while (_Node2.default.atBlank(src, offset)) {
+        var lineEnd = _Node2.default.endOfWhiteSpace(src, offset);
+
+        if (lineEnd === '\n') offset = lineEnd + 1;else break;
+      }
+
+      this.range = new _Range.default(start, offset);
+      return offset;
+    }
+  }, {
+    key: "includesTrailingLines",
+    get: function get() {
+      return true;
+    }
+  }]);
+  return BlankLine;
+}(_Node2.default);
+
+exports.default = BlankLine;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/CollectionItem.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _BlankLine = _interopRequireDefault(require("./BlankLine"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var CollectionItem =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(CollectionItem, _Node);
+
+  function CollectionItem(type, props) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, CollectionItem);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(CollectionItem).call(this, type, props));
+    _this.node = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(CollectionItem, [{
+    key: "parse",
+
+    /**
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this
+     */
+    value: function parse(context, start) {
+      this.context = context;
+      var parseNode = context.parseNode,
+          src = context.src;
+      var atLineStart = context.atLineStart,
+          lineStart = context.lineStart;
+      if (!atLineStart && this.type === _constants.Type.SEQ_ITEM) this.error = new _errors.YAMLSemanticError(this, 'Sequence items must not have preceding content on the same line');
+      var indent = atLineStart ? start - lineStart : context.indent;
+
+      var offset = _Node2.default.endOfWhiteSpace(src, start + 1);
+
+      var ch = src[offset];
+      var inlineComment = ch === '#';
+      var comments = [];
+      var blankLine = null;
+
+      while (ch === '\n' || ch === '#') {
+        if (ch === '#') {
+          var _end = _Node2.default.endOfLine(src, offset + 1);
+
+          comments.push(new _Range.default(offset, _end));
+          offset = _end;
+        } else {
+          atLineStart = true;
+          lineStart = offset + 1;
+
+          var wsEnd = _Node2.default.endOfWhiteSpace(src, lineStart);
+
+          if (src[wsEnd] === '\n' && comments.length === 0) {
+            blankLine = new _BlankLine.default();
+            lineStart = blankLine.parse({
+              src: src
+            }, lineStart);
+          }
+
+          offset = _Node2.default.endOfIndent(src, lineStart);
+        }
+
+        ch = src[offset];
+      }
+
+      if (_Node2.default.nextNodeIsIndented(ch, offset - (lineStart + indent), this.type !== _constants.Type.SEQ_ITEM)) {
+        this.node = parseNode({
+          atLineStart: atLineStart,
+          inCollection: false,
+          indent: indent,
+          lineStart: lineStart,
+          parent: this
+        }, offset);
+      } else if (ch && lineStart > start + 1) {
+        offset = lineStart - 1;
+      }
+
+      if (this.node) {
+        if (blankLine) {
+          // Only blank lines preceding non-empty nodes are captured. Note that
+          // this means that collection item range start indices do not always
+          // increase monotonically. -- eemeli/yaml#126
+          var items = context.parent.items || context.parent.contents;
+          if (items) items.push(blankLine);
+        }
+
+        if (comments.length) Array.prototype.push.apply(this.props, comments);
+        offset = this.node.range.end;
+      } else {
+        if (inlineComment) {
+          var c = comments[0];
+          this.props.push(c);
+          offset = c.end;
+        } else {
+          offset = _Node2.default.endOfLine(src, start + 1);
+        }
+      }
+
+      var end = this.node ? this.node.valueRange.end : offset;
+      this.valueRange = new _Range.default(start, end);
+      return offset;
+    }
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      offset = (0, _get2.default)((0, _getPrototypeOf2.default)(CollectionItem.prototype), "setOrigRanges", this).call(this, cr, offset);
+      return this.node ? this.node.setOrigRanges(cr, offset) : offset;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      var src = this.context.src,
+          node = this.node,
+          range = this.range,
+          value = this.value;
+      if (value != null) return value;
+      var str = node ? src.slice(range.start, node.range.start) + String(node) : src.slice(range.start, range.end);
+      return _Node2.default.addStringTerminator(src, range.end, str);
+    }
+  }, {
+    key: "includesTrailingLines",
+    get: function get() {
+      return !!this.node && this.node.includesTrailingLines;
+    }
+  }]);
+  return CollectionItem;
+}(_Node2.default);
+
+exports.default = CollectionItem;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","./BlankLine":"node_modules/yaml/browser/dist/cst/BlankLine.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/Comment.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var Comment =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Comment, _Node);
+
+  function Comment() {
+    (0, _classCallCheck2.default)(this, Comment);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Comment).call(this, _constants.Type.COMMENT));
+  }
+  /**
+   * Parses a comment line from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar
+   */
+
+
+  (0, _createClass2.default)(Comment, [{
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var offset = this.parseComment(start);
+      this.range = new _Range.default(start, offset);
+      return offset;
+    }
+  }]);
+  return Comment;
+}(_Node2.default);
+
+exports.default = Comment;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/Collection.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.grabCollectionEndComments = grabCollectionEndComments;
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _BlankLine = _interopRequireDefault(require("./BlankLine"));
+
+var _CollectionItem = _interopRequireDefault(require("./CollectionItem"));
+
+var _Comment = _interopRequireDefault(require("./Comment"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+function grabCollectionEndComments(node) {
+  var cnode = node;
+
+  while (cnode instanceof _CollectionItem.default) {
+    cnode = cnode.node;
+  }
+
+  if (!(cnode instanceof Collection)) return null;
+  var len = cnode.items.length;
+  var ci = -1;
+
+  for (var i = len - 1; i >= 0; --i) {
+    var n = cnode.items[i];
+
+    if (n.type === _constants.Type.COMMENT) {
+      // Keep sufficiently indented comments with preceding node
+      var _n$context = n.context,
+          indent = _n$context.indent,
+          lineStart = _n$context.lineStart;
+      if (indent > 0 && n.range.start >= lineStart + indent) break;
+      ci = i;
+    } else if (n.type === _constants.Type.BLANK_LINE) ci = i;else break;
+  }
+
+  if (ci === -1) return null;
+  var ca = cnode.items.splice(ci, len - ci);
+  var prevEnd = ca[0].range.start;
+
+  while (true) {
+    cnode.range.end = prevEnd;
+    if (cnode.valueRange && cnode.valueRange.end > prevEnd) cnode.valueRange.end = prevEnd;
+    if (cnode === node) break;
+    cnode = cnode.context.parent;
+  }
+
+  return ca;
+}
+
+var Collection =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Collection, _Node);
+  (0, _createClass2.default)(Collection, null, [{
+    key: "nextContentHasIndent",
+    value: function nextContentHasIndent(src, offset, indent) {
+      var lineStart = _Node2.default.endOfLine(src, offset) + 1;
+      offset = _Node2.default.endOfWhiteSpace(src, lineStart);
+      var ch = src[offset];
+      if (!ch) return false;
+      if (offset >= lineStart + indent) return true;
+      if (ch !== '#' && ch !== '\n') return false;
+      return Collection.nextContentHasIndent(src, offset, indent);
+    }
+  }]);
+
+  function Collection(firstItem) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Collection);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Collection).call(this, firstItem.type === _constants.Type.SEQ_ITEM ? _constants.Type.SEQ : _constants.Type.MAP));
+
+    for (var i = firstItem.props.length - 1; i >= 0; --i) {
+      if (firstItem.props[i].start < firstItem.context.lineStart) {
+        // props on previous line are assumed by the collection
+        _this.props = firstItem.props.slice(0, i + 1);
+        firstItem.props = firstItem.props.slice(i + 1);
+        var itemRange = firstItem.props[0] || firstItem.valueRange;
+        firstItem.range.start = itemRange.start;
+        break;
+      }
+    }
+
+    _this.items = [firstItem];
+    var ec = grabCollectionEndComments(firstItem);
+    if (ec) Array.prototype.push.apply(_this.items, ec);
+    return _this;
+  }
+
+  (0, _createClass2.default)(Collection, [{
+    key: "parse",
+
+    /**
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this
+     */
+    value: function parse(context, start) {
+      this.context = context;
+      var parseNode = context.parseNode,
+          src = context.src; // It's easier to recalculate lineStart here rather than tracking down the
+      // last context from which to read it -- eemeli/yaml#2
+
+      var lineStart = _Node2.default.startOfLine(src, start);
+
+      var firstItem = this.items[0]; // First-item context needs to be correct for later comment handling
+      // -- eemeli/yaml#17
+
+      firstItem.context.parent = this;
+      this.valueRange = _Range.default.copy(firstItem.valueRange);
+      var indent = firstItem.range.start - firstItem.context.lineStart;
+      var offset = start;
+      offset = _Node2.default.normalizeOffset(src, offset);
+      var ch = src[offset];
+      var atLineStart = _Node2.default.endOfWhiteSpace(src, lineStart) === offset;
+      var prevIncludesTrailingLines = false;
+
+      while (ch) {
+        while (ch === '\n' || ch === '#') {
+          if (atLineStart && ch === '\n' && !prevIncludesTrailingLines) {
+            var blankLine = new _BlankLine.default();
+            offset = blankLine.parse({
+              src: src
+            }, offset);
+            this.valueRange.end = offset;
+
+            if (offset >= src.length) {
+              ch = null;
+              break;
+            }
+
+            this.items.push(blankLine);
+            offset -= 1; // blankLine.parse() consumes terminal newline
+          } else if (ch === '#') {
+            if (offset < lineStart + indent && !Collection.nextContentHasIndent(src, offset, indent)) {
+              return offset;
+            }
+
+            var comment = new _Comment.default();
+            offset = comment.parse({
+              indent: indent,
+              lineStart: lineStart,
+              src: src
+            }, offset);
+            this.items.push(comment);
+            this.valueRange.end = offset;
+
+            if (offset >= src.length) {
+              ch = null;
+              break;
+            }
+          }
+
+          lineStart = offset + 1;
+          offset = _Node2.default.endOfIndent(src, lineStart);
+
+          if (_Node2.default.atBlank(src, offset)) {
+            var wsEnd = _Node2.default.endOfWhiteSpace(src, offset);
+
+            var next = src[wsEnd];
+
+            if (!next || next === '\n' || next === '#') {
+              offset = wsEnd;
+            }
+          }
+
+          ch = src[offset];
+          atLineStart = true;
+        }
+
+        if (!ch) {
+          break;
+        }
+
+        if (offset !== lineStart + indent && (atLineStart || ch !== ':')) {
+          if (lineStart > start) offset = lineStart;
+          break;
+        }
+
+        if (firstItem.type === _constants.Type.SEQ_ITEM !== (ch === '-')) {
+          var typeswitch = true;
+
+          if (ch === '-') {
+            // map key may start with -, as long as it's followed by a non-whitespace char
+            var _next = src[offset + 1];
+            typeswitch = !_next || _next === '\n' || _next === '\t' || _next === ' ';
+          }
+
+          if (typeswitch) {
+            if (lineStart > start) offset = lineStart;
+            break;
+          }
+        }
+
+        var node = parseNode({
+          atLineStart: atLineStart,
+          inCollection: true,
+          indent: indent,
+          lineStart: lineStart,
+          parent: this
+        }, offset);
+        if (!node) return offset; // at next document start
+
+        this.items.push(node);
+        this.valueRange.end = node.valueRange.end;
+        offset = _Node2.default.normalizeOffset(src, node.range.end);
+        ch = src[offset];
+        atLineStart = false;
+        prevIncludesTrailingLines = node.includesTrailingLines; // Need to reset lineStart and atLineStart here if preceding node's range
+        // has advanced to check the current line's indentation level
+        // -- eemeli/yaml#10 & eemeli/yaml#38
+
+        if (ch) {
+          var ls = offset - 1;
+          var prev = src[ls];
+
+          while (prev === ' ' || prev === '\t') {
+            prev = src[--ls];
+          }
+
+          if (prev === '\n') {
+            lineStart = ls + 1;
+            atLineStart = true;
+          }
+        }
+
+        var ec = grabCollectionEndComments(node);
+        if (ec) Array.prototype.push.apply(this.items, ec);
+      }
+
+      return offset;
+    }
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      offset = (0, _get2.default)((0, _getPrototypeOf2.default)(Collection.prototype), "setOrigRanges", this).call(this, cr, offset);
+      this.items.forEach(function (node) {
+        offset = node.setOrigRanges(cr, offset);
+      });
+      return offset;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      var src = this.context.src,
+          items = this.items,
+          range = this.range,
+          value = this.value;
+      if (value != null) return value;
+      var str = src.slice(range.start, items[0].range.start) + String(items[0]);
+
+      for (var i = 1; i < items.length; ++i) {
+        var item = items[i];
+        var _item$context = item.context,
+            atLineStart = _item$context.atLineStart,
+            indent = _item$context.indent;
+        if (atLineStart) for (var _i = 0; _i < indent; ++_i) {
+          str += ' ';
+        }
+        str += String(item);
+      }
+
+      return _Node2.default.addStringTerminator(src, range.end, str);
+    }
+  }, {
+    key: "includesTrailingLines",
+    get: function get() {
+      return this.items.length > 0;
+    }
+  }]);
+  return Collection;
+}(_Node2.default);
+
+exports.default = Collection;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","./BlankLine":"node_modules/yaml/browser/dist/cst/BlankLine.js","./CollectionItem":"node_modules/yaml/browser/dist/cst/CollectionItem.js","./Comment":"node_modules/yaml/browser/dist/cst/Comment.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/Directive.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var Directive =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Directive, _Node);
+  (0, _createClass2.default)(Directive, null, [{
+    key: "endOfDirective",
+    value: function endOfDirective(src, offset) {
+      var ch = src[offset];
+
+      while (ch && ch !== '\n' && ch !== '#') {
+        ch = src[offset += 1];
+      } // last char can't be whitespace
+
+
+      ch = src[offset - 1];
+
+      while (ch === ' ' || ch === '\t') {
+        offset -= 1;
+        ch = src[offset - 1];
+      }
+
+      return offset;
+    }
+  }]);
+
+  function Directive() {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Directive);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Directive).call(this, _constants.Type.DIRECTIVE));
+    _this.name = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(Directive, [{
+    key: "parseName",
+    value: function parseName(start) {
+      var src = this.context.src;
+      var offset = start;
+      var ch = src[offset];
+
+      while (ch && ch !== '\n' && ch !== '\t' && ch !== ' ') {
+        ch = src[offset += 1];
+      }
+
+      this.name = src.slice(start, offset);
+      return offset;
+    }
+  }, {
+    key: "parseParameters",
+    value: function parseParameters(start) {
+      var src = this.context.src;
+      var offset = start;
+      var ch = src[offset];
+
+      while (ch && ch !== '\n' && ch !== '#') {
+        ch = src[offset += 1];
+      }
+
+      this.valueRange = new _Range.default(start, offset);
+      return offset;
+    }
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var offset = this.parseName(start + 1);
+      offset = this.parseParameters(offset);
+      offset = this.parseComment(offset);
+      this.range = new _Range.default(start, offset);
+      return offset;
+    }
+  }, {
+    key: "parameters",
+    get: function get() {
+      var raw = this.rawValue;
+      return raw ? raw.trim().split(/[ \t]+/) : [];
+    }
+  }]);
+  return Directive;
+}(_Node2.default);
+
+exports.default = Directive;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/Document.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _BlankLine = _interopRequireDefault(require("./BlankLine"));
+
+var _Collection = require("./Collection");
+
+var _Comment = _interopRequireDefault(require("./Comment"));
+
+var _Directive = _interopRequireDefault(require("./Directive"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var Document =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Document, _Node);
+  (0, _createClass2.default)(Document, null, [{
+    key: "startCommentOrEndBlankLine",
+    value: function startCommentOrEndBlankLine(src, start) {
+      var offset = _Node2.default.endOfWhiteSpace(src, start);
+
+      var ch = src[offset];
+      return ch === '#' || ch === '\n' ? offset : start;
+    }
+  }]);
+
+  function Document() {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Document);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Document).call(this, _constants.Type.DOCUMENT));
+    _this.directives = null;
+    _this.contents = null;
+    _this.directivesEndMarker = null;
+    _this.documentEndMarker = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(Document, [{
+    key: "parseDirectives",
+    value: function parseDirectives(start) {
+      var src = this.context.src;
+      this.directives = [];
+      var atLineStart = true;
+      var hasDirectives = false;
+      var offset = start;
+
+      while (!_Node2.default.atDocumentBoundary(src, offset, _constants.Char.DIRECTIVES_END)) {
+        offset = Document.startCommentOrEndBlankLine(src, offset);
+
+        switch (src[offset]) {
+          case '\n':
+            if (atLineStart) {
+              var blankLine = new _BlankLine.default();
+              offset = blankLine.parse({
+                src: src
+              }, offset);
+
+              if (offset < src.length) {
+                this.directives.push(blankLine);
+              }
+            } else {
+              offset += 1;
+              atLineStart = true;
+            }
+
+            break;
+
+          case '#':
+            {
+              var comment = new _Comment.default();
+              offset = comment.parse({
+                src: src
+              }, offset);
+              this.directives.push(comment);
+              atLineStart = false;
+            }
+            break;
+
+          case '%':
+            {
+              var directive = new _Directive.default();
+              offset = directive.parse({
+                parent: this,
+                src: src
+              }, offset);
+              this.directives.push(directive);
+              hasDirectives = true;
+              atLineStart = false;
+            }
+            break;
+
+          default:
+            if (hasDirectives) {
+              this.error = new _errors.YAMLSemanticError(this, 'Missing directives-end indicator line');
+            } else if (this.directives.length > 0) {
+              this.contents = this.directives;
+              this.directives = [];
+            }
+
+            return offset;
+        }
+      }
+
+      if (src[offset]) {
+        this.directivesEndMarker = new _Range.default(offset, offset + 3);
+        return offset + 3;
+      }
+
+      if (hasDirectives) {
+        this.error = new _errors.YAMLSemanticError(this, 'Missing directives-end indicator line');
+      } else if (this.directives.length > 0) {
+        this.contents = this.directives;
+        this.directives = [];
+      }
+
+      return offset;
+    }
+  }, {
+    key: "parseContents",
+    value: function parseContents(start) {
+      var _this$context = this.context,
+          parseNode = _this$context.parseNode,
+          src = _this$context.src;
+      if (!this.contents) this.contents = [];
+      var lineStart = start;
+
+      while (src[lineStart - 1] === '-') {
+        lineStart -= 1;
+      }
+
+      var offset = _Node2.default.endOfWhiteSpace(src, start);
+
+      var atLineStart = lineStart === start;
+      this.valueRange = new _Range.default(offset);
+
+      while (!_Node2.default.atDocumentBoundary(src, offset, _constants.Char.DOCUMENT_END)) {
+        switch (src[offset]) {
+          case '\n':
+            if (atLineStart) {
+              var blankLine = new _BlankLine.default();
+              offset = blankLine.parse({
+                src: src
+              }, offset);
+
+              if (offset < src.length) {
+                this.contents.push(blankLine);
+              }
+            } else {
+              offset += 1;
+              atLineStart = true;
+            }
+
+            lineStart = offset;
+            break;
+
+          case '#':
+            {
+              var comment = new _Comment.default();
+              offset = comment.parse({
+                src: src
+              }, offset);
+              this.contents.push(comment);
+              atLineStart = false;
+            }
+            break;
+
+          default:
+            {
+              var iEnd = _Node2.default.endOfIndent(src, offset);
+
+              var context = {
+                atLineStart: atLineStart,
+                indent: -1,
+                inFlow: false,
+                inCollection: false,
+                lineStart: lineStart,
+                parent: this
+              };
+              var node = parseNode(context, iEnd);
+              if (!node) return this.valueRange.end = iEnd; // at next document start
+
+              this.contents.push(node);
+              offset = node.range.end;
+              atLineStart = false;
+              var ec = (0, _Collection.grabCollectionEndComments)(node);
+              if (ec) Array.prototype.push.apply(this.contents, ec);
+            }
+        }
+
+        offset = Document.startCommentOrEndBlankLine(src, offset);
+      }
+
+      this.valueRange.end = offset;
+
+      if (src[offset]) {
+        this.documentEndMarker = new _Range.default(offset, offset + 3);
+        offset += 3;
+
+        if (src[offset]) {
+          offset = _Node2.default.endOfWhiteSpace(src, offset);
+
+          if (src[offset] === '#') {
+            var _comment = new _Comment.default();
+
+            offset = _comment.parse({
+              src: src
+            }, offset);
+            this.contents.push(_comment);
+          }
+
+          switch (src[offset]) {
+            case '\n':
+              offset += 1;
+              break;
+
+            case undefined:
+              break;
+
+            default:
+              this.error = new _errors.YAMLSyntaxError(this, 'Document end marker line cannot have a non-comment suffix');
+          }
+        }
+      }
+
+      return offset;
+    }
+    /**
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this
+     */
+
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      context.root = this;
+      this.context = context;
+      var src = context.src;
+      var offset = src.charCodeAt(start) === 0xfeff ? start + 1 : start; // skip BOM
+
+      offset = this.parseDirectives(offset);
+      offset = this.parseContents(offset);
+      return offset;
+    }
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      offset = (0, _get2.default)((0, _getPrototypeOf2.default)(Document.prototype), "setOrigRanges", this).call(this, cr, offset);
+      this.directives.forEach(function (node) {
+        offset = node.setOrigRanges(cr, offset);
+      });
+      if (this.directivesEndMarker) offset = this.directivesEndMarker.setOrigRange(cr, offset);
+      this.contents.forEach(function (node) {
+        offset = node.setOrigRanges(cr, offset);
+      });
+      if (this.documentEndMarker) offset = this.documentEndMarker.setOrigRange(cr, offset);
+      return offset;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      var contents = this.contents,
+          directives = this.directives,
+          value = this.value;
+      if (value != null) return value;
+      var str = directives.join('');
+
+      if (contents.length > 0) {
+        if (directives.length > 0 || contents[0].type === _constants.Type.COMMENT) str += '---\n';
+        str += contents.join('');
+      }
+
+      if (str[str.length - 1] !== '\n') str += '\n';
+      return str;
+    }
+  }]);
+  return Document;
+}(_Node2.default);
+
+exports.default = Document;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","./BlankLine":"node_modules/yaml/browser/dist/cst/BlankLine.js","./Collection":"node_modules/yaml/browser/dist/cst/Collection.js","./Comment":"node_modules/yaml/browser/dist/cst/Comment.js","./Directive":"node_modules/yaml/browser/dist/cst/Directive.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/@babel/runtime/helpers/defineProperty.js":[function(require,module,exports) {
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
+},{}],"node_modules/yaml/browser/dist/cst/Alias.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var Alias =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Alias, _Node);
+
+  function Alias() {
+    (0, _classCallCheck2.default)(this, Alias);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Alias).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(Alias, [{
+    key: "parse",
+
+    /**
+     * Parses an *alias from the source
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this scalar
+     */
+    value: function parse(context, start) {
+      this.context = context;
+      var src = context.src;
+
+      var offset = _Node2.default.endOfIdentifier(src, start + 1);
+
+      this.valueRange = new _Range.default(start + 1, offset);
+      offset = _Node2.default.endOfWhiteSpace(src, offset);
+      offset = this.parseComment(offset);
+      return offset;
+    }
+  }]);
+  return Alias;
+}(_Node2.default);
+
+exports.default = Alias;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/BlockValue.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.Chomp = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var Chomp = {
+  CLIP: 'CLIP',
+  KEEP: 'KEEP',
+  STRIP: 'STRIP'
+};
+exports.Chomp = Chomp;
+
+var BlockValue =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(BlockValue, _Node);
+
+  function BlockValue(type, props) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, BlockValue);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(BlockValue).call(this, type, props));
+    _this.blockIndent = null;
+    _this.chomping = Chomp.CLIP;
+    _this.header = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(BlockValue, [{
+    key: "parseBlockHeader",
+    value: function parseBlockHeader(start) {
+      var src = this.context.src;
+      var offset = start + 1;
+      var bi = '';
+
+      while (true) {
+        var ch = src[offset];
+
+        switch (ch) {
+          case '-':
+            this.chomping = Chomp.STRIP;
+            break;
+
+          case '+':
+            this.chomping = Chomp.KEEP;
+            break;
+
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            bi += ch;
+            break;
+
+          default:
+            this.blockIndent = Number(bi) || null;
+            this.header = new _Range.default(start, offset);
+            return offset;
+        }
+
+        offset += 1;
+      }
+    }
+  }, {
+    key: "parseBlockValue",
+    value: function parseBlockValue(start) {
+      var _this$context = this.context,
+          indent = _this$context.indent,
+          src = _this$context.src;
+      var offset = start;
+      var valueEnd = start;
+      var bi = this.blockIndent ? indent + this.blockIndent - 1 : indent;
+      var minBlockIndent = 1;
+
+      for (var ch = src[offset]; ch === '\n'; ch = src[offset]) {
+        offset += 1;
+        if (_Node2.default.atDocumentBoundary(src, offset)) break;
+
+        var end = _Node2.default.endOfBlockIndent(src, bi, offset); // should not include tab?
+
+
+        if (end === null) break;
+
+        if (!this.blockIndent) {
+          // no explicit block indent, none yet detected
+          var lineIndent = end - (offset + indent);
+
+          if (src[end] !== '\n') {
+            // first line with non-whitespace content
+            if (lineIndent < minBlockIndent) {
+              offset -= 1;
+              break;
+            }
+
+            this.blockIndent = lineIndent;
+            bi = indent + this.blockIndent - 1;
+          } else if (lineIndent > minBlockIndent) {
+            // empty line with more whitespace
+            minBlockIndent = lineIndent;
+          }
+        }
+
+        if (src[end] === '\n') {
+          offset = end;
+        } else {
+          offset = valueEnd = _Node2.default.endOfLine(src, end);
+        }
+      }
+
+      if (this.chomping !== Chomp.KEEP) {
+        offset = src[valueEnd] ? valueEnd + 1 : valueEnd;
+      }
+
+      this.valueRange = new _Range.default(start + 1, offset);
+      return offset;
+    }
+    /**
+     * Parses a block value from the source
+     *
+     * Accepted forms are:
+     * ```
+     * BS
+     * block
+     * lines
+     *
+     * BS #comment
+     * block
+     * lines
+     * ```
+     * where the block style BS matches the regexp `[|>][-+1-9]*` and block lines
+     * are empty or have an indent level greater than `indent`.
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this block
+     */
+
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var src = context.src;
+      var offset = this.parseBlockHeader(start);
+      offset = _Node2.default.endOfWhiteSpace(src, offset);
+      offset = this.parseComment(offset);
+      offset = this.parseBlockValue(offset);
+      return offset;
+    }
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      offset = (0, _get2.default)((0, _getPrototypeOf2.default)(BlockValue.prototype), "setOrigRanges", this).call(this, cr, offset);
+      return this.header ? this.header.setOrigRange(cr, offset) : offset;
+    }
+  }, {
+    key: "includesTrailingLines",
+    get: function get() {
+      return this.chomping === Chomp.KEEP;
+    }
+  }, {
+    key: "strValue",
+    get: function get() {
+      if (!this.valueRange || !this.context) return null;
+      var _this$valueRange = this.valueRange,
+          start = _this$valueRange.start,
+          end = _this$valueRange.end;
+      var _this$context2 = this.context,
+          indent = _this$context2.indent,
+          src = _this$context2.src;
+      if (this.valueRange.isEmpty()) return '';
+      var lastNewLine = null;
+      var ch = src[end - 1];
+
+      while (ch === '\n' || ch === '\t' || ch === ' ') {
+        end -= 1;
+
+        if (end <= start) {
+          if (this.chomping === Chomp.KEEP) break;else return '';
+        }
+
+        if (ch === '\n') lastNewLine = end;
+        ch = src[end - 1];
+      }
+
+      var keepStart = end + 1;
+
+      if (lastNewLine) {
+        if (this.chomping === Chomp.KEEP) {
+          keepStart = lastNewLine;
+          end = this.valueRange.end;
+        } else {
+          end = lastNewLine;
+        }
+      }
+
+      var bi = indent + this.blockIndent;
+      var folded = this.type === _constants.Type.BLOCK_FOLDED;
+      var atStart = true;
+      var str = '';
+      var sep = '';
+      var prevMoreIndented = false;
+
+      for (var i = start; i < end; ++i) {
+        for (var j = 0; j < bi; ++j) {
+          if (src[i] !== ' ') break;
+          i += 1;
+        }
+
+        var _ch = src[i];
+
+        if (_ch === '\n') {
+          if (sep === '\n') str += '\n';else sep = '\n';
+        } else {
+          var lineEnd = _Node2.default.endOfLine(src, i);
+
+          var line = src.slice(i, lineEnd);
+          i = lineEnd;
+
+          if (folded && (_ch === ' ' || _ch === '\t') && i < keepStart) {
+            if (sep === ' ') sep = '\n';else if (!prevMoreIndented && !atStart && sep === '\n') sep = '\n\n';
+            str += sep + line; //+ ((lineEnd < end && src[lineEnd]) || '')
+
+            sep = lineEnd < end && src[lineEnd] || '';
+            prevMoreIndented = true;
+          } else {
+            str += sep + line;
+            sep = folded && i < keepStart ? ' ' : '\n';
+            prevMoreIndented = false;
+          }
+
+          if (atStart && line !== '') atStart = false;
+        }
+      }
+
+      return this.chomping === Chomp.STRIP ? str : str + '\n';
+    }
+  }]);
+  return BlockValue;
+}(_Node2.default);
+
+exports.default = BlockValue;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/FlowCollection.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _BlankLine = _interopRequireDefault(require("./BlankLine"));
+
+var _Comment = _interopRequireDefault(require("./Comment"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var FlowCollection =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(FlowCollection, _Node);
+
+  function FlowCollection(type, props) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, FlowCollection);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(FlowCollection).call(this, type, props));
+    _this.items = null;
+    return _this;
+  }
+
+  (0, _createClass2.default)(FlowCollection, [{
+    key: "prevNodeIsJsonLike",
+    value: function prevNodeIsJsonLike() {
+      var idx = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.items.length;
+      var node = this.items[idx - 1];
+      return !!node && (node.jsonLike || node.type === _constants.Type.COMMENT && this.nodeIsJsonLike(idx - 1));
+    }
+    /**
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this
+     */
+
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var parseNode = context.parseNode,
+          src = context.src;
+      var indent = context.indent,
+          lineStart = context.lineStart;
+      var char = src[start]; // { or [
+
+      this.items = [{
+        char: char,
+        offset: start
+      }];
+
+      var offset = _Node2.default.endOfWhiteSpace(src, start + 1);
+
+      char = src[offset];
+
+      while (char && char !== ']' && char !== '}') {
+        switch (char) {
+          case '\n':
+            {
+              lineStart = offset + 1;
+
+              var wsEnd = _Node2.default.endOfWhiteSpace(src, lineStart);
+
+              if (src[wsEnd] === '\n') {
+                var blankLine = new _BlankLine.default();
+                lineStart = blankLine.parse({
+                  src: src
+                }, lineStart);
+                this.items.push(blankLine);
+              }
+
+              offset = _Node2.default.endOfIndent(src, lineStart);
+
+              if (offset <= lineStart + indent) {
+                char = src[offset];
+
+                if (offset < lineStart + indent || char !== ']' && char !== '}') {
+                  var msg = 'Insufficient indentation in flow collection';
+                  this.error = new _errors.YAMLSemanticError(this, msg);
+                }
+              }
+            }
+            break;
+
+          case ',':
+            {
+              this.items.push({
+                char: char,
+                offset: offset
+              });
+              offset += 1;
+            }
+            break;
+
+          case '#':
+            {
+              var comment = new _Comment.default();
+              offset = comment.parse({
+                src: src
+              }, offset);
+              this.items.push(comment);
+            }
+            break;
+
+          case '?':
+          case ':':
+            {
+              var next = src[offset + 1];
+
+              if (next === '\n' || next === '\t' || next === ' ' || next === ',' || // in-flow : after JSON-like key does not need to be followed by whitespace
+              char === ':' && this.prevNodeIsJsonLike()) {
+                this.items.push({
+                  char: char,
+                  offset: offset
+                });
+                offset += 1;
+                break;
+              }
+            }
+          // fallthrough
+
+          default:
+            {
+              var node = parseNode({
+                atLineStart: false,
+                inCollection: false,
+                inFlow: true,
+                indent: -1,
+                lineStart: lineStart,
+                parent: this
+              }, offset);
+
+              if (!node) {
+                // at next document start
+                this.valueRange = new _Range.default(start, offset);
+                return offset;
+              }
+
+              this.items.push(node);
+              offset = _Node2.default.normalizeOffset(src, node.range.end);
+            }
+        }
+
+        offset = _Node2.default.endOfWhiteSpace(src, offset);
+        char = src[offset];
+      }
+
+      this.valueRange = new _Range.default(start, offset + 1);
+
+      if (char) {
+        this.items.push({
+          char: char,
+          offset: offset
+        });
+        offset = _Node2.default.endOfWhiteSpace(src, offset + 1);
+        offset = this.parseComment(offset);
+      }
+
+      return offset;
+    }
+  }, {
+    key: "setOrigRanges",
+    value: function setOrigRanges(cr, offset) {
+      offset = (0, _get2.default)((0, _getPrototypeOf2.default)(FlowCollection.prototype), "setOrigRanges", this).call(this, cr, offset);
+      this.items.forEach(function (node) {
+        if (node instanceof _Node2.default) {
+          offset = node.setOrigRanges(cr, offset);
+        } else if (cr.length === 0) {
+          node.origOffset = node.offset;
+        } else {
+          var i = offset;
+
+          while (i < cr.length) {
+            if (cr[i] > node.offset) break;else ++i;
+          }
+
+          node.origOffset = node.offset + i;
+          offset = i;
+        }
+      });
+      return offset;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      var src = this.context.src,
+          items = this.items,
+          range = this.range,
+          value = this.value;
+      if (value != null) return value;
+      var nodes = items.filter(function (item) {
+        return item instanceof _Node2.default;
+      });
+      var str = '';
+      var prevEnd = range.start;
+      nodes.forEach(function (node) {
+        var prefix = src.slice(prevEnd, node.range.start);
+        prevEnd = node.range.end;
+        str += prefix + String(node);
+
+        if (str[str.length - 1] === '\n' && src[prevEnd - 1] !== '\n' && src[prevEnd] === '\n') {
+          // Comment range does not include the terminal newline, but its
+          // stringified value does. Without this fix, newlines at comment ends
+          // get duplicated.
+          prevEnd += 1;
+        }
+      });
+      str += src.slice(prevEnd, range.end);
+      return _Node2.default.addStringTerminator(src, range.end, str);
+    }
+  }]);
+  return FlowCollection;
+}(_Node2.default);
+
+exports.default = FlowCollection;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","./BlankLine":"node_modules/yaml/browser/dist/cst/BlankLine.js","./Comment":"node_modules/yaml/browser/dist/cst/Comment.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/PlainValue.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var PlainValue =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(PlainValue, _Node);
+
+  function PlainValue() {
+    (0, _classCallCheck2.default)(this, PlainValue);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(PlainValue).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(PlainValue, [{
+    key: "parseBlockValue",
+    value: function parseBlockValue(start) {
+      var _this$context = this.context,
+          indent = _this$context.indent,
+          inFlow = _this$context.inFlow,
+          src = _this$context.src;
+      var offset = start;
+      var valueEnd = start;
+
+      for (var ch = src[offset]; ch === '\n'; ch = src[offset]) {
+        if (_Node2.default.atDocumentBoundary(src, offset + 1)) break;
+
+        var end = _Node2.default.endOfBlockIndent(src, indent, offset + 1);
+
+        if (end === null || src[end] === '#') break;
+
+        if (src[end] === '\n') {
+          offset = end;
+        } else {
+          valueEnd = PlainValue.endOfLine(src, end, inFlow);
+          offset = valueEnd;
+        }
+      }
+
+      if (this.valueRange.isEmpty()) this.valueRange.start = start;
+      this.valueRange.end = valueEnd;
+      return valueEnd;
+    }
+    /**
+     * Parses a plain value from the source
+     *
+     * Accepted forms are:
+     * ```
+     * #comment
+     *
+     * first line
+     *
+     * first line #comment
+     *
+     * first line
+     * block
+     * lines
+     *
+     * #comment
+     * block
+     * lines
+     * ```
+     * where block lines are empty or have an indent level greater than `indent`.
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this scalar, may be `\n`
+     */
+
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var inFlow = context.inFlow,
+          src = context.src;
+      var offset = start;
+      var ch = src[offset];
+
+      if (ch && ch !== '#' && ch !== '\n') {
+        offset = PlainValue.endOfLine(src, start, inFlow);
+      }
+
+      this.valueRange = new _Range.default(start, offset);
+      offset = _Node2.default.endOfWhiteSpace(src, offset);
+      offset = this.parseComment(offset);
+
+      if (!this.hasComment || this.valueRange.isEmpty()) {
+        offset = this.parseBlockValue(offset);
+      }
+
+      return offset;
+    }
+  }, {
+    key: "strValue",
+    get: function get() {
+      if (!this.valueRange || !this.context) return null;
+      var _this$valueRange = this.valueRange,
+          start = _this$valueRange.start,
+          end = _this$valueRange.end;
+      var src = this.context.src;
+      var ch = src[end - 1];
+
+      while (start < end && (ch === '\n' || ch === '\t' || ch === ' ')) {
+        ch = src[--end - 1];
+      }
+
+      ch = src[start];
+
+      while (start < end && (ch === '\n' || ch === '\t' || ch === ' ')) {
+        ch = src[++start];
+      }
+
+      var str = '';
+
+      for (var i = start; i < end; ++i) {
+        var _ch = src[i];
+
+        if (_ch === '\n') {
+          var _Node$foldNewline = _Node2.default.foldNewline(src, i, -1),
+              fold = _Node$foldNewline.fold,
+              offset = _Node$foldNewline.offset;
+
+          str += fold;
+          i = offset;
+        } else if (_ch === ' ' || _ch === '\t') {
+          // trim trailing whitespace
+          var wsStart = i;
+          var next = src[i + 1];
+
+          while (i < end && (next === ' ' || next === '\t')) {
+            i += 1;
+            next = src[i + 1];
+          }
+
+          if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : _ch;
+        } else {
+          str += _ch;
+        }
+      }
+
+      return str;
+    }
+  }], [{
+    key: "endOfLine",
+    value: function endOfLine(src, start, inFlow) {
+      var ch = src[start];
+      var offset = start;
+
+      while (ch && ch !== '\n') {
+        if (inFlow && (ch === '[' || ch === ']' || ch === '{' || ch === '}' || ch === ',')) break;
+        var next = src[offset + 1];
+        if (ch === ':' && (!next || next === '\n' || next === '\t' || next === ' ' || inFlow && next === ',')) break;
+        if ((ch === ' ' || ch === '\t') && next === '#') break;
+        offset += 1;
+        ch = next;
+      }
+
+      return offset;
+    }
+  }]);
+  return PlainValue;
+}(_Node2.default);
+
+exports.default = PlainValue;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/QuoteDouble.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _errors = require("../errors");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var QuoteDouble =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(QuoteDouble, _Node);
+
+  function QuoteDouble() {
+    (0, _classCallCheck2.default)(this, QuoteDouble);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(QuoteDouble).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(QuoteDouble, [{
+    key: "parseCharCode",
+    value: function parseCharCode(offset, length, errors) {
+      var src = this.context.src;
+      var cc = src.substr(offset, length);
+      var ok = cc.length === length && /^[0-9a-fA-F]+$/.test(cc);
+      var code = ok ? parseInt(cc, 16) : NaN;
+
+      if (isNaN(code)) {
+        errors.push(new _errors.YAMLSyntaxError(this, "Invalid escape sequence ".concat(src.substr(offset - 2, length + 2))));
+        return src.substr(offset - 2, length + 2);
+      }
+
+      return String.fromCodePoint(code);
+    }
+    /**
+     * Parses a "double quoted" value from the source
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this scalar
+     */
+
+  }, {
+    key: "parse",
+    value: function parse(context, start) {
+      this.context = context;
+      var src = context.src;
+      var offset = QuoteDouble.endOfQuote(src, start + 1);
+      this.valueRange = new _Range.default(start, offset);
+      offset = _Node2.default.endOfWhiteSpace(src, offset);
+      offset = this.parseComment(offset);
+      return offset;
+    }
+  }, {
+    key: "strValue",
+
+    /**
+     * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
+     */
+    get: function get() {
+      if (!this.valueRange || !this.context) return null;
+      var errors = [];
+      var _this$valueRange = this.valueRange,
+          start = _this$valueRange.start,
+          end = _this$valueRange.end;
+      var _this$context = this.context,
+          indent = _this$context.indent,
+          src = _this$context.src;
+      if (src[end - 1] !== '"') errors.push(new _errors.YAMLSyntaxError(this, 'Missing closing "quote')); // Using String#replace is too painful with escaped newlines preceded by
+      // escaped backslashes; also, this should be faster.
+
+      var str = '';
+
+      for (var i = start + 1; i < end - 1; ++i) {
+        var ch = src[i];
+
+        if (ch === '\n') {
+          if (_Node2.default.atDocumentBoundary(src, i + 1)) errors.push(new _errors.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+
+          var _Node$foldNewline = _Node2.default.foldNewline(src, i, indent),
+              fold = _Node$foldNewline.fold,
+              offset = _Node$foldNewline.offset,
+              error = _Node$foldNewline.error;
+
+          str += fold;
+          i = offset;
+          if (error) errors.push(new _errors.YAMLSemanticError(this, 'Multi-line double-quoted string needs to be sufficiently indented'));
+        } else if (ch === '\\') {
+          i += 1;
+
+          switch (src[i]) {
+            case '0':
+              str += '\0';
+              break;
+            // null character
+
+            case 'a':
+              str += '\x07';
+              break;
+            // bell character
+
+            case 'b':
+              str += '\b';
+              break;
+            // backspace
+
+            case 'e':
+              str += '\x1b';
+              break;
+            // escape character
+
+            case 'f':
+              str += '\f';
+              break;
+            // form feed
+
+            case 'n':
+              str += '\n';
+              break;
+            // line feed
+
+            case 'r':
+              str += '\r';
+              break;
+            // carriage return
+
+            case 't':
+              str += '\t';
+              break;
+            // horizontal tab
+
+            case 'v':
+              str += '\v';
+              break;
+            // vertical tab
+
+            case 'N':
+              str += "\x85";
+              break;
+            // Unicode next line
+
+            case '_':
+              str += "\xA0";
+              break;
+            // Unicode non-breaking space
+
+            case 'L':
+              str += "\u2028";
+              break;
+            // Unicode line separator
+
+            case 'P':
+              str += "\u2029";
+              break;
+            // Unicode paragraph separator
+
+            case ' ':
+              str += ' ';
+              break;
+
+            case '"':
+              str += '"';
+              break;
+
+            case '/':
+              str += '/';
+              break;
+
+            case '\\':
+              str += '\\';
+              break;
+
+            case '\t':
+              str += '\t';
+              break;
+
+            case 'x':
+              str += this.parseCharCode(i + 1, 2, errors);
+              i += 2;
+              break;
+
+            case 'u':
+              str += this.parseCharCode(i + 1, 4, errors);
+              i += 4;
+              break;
+
+            case 'U':
+              str += this.parseCharCode(i + 1, 8, errors);
+              i += 8;
+              break;
+
+            case '\n':
+              // skip escaped newlines, but still trim the following line
+              while (src[i + 1] === ' ' || src[i + 1] === '\t') {
+                i += 1;
+              }
+
+              break;
+
+            default:
+              errors.push(new _errors.YAMLSyntaxError(this, "Invalid escape sequence ".concat(src.substr(i - 1, 2))));
+              str += '\\' + src[i];
+          }
+        } else if (ch === ' ' || ch === '\t') {
+          // trim trailing whitespace
+          var wsStart = i;
+          var next = src[i + 1];
+
+          while (next === ' ' || next === '\t') {
+            i += 1;
+            next = src[i + 1];
+          }
+
+          if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
+        } else {
+          str += ch;
+        }
+      }
+
+      return errors.length > 0 ? {
+        errors: errors,
+        str: str
+      } : str;
+    }
+  }], [{
+    key: "endOfQuote",
+    value: function endOfQuote(src, offset) {
+      var ch = src[offset];
+
+      while (ch && ch !== '"') {
+        offset += ch === '\\' ? 2 : 1;
+        ch = src[offset];
+      }
+
+      return offset + 1;
+    }
+  }]);
+  return QuoteDouble;
+}(_Node2.default);
+
+exports.default = QuoteDouble;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../errors":"node_modules/yaml/browser/dist/errors.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/QuoteSingle.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _errors = require("../errors");
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+
+var QuoteSingle =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(QuoteSingle, _Node);
+
+  function QuoteSingle() {
+    (0, _classCallCheck2.default)(this, QuoteSingle);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(QuoteSingle).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(QuoteSingle, [{
+    key: "parse",
+
+    /**
+     * Parses a 'single quoted' value from the source
+     *
+     * @param {ParseContext} context
+     * @param {number} start - Index of first character
+     * @returns {number} - Index of the character after this scalar
+     */
+    value: function parse(context, start) {
+      this.context = context;
+      var src = context.src;
+      var offset = QuoteSingle.endOfQuote(src, start + 1);
+      this.valueRange = new _Range.default(start, offset);
+      offset = _Node2.default.endOfWhiteSpace(src, offset);
+      offset = this.parseComment(offset);
+      return offset;
+    }
+  }, {
+    key: "strValue",
+
+    /**
+     * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
+     */
+    get: function get() {
+      if (!this.valueRange || !this.context) return null;
+      var errors = [];
+      var _this$valueRange = this.valueRange,
+          start = _this$valueRange.start,
+          end = _this$valueRange.end;
+      var _this$context = this.context,
+          indent = _this$context.indent,
+          src = _this$context.src;
+      if (src[end - 1] !== "'") errors.push(new _errors.YAMLSyntaxError(this, "Missing closing 'quote"));
+      var str = '';
+
+      for (var i = start + 1; i < end - 1; ++i) {
+        var ch = src[i];
+
+        if (ch === '\n') {
+          if (_Node2.default.atDocumentBoundary(src, i + 1)) errors.push(new _errors.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+
+          var _Node$foldNewline = _Node2.default.foldNewline(src, i, indent),
+              fold = _Node$foldNewline.fold,
+              offset = _Node$foldNewline.offset,
+              error = _Node$foldNewline.error;
+
+          str += fold;
+          i = offset;
+          if (error) errors.push(new _errors.YAMLSemanticError(this, 'Multi-line single-quoted string needs to be sufficiently indented'));
+        } else if (ch === "'") {
+          str += ch;
+          i += 1;
+          if (src[i] !== "'") errors.push(new _errors.YAMLSyntaxError(this, 'Unescaped single quote? This should not happen.'));
+        } else if (ch === ' ' || ch === '\t') {
+          // trim trailing whitespace
+          var wsStart = i;
+          var next = src[i + 1];
+
+          while (next === ' ' || next === '\t') {
+            i += 1;
+            next = src[i + 1];
+          }
+
+          if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
+        } else {
+          str += ch;
+        }
+      }
+
+      return errors.length > 0 ? {
+        errors: errors,
+        str: str
+      } : str;
+    }
+  }], [{
+    key: "endOfQuote",
+    value: function endOfQuote(src, offset) {
+      var ch = src[offset];
+
+      while (ch) {
+        if (ch === "'") {
+          if (src[offset + 1] !== "'") break;
+          ch = src[offset += 2];
+        } else {
+          ch = src[offset += 1];
+        }
+      }
+
+      return offset + 1;
+    }
+  }]);
+  return QuoteSingle;
+}(_Node2.default);
+
+exports.default = QuoteSingle;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../errors":"node_modules/yaml/browser/dist/errors.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/ParseContext.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _Alias = _interopRequireDefault(require("./Alias"));
+
+var _BlockValue = _interopRequireDefault(require("./BlockValue"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+var _CollectionItem = _interopRequireDefault(require("./CollectionItem"));
+
+var _FlowCollection = _interopRequireDefault(require("./FlowCollection"));
+
+var _Node = _interopRequireDefault(require("./Node"));
+
+var _PlainValue = _interopRequireDefault(require("./PlainValue"));
+
+var _QuoteDouble = _interopRequireDefault(require("./QuoteDouble"));
+
+var _QuoteSingle = _interopRequireDefault(require("./QuoteSingle"));
+
+var _Range = _interopRequireDefault(require("./Range"));
+/**
+ * @param {boolean} atLineStart - Node starts at beginning of line
+ * @param {boolean} inFlow - true if currently in a flow context
+ * @param {boolean} inCollection - true if currently in a collection context
+ * @param {number} indent - Current level of indentation
+ * @param {number} lineStart - Start of the current line
+ * @param {Node} parent - The parent of the node
+ * @param {string} src - Source of the YAML document
+ */
+
+
+var ParseContext =
+/*#__PURE__*/
+function () {
+  (0, _createClass2.default)(ParseContext, null, [{
+    key: "parseType",
+    value: function parseType(src, offset, inFlow) {
+      switch (src[offset]) {
+        case '*':
+          return _constants.Type.ALIAS;
+
+        case '>':
+          return _constants.Type.BLOCK_FOLDED;
+
+        case '|':
+          return _constants.Type.BLOCK_LITERAL;
+
+        case '{':
+          return _constants.Type.FLOW_MAP;
+
+        case '[':
+          return _constants.Type.FLOW_SEQ;
+
+        case '?':
+          return !inFlow && _Node.default.atBlank(src, offset + 1, true) ? _constants.Type.MAP_KEY : _constants.Type.PLAIN;
+
+        case ':':
+          return !inFlow && _Node.default.atBlank(src, offset + 1, true) ? _constants.Type.MAP_VALUE : _constants.Type.PLAIN;
+
+        case '-':
+          return !inFlow && _Node.default.atBlank(src, offset + 1, true) ? _constants.Type.SEQ_ITEM : _constants.Type.PLAIN;
+
+        case '"':
+          return _constants.Type.QUOTE_DOUBLE;
+
+        case "'":
+          return _constants.Type.QUOTE_SINGLE;
+
+        default:
+          return _constants.Type.PLAIN;
+      }
+    }
+  }]);
+
+  function ParseContext() {
+    var _this = this;
+
+    var orig = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        atLineStart = _ref.atLineStart,
+        inCollection = _ref.inCollection,
+        inFlow = _ref.inFlow,
+        indent = _ref.indent,
+        lineStart = _ref.lineStart,
+        parent = _ref.parent;
+
+    (0, _classCallCheck2.default)(this, ParseContext);
+    (0, _defineProperty2.default)(this, "parseNode", function (overlay, start) {
+      if (_Node.default.atDocumentBoundary(_this.src, start)) return null;
+      var context = new ParseContext(_this, overlay);
+
+      var _context$parseProps = context.parseProps(start),
+          props = _context$parseProps.props,
+          type = _context$parseProps.type,
+          valueStart = _context$parseProps.valueStart;
+
+      var node;
+
+      switch (type) {
+        case _constants.Type.ALIAS:
+          node = new _Alias.default(type, props);
+          break;
+
+        case _constants.Type.BLOCK_FOLDED:
+        case _constants.Type.BLOCK_LITERAL:
+          node = new _BlockValue.default(type, props);
+          break;
+
+        case _constants.Type.FLOW_MAP:
+        case _constants.Type.FLOW_SEQ:
+          node = new _FlowCollection.default(type, props);
+          break;
+
+        case _constants.Type.MAP_KEY:
+        case _constants.Type.MAP_VALUE:
+        case _constants.Type.SEQ_ITEM:
+          node = new _CollectionItem.default(type, props);
+          break;
+
+        case _constants.Type.COMMENT:
+        case _constants.Type.PLAIN:
+          node = new _PlainValue.default(type, props);
+          break;
+
+        case _constants.Type.QUOTE_DOUBLE:
+          node = new _QuoteDouble.default(type, props);
+          break;
+
+        case _constants.Type.QUOTE_SINGLE:
+          node = new _QuoteSingle.default(type, props);
+          break;
+
+        default:
+          node.error = new _errors.YAMLSyntaxError(node, "Unknown node type: ".concat(JSON.stringify(type)));
+          node.range = new _Range.default(start, start + 1);
+          return node;
+      }
+
+      var offset = node.parse(context, valueStart);
+      node.range = new _Range.default(start, offset);
+
+      if (offset <= start) {
+        node.error = new Error("Node#parse consumed no characters");
+        node.error.parseEnd = offset;
+        node.error.source = node;
+        node.range.end = start + 1;
+      }
+
+      if (context.nodeStartsCollection(node)) {
+        if (!node.error && !context.atLineStart && context.parent.type === _constants.Type.DOCUMENT) {
+          node.error = new _errors.YAMLSyntaxError(node, 'Block collection must not have preceding content here (e.g. directives-end indicator)');
+        }
+
+        var collection = new _Collection.default(node);
+        offset = collection.parse(new ParseContext(context), offset);
+        collection.range = new _Range.default(start, offset);
+        return collection;
+      }
+
+      return node;
+    });
+    this.atLineStart = atLineStart != null ? atLineStart : orig.atLineStart || false;
+    this.inCollection = inCollection != null ? inCollection : orig.inCollection || false;
+    this.inFlow = inFlow != null ? inFlow : orig.inFlow || false;
+    this.indent = indent != null ? indent : orig.indent;
+    this.lineStart = lineStart != null ? lineStart : orig.lineStart;
+    this.parent = parent != null ? parent : orig.parent || {};
+    this.root = orig.root;
+    this.src = orig.src;
+  } // for logging
+
+
+  (0, _createClass2.default)(ParseContext, [{
+    key: "nodeStartsCollection",
+    value: function nodeStartsCollection(node) {
+      var inCollection = this.inCollection,
+          inFlow = this.inFlow,
+          src = this.src;
+      if (inCollection || inFlow) return false;
+      if (node instanceof _CollectionItem.default) return true; // check for implicit key
+
+      var offset = node.range.end;
+      if (src[offset] === '\n' || src[offset - 1] === '\n') return false;
+      offset = _Node.default.endOfWhiteSpace(src, offset);
+      return src[offset] === ':';
+    } // Anchor and tag are before type, which determines the node implementation
+    // class; hence this intermediate step.
+
+  }, {
+    key: "parseProps",
+    value: function parseProps(offset) {
+      var inFlow = this.inFlow,
+          parent = this.parent,
+          src = this.src;
+      var props = [];
+      var lineHasProps = false;
+      offset = _Node.default.endOfWhiteSpace(src, offset);
+      var ch = src[offset];
+
+      while (ch === _constants.Char.ANCHOR || ch === _constants.Char.COMMENT || ch === _constants.Char.TAG || ch === '\n') {
+        if (ch === '\n') {
+          var lineStart = offset + 1;
+
+          var inEnd = _Node.default.endOfIndent(src, lineStart);
+
+          var indentDiff = inEnd - (lineStart + this.indent);
+          var noIndicatorAsIndent = parent.type === _constants.Type.SEQ_ITEM && parent.context.atLineStart;
+          if (!_Node.default.nextNodeIsIndented(src[inEnd], indentDiff, !noIndicatorAsIndent)) break;
+          this.atLineStart = true;
+          this.lineStart = lineStart;
+          lineHasProps = false;
+          offset = inEnd;
+        } else if (ch === _constants.Char.COMMENT) {
+          var end = _Node.default.endOfLine(src, offset + 1);
+
+          props.push(new _Range.default(offset, end));
+          offset = end;
+        } else {
+          var _end = _Node.default.endOfIdentifier(src, offset + 1);
+
+          if (ch === _constants.Char.TAG && src[_end] === ',' && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+,\d\d\d\d(-\d\d){0,2}\/\S/.test(src.slice(offset + 1, _end + 13))) {
+            // Let's presume we're dealing with a YAML 1.0 domain tag here, rather
+            // than an empty but 'foo.bar' private-tagged node in a flow collection
+            // followed without whitespace by a plain string starting with a year
+            // or date divided by something.
+            _end = _Node.default.endOfIdentifier(src, _end + 5);
+          }
+
+          props.push(new _Range.default(offset, _end));
+          lineHasProps = true;
+          offset = _Node.default.endOfWhiteSpace(src, _end);
+        }
+
+        ch = src[offset];
+      } // '- &a : b' has an anchor on an empty node
+
+
+      if (lineHasProps && ch === ':' && _Node.default.atBlank(src, offset + 1, true)) offset -= 1;
+      var type = ParseContext.parseType(src, offset, inFlow);
+      return {
+        props: props,
+        type: type,
+        valueStart: offset
+      };
+    }
+    /**
+     * Parses a node from the source
+     * @param {ParseContext} overlay
+     * @param {number} start - Index of first non-whitespace character for the node
+     * @returns {?Node} - null if at a document boundary
+     */
+
+  }, {
+    key: "pretty",
+    get: function get() {
+      var obj = {
+        start: "".concat(this.lineStart, " + ").concat(this.indent),
+        in: [],
+        parent: this.parent.type
+      };
+      if (!this.atLineStart) obj.start += ' + N';
+      if (this.inCollection) obj.in.push('collection');
+      if (this.inFlow) obj.in.push('flow');
+      return obj;
+    }
+  }]);
+  return ParseContext;
+}();
+
+exports.default = ParseContext;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","./Alias":"node_modules/yaml/browser/dist/cst/Alias.js","./BlockValue":"node_modules/yaml/browser/dist/cst/BlockValue.js","./Collection":"node_modules/yaml/browser/dist/cst/Collection.js","./CollectionItem":"node_modules/yaml/browser/dist/cst/CollectionItem.js","./FlowCollection":"node_modules/yaml/browser/dist/cst/FlowCollection.js","./Node":"node_modules/yaml/browser/dist/cst/Node.js","./PlainValue":"node_modules/yaml/browser/dist/cst/PlainValue.js","./QuoteDouble":"node_modules/yaml/browser/dist/cst/QuoteDouble.js","./QuoteSingle":"node_modules/yaml/browser/dist/cst/QuoteSingle.js","./Range":"node_modules/yaml/browser/dist/cst/Range.js"}],"node_modules/yaml/browser/dist/cst/parse.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = parse;
+
+var _Document = _interopRequireDefault(require("./Document"));
+
+var _ParseContext = _interopRequireDefault(require("./ParseContext")); // Published as 'yaml/parse-cst'
+
+
+function parse(src) {
+  var cr = [];
+
+  if (src.indexOf('\r') !== -1) {
+    src = src.replace(/\r\n?/g, function (match, offset) {
+      if (match.length > 1) cr.push(offset);
+      return '\n';
+    });
+  }
+
+  var documents = [];
+  var offset = 0;
+
+  do {
+    var doc = new _Document.default();
+    var context = new _ParseContext.default({
+      src: src
+    });
+    offset = doc.parse(context, offset);
+    documents.push(doc);
+  } while (offset < src.length);
+
+  documents.setOrigRanges = function () {
+    if (cr.length === 0) return false;
+
+    for (var i = 1; i < cr.length; ++i) {
+      cr[i] -= i;
+    }
+
+    var crOffset = 0;
+
+    for (var _i = 0; _i < documents.length; ++_i) {
+      crOffset = documents[_i].setOrigRanges(cr, crOffset);
+    }
+
+    cr.splice(0, cr.length);
+    return true;
+  };
+
+  documents.toString = function () {
+    return documents.join('...\n');
+  };
+
+  return documents;
+}
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","./Document":"node_modules/yaml/browser/dist/cst/Document.js","./ParseContext":"node_modules/yaml/browser/dist/cst/ParseContext.js"}],"node_modules/@babel/runtime/helpers/interopRequireWildcard.js":[function(require,module,exports) {
+var _typeof = require("../helpers/typeof");
+
+function _getRequireWildcardCache() {
+  if (typeof WeakMap !== "function") return null;
+  var cache = new WeakMap();
+
+  _getRequireWildcardCache = function _getRequireWildcardCache() {
+    return cache;
+  };
+
+  return cache;
+}
+
+function _interopRequireWildcard(obj) {
+  if (obj && obj.__esModule) {
+    return obj;
+  }
+
+  if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") {
+    return {
+      "default": obj
+    };
+  }
+
+  var cache = _getRequireWildcardCache();
+
+  if (cache && cache.has(obj)) {
+    return cache.get(obj);
+  }
+
+  var newObj = {};
+  var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+
+      if (desc && (desc.get || desc.set)) {
+        Object.defineProperty(newObj, key, desc);
+      } else {
+        newObj[key] = obj[key];
+      }
+    }
+  }
+
+  newObj["default"] = obj;
+
+  if (cache) {
+    cache.set(obj, newObj);
+  }
+
+  return newObj;
+}
+
+module.exports = _interopRequireWildcard;
+},{"../helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js"}],"node_modules/yaml/browser/dist/addComment.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addCommentBefore = addCommentBefore;
+exports.default = addComment;
+
+function addCommentBefore(str, indent, comment) {
+  if (!comment) return str;
+  var cc = comment.replace(/[\s\S]^/gm, "$&".concat(indent, "#"));
+  return "#".concat(cc, "\n").concat(indent).concat(str);
+}
+
+function addComment(str, indent, comment) {
+  return !comment ? str : comment.indexOf('\n') === -1 ? "".concat(str, " #").concat(comment) : "".concat(str, "\n") + comment.replace(/^/gm, "".concat(indent || '', "#"));
+}
+},{}],"node_modules/yaml/browser/dist/toJSON.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = toJSON;
+
+function toJSON(value, arg, ctx) {
+  if (Array.isArray(value)) return value.map(function (v, i) {
+    return toJSON(v, String(i), ctx);
+  });
+
+  if (value && typeof value.toJSON === 'function') {
+    var anchor = ctx && ctx.anchors && ctx.anchors.find(function (a) {
+      return a.node === value;
+    });
+    if (anchor) ctx.onCreate = function (res) {
+      anchor.res = res;
+      delete ctx.onCreate;
+    };
+    var res = value.toJSON(arg, ctx);
+    if (anchor && ctx.onCreate) ctx.onCreate(res);
+    return res;
+  }
+
+  return value;
+}
+},{}],"node_modules/@babel/runtime/helpers/iterableToArray.js":[function(require,module,exports) {
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+module.exports = _iterableToArray;
+},{}],"node_modules/@babel/runtime/helpers/toArray.js":[function(require,module,exports) {
+var arrayWithHoles = require("./arrayWithHoles");
+
+var iterableToArray = require("./iterableToArray");
+
+var nonIterableRest = require("./nonIterableRest");
+
+function _toArray(arr) {
+  return arrayWithHoles(arr) || iterableToArray(arr) || nonIterableRest();
+}
+
+module.exports = _toArray;
+},{"./arrayWithHoles":"node_modules/@babel/runtime/helpers/arrayWithHoles.js","./iterableToArray":"node_modules/@babel/runtime/helpers/iterableToArray.js","./nonIterableRest":"node_modules/@babel/runtime/helpers/nonIterableRest.js"}],"node_modules/yaml/browser/dist/schema/Node.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var Node = function Node() {
+  (0, _classCallCheck2.default)(this, Node);
+};
+
+exports.default = Node;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js"}],"node_modules/yaml/browser/dist/schema/Scalar.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _toJSON2 = _interopRequireDefault(require("../toJSON"));
+
+var _Node2 = _interopRequireDefault(require("./Node")); // Published as 'yaml/scalar'
+
+
+var Scalar =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Scalar, _Node);
+
+  function Scalar(value) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Scalar);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Scalar).call(this));
+    _this.value = value;
+    return _this;
+  }
+
+  (0, _createClass2.default)(Scalar, [{
+    key: "toJSON",
+    value: function toJSON(arg, ctx) {
+      return ctx && ctx.keep ? this.value : (0, _toJSON2.default)(this.value, arg, ctx);
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return String(this.value);
+    }
+  }]);
+  return Scalar;
+}(_Node2.default);
+
+exports.default = Scalar;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../toJSON":"node_modules/yaml/browser/dist/toJSON.js","./Node":"node_modules/yaml/browser/dist/schema/Node.js"}],"node_modules/yaml/browser/dist/schema/Pair.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _addComment = _interopRequireDefault(require("../addComment"));
+
+var _constants = require("../constants");
+
+var _toJSON = _interopRequireDefault(require("../toJSON"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar")); // Published as 'yaml/pair'
+
+
+var stringifyKey = function stringifyKey(key, jsKey, ctx) {
+  if (jsKey === null) return '';
+  if ((0, _typeof2.default)(jsKey) !== 'object') return String(jsKey);
+  if (key instanceof _Node2.default && ctx && ctx.doc) return key.toString({
+    anchors: {},
+    doc: ctx.doc,
+    indent: '',
+    inFlow: true,
+    inStringifyKey: true
+  });
+  return JSON.stringify(jsKey);
+};
+
+var Pair =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Pair, _Node);
+
+  function Pair(key) {
+    var _this;
+
+    var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    (0, _classCallCheck2.default)(this, Pair);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Pair).call(this));
+    _this.key = key;
+    _this.value = value;
+    _this.type = 'PAIR';
+    return _this;
+  }
+
+  (0, _createClass2.default)(Pair, [{
+    key: "addToJSMap",
+    value: function addToJSMap(ctx, map) {
+      var key = (0, _toJSON.default)(this.key, '', ctx);
+
+      if (map instanceof Map) {
+        var value = (0, _toJSON.default)(this.value, key, ctx);
+        map.set(key, value);
+      } else if (map instanceof Set) {
+        map.add(key);
+      } else {
+        var stringKey = stringifyKey(this.key, key, ctx);
+        map[stringKey] = (0, _toJSON.default)(this.value, stringKey, ctx);
+      }
+
+      return map;
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(_, ctx) {
+      var pair = ctx && ctx.mapAsMap ? new Map() : {};
+      return this.addToJSMap(ctx, pair);
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, onComment, onChompKeep) {
+      if (!ctx || !ctx.doc) return JSON.stringify(this);
+      var simpleKeys = ctx.doc.options.simpleKeys;
+      var key = this.key,
+          value = this.value;
+      var keyComment = key instanceof _Node2.default && key.comment;
+
+      if (simpleKeys) {
+        if (keyComment) {
+          throw new Error('With simple keys, key nodes cannot have comments');
+        }
+
+        if (key instanceof _Collection.default) {
+          var msg = 'With simple keys, collection cannot be used as a key value';
+          throw new Error(msg);
+        }
+      }
+
+      var explicitKey = !simpleKeys && (!key || keyComment || key instanceof _Collection.default || key.type === _constants.Type.BLOCK_FOLDED || key.type === _constants.Type.BLOCK_LITERAL);
+      var _ctx = ctx,
+          doc = _ctx.doc,
+          indent = _ctx.indent;
+      ctx = Object.assign({}, ctx, {
+        implicitKey: !explicitKey,
+        indent: indent + '  '
+      });
+      var chompKeep = false;
+      var str = doc.schema.stringify(key, ctx, function () {
+        return keyComment = null;
+      }, function () {
+        return chompKeep = true;
+      });
+      str = (0, _addComment.default)(str, ctx.indent, keyComment);
+
+      if (ctx.allNullValues && !simpleKeys) {
+        if (this.comment) {
+          str = (0, _addComment.default)(str, ctx.indent, this.comment);
+          if (onComment) onComment();
+        } else if (chompKeep && !keyComment && onChompKeep) onChompKeep();
+
+        return ctx.inFlow ? str : "? ".concat(str);
+      }
+
+      str = explicitKey ? "? ".concat(str, "\n").concat(indent, ":") : "".concat(str, ":");
+
+      if (this.comment) {
+        // expected (but not strictly required) to be a single-line comment
+        str = (0, _addComment.default)(str, ctx.indent, this.comment);
+        if (onComment) onComment();
+      }
+
+      var vcb = '';
+      var valueComment = null;
+
+      if (value instanceof _Node2.default) {
+        if (value.spaceBefore) vcb = '\n';
+
+        if (value.commentBefore) {
+          var cs = value.commentBefore.replace(/^/gm, "".concat(ctx.indent, "#"));
+          vcb += "\n".concat(cs);
+        }
+
+        valueComment = value.comment;
+      } else if (value && (0, _typeof2.default)(value) === 'object') {
+        value = doc.schema.createNode(value, true);
+      }
+
+      ctx.implicitKey = false;
+      chompKeep = false;
+      var valueStr = doc.schema.stringify(value, ctx, function () {
+        return valueComment = null;
+      }, function () {
+        return chompKeep = true;
+      });
+      var ws = ' ';
+
+      if (vcb || this.comment) {
+        ws = "".concat(vcb, "\n").concat(ctx.indent);
+      } else if (!explicitKey && value instanceof _Collection.default) {
+        var flow = valueStr[0] === '[' || valueStr[0] === '{';
+        if (!flow || valueStr.includes('\n')) ws = "\n".concat(ctx.indent);
+      }
+
+      if (chompKeep && !valueComment && onChompKeep) onChompKeep();
+      return (0, _addComment.default)(str + ws + valueStr, ctx.indent, valueComment);
+    }
+  }, {
+    key: "commentBefore",
+    get: function get() {
+      return this.key && this.key.commentBefore;
+    },
+    set: function set(cb) {
+      if (this.key == null) this.key = new _Scalar.default(null);
+      this.key.commentBefore = cb;
+    }
+  }]);
+  return Pair;
+}(_Node2.default);
+
+exports.default = Pair;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","../addComment":"node_modules/yaml/browser/dist/addComment.js","../constants":"node_modules/yaml/browser/dist/constants.js","../toJSON":"node_modules/yaml/browser/dist/toJSON.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./Node":"node_modules/yaml/browser/dist/schema/Node.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/schema/Collection.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.isEmptyPath = void 0;
+
+var _toArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _addComment = _interopRequireDefault(require("../addComment"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar")); // null, undefined, or an empty non-string iterable (e.g. [])
+
+
+var isEmptyPath = function isEmptyPath(path) {
+  return path == null || (0, _typeof2.default)(path) === 'object' && path[Symbol.iterator]().next().done;
+};
+
+exports.isEmptyPath = isEmptyPath;
+
+var Collection =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Collection, _Node);
+
+  function Collection() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Collection);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(Collection)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "items", []);
+    return _this;
+  }
+
+  (0, _createClass2.default)(Collection, [{
+    key: "addIn",
+    value: function addIn(path, value) {
+      if (isEmptyPath(path)) this.add(value);else {
+        var _path = (0, _toArray2.default)(path),
+            key = _path[0],
+            rest = _path.slice(1);
+
+        var node = this.get(key, true);
+        if (node instanceof Collection) node.addIn(rest, value);else throw new Error("Expected YAML collection at ".concat(key, ". Remaining path: ").concat(rest));
+      }
+    }
+  }, {
+    key: "deleteIn",
+    value: function deleteIn(_ref) {
+      var _ref2 = (0, _toArray2.default)(_ref),
+          key = _ref2[0],
+          rest = _ref2.slice(1);
+
+      if (rest.length === 0) return this.delete(key);
+      var node = this.get(key, true);
+      if (node instanceof Collection) return node.deleteIn(rest);else throw new Error("Expected YAML collection at ".concat(key, ". Remaining path: ").concat(rest));
+    }
+  }, {
+    key: "getIn",
+    value: function getIn(_ref3, keepScalar) {
+      var _ref4 = (0, _toArray2.default)(_ref3),
+          key = _ref4[0],
+          rest = _ref4.slice(1);
+
+      var node = this.get(key, true);
+      if (rest.length === 0) return !keepScalar && node instanceof _Scalar.default ? node.value : node;else return node instanceof Collection ? node.getIn(rest, keepScalar) : undefined;
+    }
+  }, {
+    key: "hasAllNullValues",
+    value: function hasAllNullValues() {
+      return this.items.every(function (node) {
+        if (!(node instanceof _Pair.default)) return false;
+        var n = node.value;
+        return n == null || n instanceof _Scalar.default && n.value == null && !n.commentBefore && !n.comment && !n.tag;
+      });
+    }
+  }, {
+    key: "hasIn",
+    value: function hasIn(_ref5) {
+      var _ref6 = (0, _toArray2.default)(_ref5),
+          key = _ref6[0],
+          rest = _ref6.slice(1);
+
+      if (rest.length === 0) return this.has(key);
+      var node = this.get(key, true);
+      return node instanceof Collection ? node.hasIn(rest) : false;
+    }
+  }, {
+    key: "setIn",
+    value: function setIn(_ref7, value) {
+      var _ref8 = (0, _toArray2.default)(_ref7),
+          key = _ref8[0],
+          rest = _ref8.slice(1);
+
+      if (rest.length === 0) {
+        this.set(key, value);
+      } else {
+        var node = this.get(key, true);
+        if (node instanceof Collection) node.setIn(rest, value);else throw new Error("Expected YAML collection at ".concat(key, ". Remaining path: ").concat(rest));
+      }
+    } // overridden in implementations
+
+  }, {
+    key: "toJSON",
+    value: function toJSON() {
+      return null;
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, _ref9, onComment, onChompKeep) {
+      var _this2 = this;
+
+      var blockItem = _ref9.blockItem,
+          flowChars = _ref9.flowChars,
+          isMap = _ref9.isMap,
+          itemIndent = _ref9.itemIndent;
+      var _ctx = ctx,
+          doc = _ctx.doc,
+          indent = _ctx.indent;
+      var inFlow = this.type && this.type.substr(0, 4) === 'FLOW' || ctx.inFlow;
+      if (inFlow) itemIndent += '  ';
+      var allNullValues = isMap && this.hasAllNullValues();
+      ctx = Object.assign({}, ctx, {
+        allNullValues: allNullValues,
+        indent: itemIndent,
+        inFlow: inFlow,
+        type: null
+      });
+      var chompKeep = false;
+      var hasItemWithNewLine = false;
+      var nodes = this.items.reduce(function (nodes, item, i) {
+        var comment;
+
+        if (item) {
+          if (!chompKeep && item.spaceBefore) nodes.push({
+            type: 'comment',
+            str: ''
+          });
+          if (item.commentBefore) item.commentBefore.match(/^.*$/gm).forEach(function (line) {
+            nodes.push({
+              type: 'comment',
+              str: "#".concat(line)
+            });
+          });
+          if (item.comment) comment = item.comment;
+          if (inFlow && (!chompKeep && item.spaceBefore || item.commentBefore || item.comment || item.key && (item.key.commentBefore || item.key.comment) || item.value && (item.value.commentBefore || item.value.comment))) hasItemWithNewLine = true;
+        }
+
+        chompKeep = false;
+        var str = doc.schema.stringify(item, ctx, function () {
+          return comment = null;
+        }, function () {
+          return chompKeep = true;
+        });
+        if (inFlow && !hasItemWithNewLine && str.includes('\n')) hasItemWithNewLine = true;
+        if (inFlow && i < _this2.items.length - 1) str += ',';
+        str = (0, _addComment.default)(str, itemIndent, comment);
+        if (chompKeep && (comment || inFlow)) chompKeep = false;
+        nodes.push({
+          type: 'item',
+          str: str
+        });
+        return nodes;
+      }, []);
+      var str;
+
+      if (nodes.length === 0) {
+        str = flowChars.start + flowChars.end;
+      } else if (inFlow) {
+        var start = flowChars.start,
+            end = flowChars.end;
+        var strings = nodes.map(function (n) {
+          return n.str;
+        });
+
+        if (hasItemWithNewLine || strings.reduce(function (sum, str) {
+          return sum + str.length + 2;
+        }, 2) > Collection.maxFlowStringSingleLineLength) {
+          str = start;
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = strings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var s = _step.value;
+              str += s ? "\n  ".concat(indent).concat(s) : '\n';
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          str += "\n".concat(indent).concat(end);
+        } else {
+          str = "".concat(start, " ").concat(strings.join(' '), " ").concat(end);
+        }
+      } else {
+        var _strings = nodes.map(blockItem);
+
+        str = _strings.shift();
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = _strings[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _s = _step2.value;
+            str += _s ? "\n".concat(indent).concat(_s) : '\n';
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+      }
+
+      if (this.comment) {
+        str += '\n' + this.comment.replace(/^/gm, "".concat(indent, "#"));
+        if (onComment) onComment();
+      } else if (chompKeep && onChompKeep) onChompKeep();
+
+      return str;
+    }
+  }]);
+  return Collection;
+}(_Node2.default);
+
+exports.default = Collection;
+(0, _defineProperty2.default)(Collection, "maxFlowStringSingleLineLength", 60);
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/toArray":"node_modules/@babel/runtime/helpers/toArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/assertThisInitialized":"node_modules/@babel/runtime/helpers/assertThisInitialized.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","../addComment":"node_modules/yaml/browser/dist/addComment.js","./Node":"node_modules/yaml/browser/dist/schema/Node.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/schema/Alias.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _toJSON2 = _interopRequireDefault(require("../toJSON"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+var _Node2 = _interopRequireDefault(require("./Node"));
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var getAliasCount = function getAliasCount(node, anchors) {
+  if (node instanceof Alias) {
+    var anchor = anchors.find(function (a) {
+      return a.node === node.source;
+    });
+    return anchor.count * anchor.aliasCount;
+  } else if (node instanceof _Collection.default) {
+    var count = 0;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = node.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var item = _step.value;
+        var c = getAliasCount(item, anchors);
+        if (c > count) count = c;
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    return count;
+  } else if (node instanceof _Pair.default) {
+    var kc = getAliasCount(node.key, anchors);
+    var vc = getAliasCount(node.value, anchors);
+    return Math.max(kc, vc);
+  }
+
+  return 1;
+};
+
+var Alias =
+/*#__PURE__*/
+function (_Node) {
+  (0, _inherits2.default)(Alias, _Node);
+  (0, _createClass2.default)(Alias, null, [{
+    key: "stringify",
+    value: function stringify(_ref, _ref2) {
+      var range = _ref.range,
+          source = _ref.source;
+      var anchors = _ref2.anchors,
+          doc = _ref2.doc,
+          implicitKey = _ref2.implicitKey,
+          inStringifyKey = _ref2.inStringifyKey;
+      var anchor = Object.keys(anchors).find(function (a) {
+        return anchors[a] === source;
+      });
+      if (!anchor && inStringifyKey) anchor = doc.anchors.getName(source) || doc.anchors.newName();
+      if (anchor) return "*".concat(anchor).concat(implicitKey ? ' ' : '');
+      var msg = doc.anchors.getName(source) ? 'Alias node must be after source node' : 'Source node not found for alias node';
+      throw new Error("".concat(msg, " [").concat(range, "]"));
+    }
+  }]);
+
+  function Alias(source) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Alias);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Alias).call(this));
+    _this.source = source;
+    _this.type = _constants.Type.ALIAS;
+    return _this;
+  }
+
+  (0, _createClass2.default)(Alias, [{
+    key: "toJSON",
+    value: function toJSON(arg, ctx) {
+      var _this2 = this;
+
+      if (!ctx) return (0, _toJSON2.default)(this.source, arg, ctx);
+      var anchors = ctx.anchors,
+          maxAliasCount = ctx.maxAliasCount;
+      var anchor = anchors.find(function (a) {
+        return a.node === _this2.source;
+      });
+
+      if (!anchor || anchor.res === undefined) {
+        var msg = 'This should not happen: Alias anchor was not resolved?';
+        if (this.cstNode) throw new _errors.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
+      }
+
+      if (maxAliasCount >= 0) {
+        anchor.count += 1;
+        if (anchor.aliasCount === 0) anchor.aliasCount = getAliasCount(this.source, anchors);
+
+        if (anchor.count * anchor.aliasCount > maxAliasCount) {
+          var _msg = 'Excessive alias count indicates a resource exhaustion attack';
+          if (this.cstNode) throw new _errors.YAMLReferenceError(this.cstNode, _msg);else throw new ReferenceError(_msg);
+        }
+      }
+
+      return anchor.res;
+    } // Only called when stringifying an alias mapping key while constructing
+    // Object output.
+
+  }, {
+    key: "toString",
+    value: function toString(ctx) {
+      return Alias.stringify(this, ctx);
+    }
+  }, {
+    key: "tag",
+    set: function set(t) {
+      throw new Error('Alias nodes cannot have tags');
+    }
+  }]);
+  return Alias;
+}(_Node2.default);
+
+exports.default = Alias;
+(0, _defineProperty2.default)(Alias, "default", true);
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","../toJSON":"node_modules/yaml/browser/dist/toJSON.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./Node":"node_modules/yaml/browser/dist/schema/Node.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js"}],"node_modules/yaml/browser/dist/schema/Map.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.findPair = findPair;
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _Collection2 = _interopRequireDefault(require("./Collection"));
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar"));
+
+function findPair(items, key) {
+  var k = key instanceof _Scalar.default ? key.value : key;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var it = _step.value;
+
+      if (it instanceof _Pair.default) {
+        if (it.key === key || it.key === k) return it;
+        if (it.key && it.key.value === k) return it;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+var YAMLMap =
+/*#__PURE__*/
+function (_Collection) {
+  (0, _inherits2.default)(YAMLMap, _Collection);
+
+  function YAMLMap() {
+    (0, _classCallCheck2.default)(this, YAMLMap);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLMap).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(YAMLMap, [{
+    key: "add",
+    value: function add(pair) {
+      if (!pair) pair = new _Pair.default(pair);else if (!(pair instanceof _Pair.default)) pair = new _Pair.default(pair.key || pair, pair.value);
+      var prev = findPair(this.items, pair.key);
+      if (prev) throw new Error("Key ".concat(pair.key, " already set"));
+      this.items.push(pair);
+    }
+  }, {
+    key: "delete",
+    value: function _delete(key) {
+      var it = findPair(this.items, key);
+      if (!it) return false;
+      var del = this.items.splice(this.items.indexOf(it), 1);
+      return del.length > 0;
+    }
+  }, {
+    key: "get",
+    value: function get(key, keepScalar) {
+      var it = findPair(this.items, key);
+      var node = it && it.value;
+      return !keepScalar && node instanceof _Scalar.default ? node.value : node;
+    }
+  }, {
+    key: "has",
+    value: function has(key) {
+      return !!findPair(this.items, key);
+    }
+  }, {
+    key: "set",
+    value: function set(key, value) {
+      var prev = findPair(this.items, key);
+      if (prev) prev.value = value;else this.items.push(new _Pair.default(key, value));
+    }
+    /**
+     * @param {*} arg ignored
+     * @param {*} ctx Conversion context, originally set in Document#toJSON()
+     * @param {Class} Type If set, forces the returned collection type
+     * @returns {*} Instance of Type, Map, or Object
+     */
+
+  }, {
+    key: "toJSON",
+    value: function toJSON(_, ctx, Type) {
+      var map = Type ? new Type() : ctx && ctx.mapAsMap ? new Map() : {};
+      if (ctx && ctx.onCreate) ctx.onCreate(map);
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var item = _step2.value;
+          item.addToJSMap(ctx, map);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return map;
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, onComment, onChompKeep) {
+      if (!ctx) return JSON.stringify(this);
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = this.items[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var item = _step3.value;
+          if (!(item instanceof _Pair.default)) throw new Error("Map items must all be pairs; found ".concat(JSON.stringify(item), " instead"));
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(YAMLMap.prototype), "toString", this).call(this, ctx, {
+        blockItem: function blockItem(n) {
+          return n.str;
+        },
+        flowChars: {
+          start: '{',
+          end: '}'
+        },
+        isMap: true,
+        itemIndent: ctx.indent || ''
+      }, onComment, onChompKeep);
+    }
+  }]);
+  return YAMLMap;
+}(_Collection2.default);
+
+exports.default = YAMLMap;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/schema/Seq.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _toJSON2 = _interopRequireDefault(require("../toJSON"));
+
+var _Collection2 = _interopRequireDefault(require("./Collection"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar")); // Published as 'yaml/seq'
+
+
+function asItemIndex(key) {
+  var idx = key instanceof _Scalar.default ? key.value : key;
+  if (idx && typeof idx === 'string') idx = Number(idx);
+  return Number.isInteger(idx) && idx >= 0 ? idx : null;
+}
+
+var YAMLSeq =
+/*#__PURE__*/
+function (_Collection) {
+  (0, _inherits2.default)(YAMLSeq, _Collection);
+
+  function YAMLSeq() {
+    (0, _classCallCheck2.default)(this, YAMLSeq);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLSeq).apply(this, arguments));
+  }
+
+  (0, _createClass2.default)(YAMLSeq, [{
+    key: "add",
+    value: function add(value) {
+      this.items.push(value);
+    }
+  }, {
+    key: "delete",
+    value: function _delete(key) {
+      var idx = asItemIndex(key);
+      if (typeof idx !== 'number') return false;
+      var del = this.items.splice(idx, 1);
+      return del.length > 0;
+    }
+  }, {
+    key: "get",
+    value: function get(key, keepScalar) {
+      var idx = asItemIndex(key);
+      if (typeof idx !== 'number') return undefined;
+      var it = this.items[idx];
+      return !keepScalar && it instanceof _Scalar.default ? it.value : it;
+    }
+  }, {
+    key: "has",
+    value: function has(key) {
+      var idx = asItemIndex(key);
+      return typeof idx === 'number' && idx < this.items.length;
+    }
+  }, {
+    key: "set",
+    value: function set(key, value) {
+      var idx = asItemIndex(key);
+      if (typeof idx !== 'number') throw new Error("Expected a valid index, not ".concat(key, "."));
+      this.items[idx] = value;
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(_, ctx) {
+      var seq = [];
+      if (ctx && ctx.onCreate) ctx.onCreate(seq);
+      var i = 0;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var item = _step.value;
+          seq.push((0, _toJSON2.default)(item, String(i++), ctx));
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return seq;
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, onComment, onChompKeep) {
+      if (!ctx) return JSON.stringify(this);
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(YAMLSeq.prototype), "toString", this).call(this, ctx, {
+        blockItem: function blockItem(n) {
+          return n.type === 'comment' ? n.str : "- ".concat(n.str);
+        },
+        flowChars: {
+          start: '[',
+          end: ']'
+        },
+        isMap: false,
+        itemIndent: (ctx.indent || '') + '  '
+      }, onComment, onChompKeep);
+    }
+  }]);
+  return YAMLSeq;
+}(_Collection2.default);
+
+exports.default = YAMLSeq;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","../toJSON":"node_modules/yaml/browser/dist/toJSON.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/schema/Merge.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.MERGE_KEY = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _Map = _interopRequireDefault(require("./Map"));
+
+var _Pair2 = _interopRequireDefault(require("./Pair"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar"));
+
+var _Seq = _interopRequireDefault(require("./Seq"));
+
+var MERGE_KEY = '<<';
+exports.MERGE_KEY = MERGE_KEY;
+
+var Merge =
+/*#__PURE__*/
+function (_Pair) {
+  (0, _inherits2.default)(Merge, _Pair);
+
+  function Merge(pair) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, Merge);
+
+    if (pair instanceof _Pair2.default) {
+      var seq = pair.value;
+
+      if (!(seq instanceof _Seq.default)) {
+        seq = new _Seq.default();
+        seq.items.push(pair.value);
+        seq.range = pair.value.range;
+      }
+
+      _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Merge).call(this, pair.key, seq));
+      _this.range = pair.range;
+    } else {
+      _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Merge).call(this, new _Scalar.default(MERGE_KEY), new _Seq.default()));
+    }
+
+    _this.type = 'MERGE_PAIR';
+    return (0, _possibleConstructorReturn2.default)(_this);
+  } // If the value associated with a merge key is a single mapping node, each of
+  // its key/value pairs is inserted into the current mapping, unless the key
+  // already exists in it. If the value associated with the merge key is a
+  // sequence, then this sequence is expected to contain mapping nodes and each
+  // of these nodes is merged in turn according to its order in the sequence.
+  // Keys in mapping nodes earlier in the sequence override keys specified in
+  // later mapping nodes. -- http://yaml.org/type/merge.html
+
+
+  (0, _createClass2.default)(Merge, [{
+    key: "addToJSMap",
+    value: function addToJSMap(ctx, map) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.value.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var source = _step.value.source;
+          if (!(source instanceof _Map.default)) throw new Error('Merge sources must be maps');
+          var srcMap = source.toJSON(null, ctx, Map);
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = srcMap[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var _step2$value = (0, _slicedToArray2.default)(_step2.value, 2),
+                  key = _step2$value[0],
+                  value = _step2$value[1];
+
+              if (map instanceof Map) {
+                if (!map.has(key)) map.set(key, value);
+              } else if (map instanceof Set) {
+                map.add(key);
+              } else {
+                if (!Object.prototype.hasOwnProperty.call(map, key)) map[key] = value;
+              }
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                _iterator2.return();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return map;
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, onComment) {
+      var seq = this.value;
+      if (seq.items.length > 1) return (0, _get2.default)((0, _getPrototypeOf2.default)(Merge.prototype), "toString", this).call(this, ctx, onComment);
+      this.value = seq.items[0];
+      var str = (0, _get2.default)((0, _getPrototypeOf2.default)(Merge.prototype), "toString", this).call(this, ctx, onComment);
+      this.value = seq;
+      return str;
+    }
+  }]);
+  return Merge;
+}(_Pair2.default);
+
+exports.default = Merge;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/slicedToArray":"node_modules/@babel/runtime/helpers/slicedToArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","./Map":"node_modules/yaml/browser/dist/schema/Map.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","./Seq":"node_modules/yaml/browser/dist/schema/Seq.js"}],"node_modules/yaml/browser/dist/Anchors.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _Alias = _interopRequireDefault(require("./schema/Alias"));
+
+var _Map = _interopRequireDefault(require("./schema/Map"));
+
+var _Merge = _interopRequireDefault(require("./schema/Merge"));
+
+var _Scalar = _interopRequireDefault(require("./schema/Scalar"));
+
+var _Seq = _interopRequireDefault(require("./schema/Seq"));
+
+var Anchors =
+/*#__PURE__*/
+function () {
+  (0, _createClass2.default)(Anchors, null, [{
+    key: "validAnchorNode",
+    value: function validAnchorNode(node) {
+      return node instanceof _Scalar.default || node instanceof _Seq.default || node instanceof _Map.default;
+    }
+  }]);
+
+  function Anchors(prefix) {
+    (0, _classCallCheck2.default)(this, Anchors);
+    (0, _defineProperty2.default)(this, "map", {});
+    this.prefix = prefix;
+  }
+
+  (0, _createClass2.default)(Anchors, [{
+    key: "createAlias",
+    value: function createAlias(node, name) {
+      this.setAnchor(node, name);
+      return new _Alias.default(node);
+    }
+  }, {
+    key: "createMergePair",
+    value: function createMergePair() {
+      var _this = this;
+
+      var merge = new _Merge.default();
+
+      for (var _len = arguments.length, sources = new Array(_len), _key = 0; _key < _len; _key++) {
+        sources[_key] = arguments[_key];
+      }
+
+      merge.value.items = sources.map(function (s) {
+        if (s instanceof _Alias.default) {
+          if (s.source instanceof _Map.default) return s;
+        } else if (s instanceof _Map.default) {
+          return _this.createAlias(s);
+        }
+
+        throw new Error('Merge sources must be Map nodes or their Aliases');
+      });
+      return merge;
+    }
+  }, {
+    key: "getName",
+    value: function getName(node) {
+      var map = this.map;
+      return Object.keys(map).find(function (a) {
+        return map[a] === node;
+      });
+    }
+  }, {
+    key: "getNode",
+    value: function getNode(name) {
+      return this.map[name];
+    }
+  }, {
+    key: "newName",
+    value: function newName(prefix) {
+      if (!prefix) prefix = this.prefix;
+      var names = Object.keys(this.map);
+
+      for (var i = 1; true; ++i) {
+        var name = "".concat(prefix).concat(i);
+        if (!names.includes(name)) return name;
+      }
+    } // During parsing, map & aliases contain CST nodes
+
+  }, {
+    key: "resolveNodes",
+    value: function resolveNodes() {
+      var map = this.map,
+          _cstAliases = this._cstAliases;
+      Object.keys(map).forEach(function (a) {
+        map[a] = map[a].resolved;
+      });
+
+      _cstAliases.forEach(function (a) {
+        a.source = a.source.resolved;
+      });
+
+      delete this._cstAliases;
+    }
+  }, {
+    key: "setAnchor",
+    value: function setAnchor(node, name) {
+      if (node != null && !Anchors.validAnchorNode(node)) {
+        throw new Error('Anchors may only be set for Scalar, Seq and Map nodes');
+      }
+
+      if (name && /[\x00-\x19\s,[\]{}]/.test(name)) {
+        throw new Error('Anchor names must not contain whitespace or control characters');
+      }
+
+      var map = this.map;
+      var prev = node && Object.keys(map).find(function (a) {
+        return map[a] === node;
+      });
+
+      if (prev) {
+        if (!name) {
+          return prev;
+        } else if (prev !== name) {
+          delete map[prev];
+          map[name] = node;
+        }
+      } else {
+        if (!name) {
+          if (!node) return null;
+          name = this.newName();
+        }
+
+        map[name] = node;
+      }
+
+      return name;
+    }
+  }]);
+  return Anchors;
+}();
+
+exports.default = Anchors;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","./schema/Alias":"node_modules/yaml/browser/dist/schema/Alias.js","./schema/Map":"node_modules/yaml/browser/dist/schema/Map.js","./schema/Merge":"node_modules/yaml/browser/dist/schema/Merge.js","./schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","./schema/Seq":"node_modules/yaml/browser/dist/schema/Seq.js"}],"node_modules/yaml/browser/dist/listTagNames.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _Collection = _interopRequireDefault(require("./schema/Collection"));
+
+var _Pair = _interopRequireDefault(require("./schema/Pair"));
+
+var _Scalar = _interopRequireDefault(require("./schema/Scalar"));
+
+var visit = function visit(node, tags) {
+  if (node && (0, _typeof2.default)(node) === 'object') {
+    var tag = node.tag;
+
+    if (node instanceof _Collection.default) {
+      if (tag) tags[tag] = true;
+      node.items.forEach(function (n) {
+        return visit(n, tags);
+      });
+    } else if (node instanceof _Pair.default) {
+      visit(node.key, tags);
+      visit(node.value, tags);
+    } else if (node instanceof _Scalar.default) {
+      if (tag) tags[tag] = true;
+    }
+  }
+
+  return tags;
+};
+
+var _default = function _default(node) {
+  return Object.keys(visit(node, {}));
+};
+
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","./schema/Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./schema/Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/warnings.js":[function(require,module,exports) {
+var global = arguments[3];
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.warn = warn;
+exports.warnFileDeprecation = warnFileDeprecation;
+exports.warnOptionDeprecation = warnOptionDeprecation;
+/* global global, console */
+
+function warn(warning, type) {
+  if (global && global._YAML_SILENCE_WARNINGS) return;
+
+  var _ref = global && global.process,
+      emitWarning = _ref.emitWarning; // This will throw in Jest if `warning` is an Error instance due to
+  // https://github.com/facebook/jest/issues/2549
+
+
+  if (emitWarning) emitWarning(warning, type);else {
+    // eslint-disable-next-line no-console
+    console.warn(type ? "".concat(type, ": ").concat(warning) : warning);
+  }
+}
+
+function warnFileDeprecation(filename) {
+  if (global && global._YAML_SILENCE_DEPRECATION_WARNINGS) return;
+  var path = filename.replace(/.*yaml[/\\]/i, '').replace(/\.js$/, '').replace(/\\/g, '/');
+  warn("The endpoint 'yaml/".concat(path, "' will be removed in a future release."), 'DeprecationWarning');
+}
+
+var warned = {};
+
+function warnOptionDeprecation(name, alternative) {
+  if (global && global._YAML_SILENCE_DEPRECATION_WARNINGS) return;
+  if (warned[name]) return;
+  warned[name] = true;
+  var msg = "The option '".concat(name, "' will be removed in a future release");
+  msg += alternative ? ", use '".concat(alternative, "' instead.") : '.';
+  warn(msg, 'DeprecationWarning');
+}
+},{}],"node_modules/yaml/browser/dist/foldFlowLines.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = foldFlowLines;
+exports.FOLD_QUOTED = exports.FOLD_BLOCK = exports.FOLD_FLOW = void 0;
+var FOLD_FLOW = 'flow';
+exports.FOLD_FLOW = FOLD_FLOW;
+var FOLD_BLOCK = 'block';
+exports.FOLD_BLOCK = FOLD_BLOCK;
+var FOLD_QUOTED = 'quoted'; // presumes i+1 is at the start of a line
+// returns index of last newline in more-indented block
+
+exports.FOLD_QUOTED = FOLD_QUOTED;
+
+var consumeMoreIndentedLines = function consumeMoreIndentedLines(text, i) {
+  var ch = text[i + 1];
+
+  while (ch === ' ' || ch === '\t') {
+    do {
+      ch = text[i += 1];
+    } while (ch && ch !== '\n');
+
+    ch = text[i + 1];
+  }
+
+  return i;
+};
+/**
+ * Tries to keep input at up to `lineWidth` characters, splitting only on spaces
+ * not followed by newlines or spaces unless `mode` is `'quoted'`. Lines are
+ * terminated with `\n` and started with `indent`.
+ *
+ * @param {string} text
+ * @param {string} indent
+ * @param {string} [mode='flow'] `'block'` prevents more-indented lines
+ *   from being folded; `'quoted'` allows for `\` escapes, including escaped
+ *   newlines
+ * @param {Object} options
+ * @param {number} [options.indentAtStart] Accounts for leading contents on
+ *   the first line, defaulting to `indent.length`
+ * @param {number} [options.lineWidth=80]
+ * @param {number} [options.minContentWidth=20] Allow highly indented lines to
+ *   stretch the line width
+ * @param {function} options.onFold Called once if the text is folded
+ * @param {function} options.onFold Called once if any line of text exceeds
+ *   lineWidth characters
+ */
+
+
+function foldFlowLines(text, indent, mode, _ref) {
+  var indentAtStart = _ref.indentAtStart,
+      _ref$lineWidth = _ref.lineWidth,
+      lineWidth = _ref$lineWidth === void 0 ? 80 : _ref$lineWidth,
+      _ref$minContentWidth = _ref.minContentWidth,
+      minContentWidth = _ref$minContentWidth === void 0 ? 20 : _ref$minContentWidth,
+      onFold = _ref.onFold,
+      onOverflow = _ref.onOverflow;
+  if (!lineWidth || lineWidth < 0) return text;
+  var endStep = Math.max(1 + minContentWidth, 1 + lineWidth - indent.length);
+  if (text.length <= endStep) return text;
+  var folds = [];
+  var escapedFolds = {};
+  var end = lineWidth - (typeof indentAtStart === 'number' ? indentAtStart : indent.length);
+  var split = undefined;
+  var prev = undefined;
+  var overflow = false;
+  var i = -1;
+
+  if (mode === FOLD_BLOCK) {
+    i = consumeMoreIndentedLines(text, i);
+    if (i !== -1) end = i + endStep;
+  }
+
+  for (var ch; ch = text[i += 1];) {
+    if (mode === FOLD_QUOTED && ch === '\\') {
+      switch (text[i + 1]) {
+        case 'x':
+          i += 3;
+          break;
+
+        case 'u':
+          i += 5;
+          break;
+
+        case 'U':
+          i += 9;
+          break;
+
+        default:
+          i += 1;
+      }
+    }
+
+    if (ch === '\n') {
+      if (mode === FOLD_BLOCK) i = consumeMoreIndentedLines(text, i);
+      end = i + endStep;
+      split = undefined;
+    } else {
+      if (ch === ' ' && prev && prev !== ' ' && prev !== '\n' && prev !== '\t') {
+        // space surrounded by non-space can be replaced with newline + indent
+        var next = text[i + 1];
+        if (next && next !== ' ' && next !== '\n' && next !== '\t') split = i;
+      }
+
+      if (i >= end) {
+        if (split) {
+          folds.push(split);
+          end = split + endStep;
+          split = undefined;
+        } else if (mode === FOLD_QUOTED) {
+          // white-space collected at end may stretch past lineWidth
+          while (prev === ' ' || prev === '\t') {
+            prev = ch;
+            ch = text[i += 1];
+            overflow = true;
+          } // i - 2 accounts for not-dropped last char + newline-escaping \
+
+
+          folds.push(i - 2);
+          escapedFolds[i - 2] = true;
+          end = i - 2 + endStep;
+          split = undefined;
+        } else {
+          overflow = true;
+        }
+      }
+    }
+
+    prev = ch;
+  }
+
+  if (overflow && onOverflow) onOverflow();
+  if (folds.length === 0) return text;
+  if (onFold) onFold();
+  var res = text.slice(0, folds[0]);
+
+  for (var _i = 0; _i < folds.length; ++_i) {
+    var fold = folds[_i];
+
+    var _end = folds[_i + 1] || text.length;
+
+    if (mode === FOLD_QUOTED && escapedFolds[fold]) res += "".concat(text[fold], "\\");
+    res += "\n".concat(indent).concat(text.slice(fold + 1, _end));
+  }
+
+  return res;
+}
+},{}],"node_modules/yaml/browser/dist/tags/options.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.strOptions = exports.nullOptions = exports.boolOptions = exports.binaryOptions = void 0;
+
+var _constants = require("../constants");
+
+var binaryOptions = {
+  defaultType: _constants.Type.BLOCK_LITERAL,
+  lineWidth: 76
+};
+exports.binaryOptions = binaryOptions;
+var boolOptions = {
+  trueStr: 'true',
+  falseStr: 'false'
+};
+exports.boolOptions = boolOptions;
+var nullOptions = {
+  nullStr: 'null'
+};
+exports.nullOptions = nullOptions;
+var strOptions = {
+  defaultType: _constants.Type.PLAIN,
+  doubleQuoted: {
+    jsonEncoding: false,
+    minMultiLineLength: 40
+  },
+  fold: {
+    lineWidth: 80,
+    minContentWidth: 20
+  }
+};
+exports.strOptions = strOptions;
+},{"../constants":"node_modules/yaml/browser/dist/constants.js"}],"node_modules/yaml/browser/dist/stringify.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.stringifyNumber = stringifyNumber;
+exports.stringifyString = stringifyString;
+
+var _addComment = require("./addComment");
+
+var _constants = require("./constants");
+
+var _foldFlowLines = _interopRequireWildcard(require("./foldFlowLines"));
+
+var _options = require("./tags/options");
+
+function stringifyNumber(_ref) {
+  var format = _ref.format,
+      minFractionDigits = _ref.minFractionDigits,
+      tag = _ref.tag,
+      value = _ref.value;
+  if (!isFinite(value)) return isNaN(value) ? '.nan' : value < 0 ? '-.inf' : '.inf';
+  var n = JSON.stringify(value);
+
+  if (!format && minFractionDigits && (!tag || tag === 'tag:yaml.org,2002:float') && /^\d/.test(n)) {
+    var i = n.indexOf('.');
+
+    if (i < 0) {
+      i = n.length;
+      n += '.';
+    }
+
+    var d = minFractionDigits - (n.length - i - 1);
+
+    while (d-- > 0) {
+      n += '0';
+    }
+  }
+
+  return n;
+}
+
+function lineLengthOverLimit(str, limit) {
+  var strLen = str.length;
+  if (strLen <= limit) return false;
+
+  for (var i = 0, start = 0; i < strLen; ++i) {
+    if (str[i] === '\n') {
+      if (i - start > limit) return true;
+      start = i + 1;
+      if (strLen - start <= limit) return false;
+    }
+  }
+
+  return true;
+}
+
+function doubleQuotedString(value, _ref2) {
+  var implicitKey = _ref2.implicitKey,
+      indent = _ref2.indent;
+  var _strOptions$doubleQuo = _options.strOptions.doubleQuoted,
+      jsonEncoding = _strOptions$doubleQuo.jsonEncoding,
+      minMultiLineLength = _strOptions$doubleQuo.minMultiLineLength;
+  var json = JSON.stringify(value);
+  if (jsonEncoding) return json;
+  var str = '';
+  var start = 0;
+
+  for (var i = 0, ch = json[i]; ch; ch = json[++i]) {
+    if (ch === ' ' && json[i + 1] === '\\' && json[i + 2] === 'n') {
+      // space before newline needs to be escaped to not be folded
+      str += json.slice(start, i) + '\\ ';
+      i += 1;
+      start = i;
+      ch = '\\';
+    }
+
+    if (ch === '\\') switch (json[i + 1]) {
+      case 'u':
+        {
+          str += json.slice(start, i);
+          var code = json.substr(i + 2, 4);
+
+          switch (code) {
+            case '0000':
+              str += '\\0';
+              break;
+
+            case '0007':
+              str += '\\a';
+              break;
+
+            case '000b':
+              str += '\\v';
+              break;
+
+            case '001b':
+              str += '\\e';
+              break;
+
+            case '0085':
+              str += '\\N';
+              break;
+
+            case '00a0':
+              str += '\\_';
+              break;
+
+            case '2028':
+              str += '\\L';
+              break;
+
+            case '2029':
+              str += '\\P';
+              break;
+
+            default:
+              if (code.substr(0, 2) === '00') str += '\\x' + code.substr(2);else str += json.substr(i, 6);
+          }
+
+          i += 5;
+          start = i + 1;
+        }
+        break;
+
+      case 'n':
+        if (implicitKey || json[i + 2] === '"' || json.length < minMultiLineLength) {
+          i += 1;
+        } else {
+          // folding will eat first newline
+          str += json.slice(start, i) + '\n\n';
+
+          while (json[i + 2] === '\\' && json[i + 3] === 'n' && json[i + 4] !== '"') {
+            str += '\n';
+            i += 2;
+          }
+
+          str += indent; // space after newline needs to be escaped to not be folded
+
+          if (json[i + 2] === ' ') str += '\\';
+          i += 1;
+          start = i + 1;
+        }
+
+        break;
+
+      default:
+        i += 1;
+    }
+  }
+
+  str = start ? str + json.slice(start) : json;
+  return implicitKey ? str : (0, _foldFlowLines.default)(str, indent, _foldFlowLines.FOLD_QUOTED, _options.strOptions.fold);
+}
+
+function singleQuotedString(value, ctx) {
+  var indent = ctx.indent,
+      implicitKey = ctx.implicitKey;
+
+  if (implicitKey) {
+    if (/\n/.test(value)) return doubleQuotedString(value, ctx);
+  } else {
+    // single quoted string can't have leading or trailing whitespace around newline
+    if (/[ \t]\n|\n[ \t]/.test(value)) return doubleQuotedString(value, ctx);
+  }
+
+  var res = "'" + value.replace(/'/g, "''").replace(/\n+/g, "$&\n".concat(indent)) + "'";
+  return implicitKey ? res : (0, _foldFlowLines.default)(res, indent, _foldFlowLines.FOLD_FLOW, _options.strOptions.fold);
+}
+
+function blockString(_ref3, ctx, onComment, onChompKeep) {
+  var comment = _ref3.comment,
+      type = _ref3.type,
+      value = _ref3.value; // 1. Block can't end in whitespace unless the last line is non-empty.
+  // 2. Strings consisting of only whitespace are best rendered explicitly.
+
+  if (/\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
+    return doubleQuotedString(value, ctx);
+  }
+
+  var indent = ctx.indent || (ctx.forceBlockIndent ? ' ' : '');
+  var indentSize = indent ? '2' : '1'; // root is at -1
+
+  var literal = type === _constants.Type.BLOCK_FOLDED ? false : type === _constants.Type.BLOCK_LITERAL ? true : !lineLengthOverLimit(value, _options.strOptions.fold.lineWidth - indent.length);
+  var header = literal ? '|' : '>';
+  if (!value) return header + '\n';
+  var wsStart = '';
+  var wsEnd = '';
+  value = value.replace(/[\n\t ]*$/, function (ws) {
+    var n = ws.indexOf('\n');
+
+    if (n === -1) {
+      header += '-'; // strip
+    } else if (value === ws || n !== ws.length - 1) {
+      header += '+'; // keep
+
+      if (onChompKeep) onChompKeep();
+    }
+
+    wsEnd = ws.replace(/\n$/, '');
+    return '';
+  }).replace(/^[\n ]*/, function (ws) {
+    if (ws.indexOf(' ') !== -1) header += indentSize;
+    var m = ws.match(/ +$/);
+
+    if (m) {
+      wsStart = ws.slice(0, -m[0].length);
+      return m[0];
+    } else {
+      wsStart = ws;
+      return '';
+    }
+  });
+  if (wsEnd) wsEnd = wsEnd.replace(/\n+(?!\n|$)/g, "$&".concat(indent));
+  if (wsStart) wsStart = wsStart.replace(/\n+/g, "$&".concat(indent));
+
+  if (comment) {
+    header += ' #' + comment.replace(/ ?[\r\n]+/g, ' ');
+    if (onComment) onComment();
+  }
+
+  if (!value) return "".concat(header).concat(indentSize, "\n").concat(indent).concat(wsEnd);
+
+  if (literal) {
+    value = value.replace(/\n+/g, "$&".concat(indent));
+    return "".concat(header, "\n").concat(indent).concat(wsStart).concat(value).concat(wsEnd);
+  }
+
+  value = value.replace(/\n+/g, '\n$&').replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, '$1$2') // more-indented lines aren't folded
+  //         ^ ind.line  ^ empty     ^ capture next empty lines only at end of indent
+  .replace(/\n+/g, "$&".concat(indent));
+  var body = (0, _foldFlowLines.default)("".concat(wsStart).concat(value).concat(wsEnd), indent, _foldFlowLines.FOLD_BLOCK, _options.strOptions.fold);
+  return "".concat(header, "\n").concat(indent).concat(body);
+}
+
+function plainString(item, ctx, onComment, onChompKeep) {
+  var comment = item.comment,
+      type = item.type,
+      value = item.value;
+  var actualString = ctx.actualString,
+      implicitKey = ctx.implicitKey,
+      indent = ctx.indent,
+      inFlow = ctx.inFlow,
+      tags = ctx.tags;
+
+  if (implicitKey && /[\n[\]{},]/.test(value) || inFlow && /[[\]{},]/.test(value)) {
+    return doubleQuotedString(value, ctx);
+  }
+
+  if (!value || /^[\n\t ,[\]{}#&*!|>'"%@`]|^[?-]$|^[?-][ \t]|[\n:][ \t]|[ \t]\n|[\n\t ]#|[\n\t :]$/.test(value)) {
+    // not allowed:
+    // - empty string, '-' or '?'
+    // - start with an indicator character (except [?:-]) or /[?-] /
+    // - '\n ', ': ' or ' \n' anywhere
+    // - '#' not preceded by a non-space char
+    // - end with ' ' or ':'
+    return implicitKey || inFlow || value.indexOf('\n') === -1 ? value.indexOf('"') !== -1 && value.indexOf("'") === -1 ? singleQuotedString(value, ctx) : doubleQuotedString(value, ctx) : blockString(item, ctx, onComment, onChompKeep);
+  }
+
+  if (!implicitKey && !inFlow && type !== _constants.Type.PLAIN && value.indexOf('\n') !== -1) {
+    // Where allowed & type not set explicitly, prefer block style for multiline strings
+    return blockString(item, ctx, onComment, onChompKeep);
+  }
+
+  var str = value.replace(/\n+/g, "$&\n".concat(indent)); // Verify that output will be parsed as a string, as e.g. plain numbers and
+  // booleans get parsed with those types in v1.2 (e.g. '42', 'true' & '0.9e-3'),
+  // and others in v1.1.
+
+  if (actualString && typeof tags.resolveScalar(str).value !== 'string') {
+    return doubleQuotedString(value, ctx);
+  }
+
+  var body = implicitKey ? str : (0, _foldFlowLines.default)(str, indent, _foldFlowLines.FOLD_FLOW, _options.strOptions.fold);
+
+  if (comment && !inFlow && (body.indexOf('\n') !== -1 || comment.indexOf('\n') !== -1)) {
+    if (onComment) onComment();
+    return (0, _addComment.addCommentBefore)(body, indent, comment);
+  }
+
+  return body;
+}
+
+function stringifyString(item, ctx, onComment, onChompKeep) {
+  var defaultType = _options.strOptions.defaultType;
+  var implicitKey = ctx.implicitKey,
+      inFlow = ctx.inFlow;
+  var _item = item,
+      type = _item.type,
+      value = _item.value;
+
+  if (typeof value !== 'string') {
+    value = String(value);
+    item = Object.assign({}, item, {
+      value: value
+    });
+  }
+
+  var _stringify = function _stringify(_type) {
+    switch (_type) {
+      case _constants.Type.BLOCK_FOLDED:
+      case _constants.Type.BLOCK_LITERAL:
+        return blockString(item, ctx, onComment, onChompKeep);
+
+      case _constants.Type.QUOTE_DOUBLE:
+        return doubleQuotedString(value, ctx);
+
+      case _constants.Type.QUOTE_SINGLE:
+        return singleQuotedString(value, ctx);
+
+      case _constants.Type.PLAIN:
+        return plainString(item, ctx, onComment, onChompKeep);
+
+      default:
+        return null;
+    }
+  };
+
+  if (type !== _constants.Type.QUOTE_DOUBLE && /[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(value)) {
+    // force double quotes on control characters
+    type = _constants.Type.QUOTE_DOUBLE;
+  } else if ((implicitKey || inFlow) && (type === _constants.Type.BLOCK_FOLDED || type === _constants.Type.BLOCK_LITERAL)) {
+    // should not happen; blocks are not valid inside flow containers
+    type = _constants.Type.QUOTE_DOUBLE;
+  }
+
+  var res = _stringify(type);
+
+  if (res === null) {
+    res = _stringify(defaultType);
+    if (res === null) throw new Error("Unsupported default string type ".concat(defaultType));
+  }
+
+  return res;
+}
+},{"@babel/runtime/helpers/interopRequireWildcard":"node_modules/@babel/runtime/helpers/interopRequireWildcard.js","./addComment":"node_modules/yaml/browser/dist/addComment.js","./constants":"node_modules/yaml/browser/dist/constants.js","./foldFlowLines":"node_modules/yaml/browser/dist/foldFlowLines.js","./tags/options":"node_modules/yaml/browser/dist/tags/options.js"}],"node_modules/yaml/browser/dist/schema/parseUtils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.checkFlowCollectionEnd = checkFlowCollectionEnd;
+exports.checkKeyLength = checkKeyLength;
+exports.resolveComments = resolveComments;
+
+var _errors = require("../errors");
+
+var _constants = require("../constants");
+
+function checkFlowCollectionEnd(errors, cst) {
+  var char, name;
+
+  switch (cst.type) {
+    case _constants.Type.FLOW_MAP:
+      char = '}';
+      name = 'flow map';
+      break;
+
+    case _constants.Type.FLOW_SEQ:
+      char = ']';
+      name = 'flow sequence';
+      break;
+
+    default:
+      errors.push(new _errors.YAMLSemanticError(cst, 'Not a flow collection!?'));
+      return;
+  }
+
+  var lastItem;
+
+  for (var i = cst.items.length - 1; i >= 0; --i) {
+    var item = cst.items[i];
+
+    if (!item || item.type !== _constants.Type.COMMENT) {
+      lastItem = item;
+      break;
+    }
+  }
+
+  if (lastItem && lastItem.char !== char) {
+    var msg = "Expected ".concat(name, " to end with ").concat(char);
+    var err;
+
+    if (typeof lastItem.offset === 'number') {
+      err = new _errors.YAMLSemanticError(cst, msg);
+      err.offset = lastItem.offset + 1;
+    } else {
+      err = new _errors.YAMLSemanticError(lastItem, msg);
+      if (lastItem.range && lastItem.range.end) err.offset = lastItem.range.end - lastItem.range.start;
+    }
+
+    errors.push(err);
+  }
+}
+
+function checkKeyLength(errors, node, itemIdx, key, keyStart) {
+  if (!key || typeof keyStart !== 'number') return;
+  var item = node.items[itemIdx];
+  var keyEnd = item && item.range && item.range.start;
+
+  if (!keyEnd) {
+    for (var i = itemIdx - 1; i >= 0; --i) {
+      var it = node.items[i];
+
+      if (it && it.range) {
+        keyEnd = it.range.end + 2 * (itemIdx - i);
+        break;
+      }
+    }
+  }
+
+  if (keyEnd > keyStart + 1024) {
+    var k = String(key).substr(0, 8) + '...' + String(key).substr(-8);
+    errors.push(new _errors.YAMLSemanticError(node, "The \"".concat(k, "\" key is too long")));
+  }
+}
+
+function resolveComments(collection, comments) {
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = comments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var _step$value = _step.value,
+          afterKey = _step$value.afterKey,
+          before = _step$value.before,
+          comment = _step$value.comment;
+      var item = collection.items[before];
+
+      if (!item) {
+        if (comment !== undefined) {
+          if (collection.comment) collection.comment += '\n' + comment;else collection.comment = comment;
+        }
+      } else {
+        if (afterKey && item.value) item = item.value;
+
+        if (comment === undefined) {
+          if (afterKey || !item.commentBefore) item.spaceBefore = true;
+        } else {
+          if (item.commentBefore) item.commentBefore += '\n' + comment;else item.commentBefore = comment;
+        }
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+}
+},{"../errors":"node_modules/yaml/browser/dist/errors.js","../constants":"node_modules/yaml/browser/dist/constants.js"}],"node_modules/yaml/browser/dist/schema/parseMap.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = parseMap;
+
+var _constants = require("../constants");
+
+var _PlainValue = _interopRequireDefault(require("../cst/PlainValue"));
+
+var _errors = require("../errors");
+
+var _Map = _interopRequireDefault(require("./Map"));
+
+var _Merge = _interopRequireWildcard(require("./Merge"));
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var _parseUtils = require("./parseUtils");
+
+var _Alias = _interopRequireDefault(require("./Alias"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+function parseMap(doc, cst) {
+  if (cst.type !== _constants.Type.MAP && cst.type !== _constants.Type.FLOW_MAP) {
+    var msg = "A ".concat(cst.type, " node cannot be resolved as a mapping");
+    doc.errors.push(new _errors.YAMLSyntaxError(cst, msg));
+    return null;
+  }
+
+  var _ref = cst.type === _constants.Type.FLOW_MAP ? resolveFlowMapItems(doc, cst) : resolveBlockMapItems(doc, cst),
+      comments = _ref.comments,
+      items = _ref.items;
+
+  var map = new _Map.default();
+  map.items = items;
+  (0, _parseUtils.resolveComments)(map, comments);
+  var hasCollectionKey = false;
+
+  for (var i = 0; i < items.length; ++i) {
+    var iKey = items[i].key;
+    if (iKey instanceof _Collection.default) hasCollectionKey = true;
+
+    if (doc.schema.merge && iKey && iKey.value === _Merge.MERGE_KEY) {
+      items[i] = new _Merge.default(items[i]);
+      var sources = items[i].value.items;
+      var error = null;
+      sources.some(function (node) {
+        if (node instanceof _Alias.default) {
+          // During parsing, alias sources are CST nodes; to account for
+          // circular references their resolved values can't be used here.
+          var type = node.source.type;
+          if (type === _constants.Type.MAP || type === _constants.Type.FLOW_MAP) return false;
+          return error = 'Merge nodes aliases can only point to maps';
+        }
+
+        return error = 'Merge nodes can only have Alias nodes as values';
+      });
+      if (error) doc.errors.push(new _errors.YAMLSemanticError(cst, error));
+    } else {
+      for (var j = i + 1; j < items.length; ++j) {
+        var jKey = items[j].key;
+
+        if (iKey === jKey || iKey && jKey && Object.prototype.hasOwnProperty.call(iKey, 'value') && iKey.value === jKey.value) {
+          var _msg = "Map keys must be unique; \"".concat(iKey, "\" is repeated");
+
+          doc.errors.push(new _errors.YAMLSemanticError(cst, _msg));
+          break;
+        }
+      }
+    }
+  }
+
+  if (hasCollectionKey && !doc.options.mapAsMap) {
+    var warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
+    doc.warnings.push(new _errors.YAMLWarning(cst, warn));
+  }
+
+  cst.resolved = map;
+  return map;
+}
+
+var valueHasPairComment = function valueHasPairComment(_ref2) {
+  var _ref2$context = _ref2.context,
+      lineStart = _ref2$context.lineStart,
+      node = _ref2$context.node,
+      src = _ref2$context.src,
+      props = _ref2.props;
+  if (props.length === 0) return false;
+  var start = props[0].start;
+  if (node && start > node.valueRange.start) return false;
+  if (src[start] !== _constants.Char.COMMENT) return false;
+
+  for (var i = lineStart; i < start; ++i) {
+    if (src[i] === '\n') return false;
+  }
+
+  return true;
+};
+
+function resolvePairComment(item, pair) {
+  if (!valueHasPairComment(item)) return;
+  var comment = item.getPropValue(0, _constants.Char.COMMENT, true);
+  var found = false;
+  var cb = pair.value.commentBefore;
+
+  if (cb && cb.startsWith(comment)) {
+    pair.value.commentBefore = cb.substr(comment.length + 1);
+    found = true;
+  } else {
+    var cc = pair.value.comment;
+
+    if (!item.node && cc && cc.startsWith(comment)) {
+      pair.value.comment = cc.substr(comment.length + 1);
+      found = true;
+    }
+  }
+
+  if (found) pair.comment = comment;
+}
+
+function resolveBlockMapItems(doc, cst) {
+  var comments = [];
+  var items = [];
+  var key = undefined;
+  var keyStart = null;
+
+  for (var i = 0; i < cst.items.length; ++i) {
+    var item = cst.items[i];
+
+    switch (item.type) {
+      case _constants.Type.BLANK_LINE:
+        comments.push({
+          afterKey: !!key,
+          before: items.length
+        });
+        break;
+
+      case _constants.Type.COMMENT:
+        comments.push({
+          afterKey: !!key,
+          before: items.length,
+          comment: item.comment
+        });
+        break;
+
+      case _constants.Type.MAP_KEY:
+        if (key !== undefined) items.push(new _Pair.default(key));
+        if (item.error) doc.errors.push(item.error);
+        key = doc.resolveNode(item.node);
+        keyStart = null;
+        break;
+
+      case _constants.Type.MAP_VALUE:
+        {
+          if (key === undefined) key = null;
+          if (item.error) doc.errors.push(item.error);
+
+          if (!item.context.atLineStart && item.node && item.node.type === _constants.Type.MAP && !item.node.context.atLineStart) {
+            var msg = 'Nested mappings are not allowed in compact mappings';
+            doc.errors.push(new _errors.YAMLSemanticError(item.node, msg));
+          }
+
+          var valueNode = item.node;
+
+          if (!valueNode && item.props.length > 0) {
+            // Comments on an empty mapping value need to be preserved, so we
+            // need to construct a minimal empty node here to use instead of the
+            // missing `item.node`. -- eemeli/yaml#19
+            valueNode = new _PlainValue.default(_constants.Type.PLAIN, []);
+            valueNode.context = {
+              parent: item,
+              src: item.context.src
+            };
+            var pos = item.range.start + 1;
+            valueNode.range = {
+              start: pos,
+              end: pos
+            };
+            valueNode.valueRange = {
+              start: pos,
+              end: pos
+            };
+
+            if (typeof item.range.origStart === 'number') {
+              var origPos = item.range.origStart + 1;
+              valueNode.range.origStart = valueNode.range.origEnd = origPos;
+              valueNode.valueRange.origStart = valueNode.valueRange.origEnd = origPos;
+            }
+          }
+
+          var pair = new _Pair.default(key, doc.resolveNode(valueNode));
+          resolvePairComment(item, pair);
+          items.push(pair);
+          (0, _parseUtils.checkKeyLength)(doc.errors, cst, i, key, keyStart);
+          key = undefined;
+          keyStart = null;
+        }
+        break;
+
+      default:
+        if (key !== undefined) items.push(new _Pair.default(key));
+        key = doc.resolveNode(item);
+        keyStart = item.range.start;
+        if (item.error) doc.errors.push(item.error);
+
+        next: for (var j = i + 1;; ++j) {
+          var nextItem = cst.items[j];
+
+          switch (nextItem && nextItem.type) {
+            case _constants.Type.BLANK_LINE:
+            case _constants.Type.COMMENT:
+              continue next;
+
+            case _constants.Type.MAP_VALUE:
+              break next;
+
+            default:
+              doc.errors.push(new _errors.YAMLSemanticError(item, 'Implicit map keys need to be followed by map values'));
+              break next;
+          }
+        }
+
+        if (item.valueRangeContainsNewline) {
+          var _msg2 = 'Implicit map keys need to be on a single line';
+          doc.errors.push(new _errors.YAMLSemanticError(item, _msg2));
+        }
+
+    }
+  }
+
+  if (key !== undefined) items.push(new _Pair.default(key));
+  return {
+    comments: comments,
+    items: items
+  };
+}
+
+function resolveFlowMapItems(doc, cst) {
+  var comments = [];
+  var items = [];
+  var key = undefined;
+  var keyStart = null;
+  var explicitKey = false;
+  var next = '{';
+
+  for (var i = 0; i < cst.items.length; ++i) {
+    (0, _parseUtils.checkKeyLength)(doc.errors, cst, i, key, keyStart);
+    var item = cst.items[i];
+
+    if (typeof item.char === 'string') {
+      var char = item.char,
+          offset = item.offset;
+
+      if (char === '?' && key === undefined && !explicitKey) {
+        explicitKey = true;
+        next = ':';
+        continue;
+      }
+
+      if (char === ':') {
+        if (key === undefined) key = null;
+
+        if (next === ':') {
+          next = ',';
+          continue;
+        }
+      } else {
+        if (explicitKey) {
+          if (key === undefined && char !== ',') key = null;
+          explicitKey = false;
+        }
+
+        if (key !== undefined) {
+          items.push(new _Pair.default(key));
+          key = undefined;
+          keyStart = null;
+
+          if (char === ',') {
+            next = ':';
+            continue;
+          }
+        }
+      }
+
+      if (char === '}') {
+        if (i === cst.items.length - 1) continue;
+      } else if (char === next) {
+        next = ':';
+        continue;
+      }
+
+      var msg = "Flow map contains an unexpected ".concat(char);
+      var err = new _errors.YAMLSyntaxError(cst, msg);
+      err.offset = offset;
+      doc.errors.push(err);
+    } else if (item.type === _constants.Type.BLANK_LINE) {
+      comments.push({
+        afterKey: !!key,
+        before: items.length
+      });
+    } else if (item.type === _constants.Type.COMMENT) {
+      comments.push({
+        afterKey: !!key,
+        before: items.length,
+        comment: item.comment
+      });
+    } else if (key === undefined) {
+      if (next === ',') doc.errors.push(new _errors.YAMLSemanticError(item, 'Separator , missing in flow map'));
+      key = doc.resolveNode(item);
+      keyStart = explicitKey ? null : item.range.start; // TODO: add error for non-explicit multiline plain key
+    } else {
+      if (next !== ',') doc.errors.push(new _errors.YAMLSemanticError(item, 'Indicator : missing in flow map entry'));
+      items.push(new _Pair.default(key, doc.resolveNode(item)));
+      key = undefined;
+      explicitKey = false;
+    }
+  }
+
+  (0, _parseUtils.checkFlowCollectionEnd)(doc.errors, cst);
+  if (key !== undefined) items.push(new _Pair.default(key));
+  return {
+    comments: comments,
+    items: items
+  };
+}
+},{"@babel/runtime/helpers/interopRequireWildcard":"node_modules/@babel/runtime/helpers/interopRequireWildcard.js","@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../constants":"node_modules/yaml/browser/dist/constants.js","../cst/PlainValue":"node_modules/yaml/browser/dist/cst/PlainValue.js","../errors":"node_modules/yaml/browser/dist/errors.js","./Map":"node_modules/yaml/browser/dist/schema/Map.js","./Merge":"node_modules/yaml/browser/dist/schema/Merge.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./parseUtils":"node_modules/yaml/browser/dist/schema/parseUtils.js","./Alias":"node_modules/yaml/browser/dist/schema/Alias.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js"}],"node_modules/yaml/browser/dist/tags/failsafe/map.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _Map = _interopRequireDefault(require("../../schema/Map"));
+
+var _parseMap = _interopRequireDefault(require("../../schema/parseMap"));
+
+function createMap(schema, obj, ctx) {
+  var map = new _Map.default();
+
+  if (obj instanceof Map) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = obj[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var _step$value = (0, _slicedToArray2.default)(_step.value, 2),
+            key = _step$value[0],
+            value = _step$value[1];
+
+        map.items.push(schema.createPair(key, value, ctx));
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  } else if (obj && (0, _typeof2.default)(obj) === 'object') {
+    for (var _i = 0, _Object$keys = Object.keys(obj); _i < _Object$keys.length; _i++) {
+      var _key = _Object$keys[_i];
+      map.items.push(schema.createPair(_key, obj[_key], ctx));
+    }
+  }
+
+  return map;
+}
+
+var _default = {
+  createNode: createMap,
+  default: true,
+  nodeClass: _Map.default,
+  tag: 'tag:yaml.org,2002:map',
+  resolve: _parseMap.default
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","@babel/runtime/helpers/slicedToArray":"node_modules/@babel/runtime/helpers/slicedToArray.js","../../schema/Map":"node_modules/yaml/browser/dist/schema/Map.js","../../schema/parseMap":"node_modules/yaml/browser/dist/schema/parseMap.js"}],"node_modules/yaml/browser/dist/schema/parseSeq.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = parseSeq;
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var _parseUtils = require("./parseUtils");
+
+var _Seq = _interopRequireDefault(require("./Seq"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+function parseSeq(doc, cst) {
+  if (cst.type !== _constants.Type.SEQ && cst.type !== _constants.Type.FLOW_SEQ) {
+    var msg = "A ".concat(cst.type, " node cannot be resolved as a sequence");
+    doc.errors.push(new _errors.YAMLSyntaxError(cst, msg));
+    return null;
+  }
+
+  var _ref = cst.type === _constants.Type.FLOW_SEQ ? resolveFlowSeqItems(doc, cst) : resolveBlockSeqItems(doc, cst),
+      comments = _ref.comments,
+      items = _ref.items;
+
+  var seq = new _Seq.default();
+  seq.items = items;
+  (0, _parseUtils.resolveComments)(seq, comments);
+
+  if (!doc.options.mapAsMap && items.some(function (it) {
+    return it instanceof _Pair.default && it.key instanceof _Collection.default;
+  })) {
+    var warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
+    doc.warnings.push(new _errors.YAMLWarning(cst, warn));
+  }
+
+  cst.resolved = seq;
+  return seq;
+}
+
+function resolveBlockSeqItems(doc, cst) {
+  var comments = [];
+  var items = [];
+
+  for (var i = 0; i < cst.items.length; ++i) {
+    var item = cst.items[i];
+
+    switch (item.type) {
+      case _constants.Type.BLANK_LINE:
+        comments.push({
+          before: items.length
+        });
+        break;
+
+      case _constants.Type.COMMENT:
+        comments.push({
+          comment: item.comment,
+          before: items.length
+        });
+        break;
+
+      case _constants.Type.SEQ_ITEM:
+        if (item.error) doc.errors.push(item.error);
+        items.push(doc.resolveNode(item.node));
+
+        if (item.hasProps) {
+          var msg = 'Sequence items cannot have tags or anchors before the - indicator';
+          doc.errors.push(new _errors.YAMLSemanticError(item, msg));
+        }
+
+        break;
+
+      default:
+        if (item.error) doc.errors.push(item.error);
+        doc.errors.push(new _errors.YAMLSyntaxError(item, "Unexpected ".concat(item.type, " node in sequence")));
+    }
+  }
+
+  return {
+    comments: comments,
+    items: items
+  };
+}
+
+function resolveFlowSeqItems(doc, cst) {
+  var comments = [];
+  var items = [];
+  var explicitKey = false;
+  var key = undefined;
+  var keyStart = null;
+  var next = '[';
+
+  for (var i = 0; i < cst.items.length; ++i) {
+    var item = cst.items[i];
+
+    if (typeof item.char === 'string') {
+      var char = item.char,
+          offset = item.offset;
+
+      if (char !== ':' && (explicitKey || key !== undefined)) {
+        if (explicitKey && key === undefined) key = next ? items.pop() : null;
+        items.push(new _Pair.default(key));
+        explicitKey = false;
+        key = undefined;
+        keyStart = null;
+      }
+
+      if (char === next) {
+        next = null;
+      } else if (!next && char === '?') {
+        explicitKey = true;
+      } else if (next !== '[' && char === ':' && key === undefined) {
+        if (next === ',') {
+          key = items.pop();
+
+          if (key instanceof _Pair.default) {
+            var msg = 'Chaining flow sequence pairs is invalid';
+            var err = new _errors.YAMLSemanticError(cst, msg);
+            err.offset = offset;
+            doc.errors.push(err);
+          }
+
+          if (!explicitKey) (0, _parseUtils.checkKeyLength)(doc.errors, cst, i, key, keyStart);
+        } else {
+          key = null;
+        }
+
+        keyStart = null;
+        explicitKey = false; // TODO: add error for non-explicit multiline plain key
+
+        next = null;
+      } else if (next === '[' || char !== ']' || i < cst.items.length - 1) {
+        var _msg = "Flow sequence contains an unexpected ".concat(char);
+
+        var _err = new _errors.YAMLSyntaxError(cst, _msg);
+
+        _err.offset = offset;
+        doc.errors.push(_err);
+      }
+    } else if (item.type === _constants.Type.BLANK_LINE) {
+      comments.push({
+        before: items.length
+      });
+    } else if (item.type === _constants.Type.COMMENT) {
+      comments.push({
+        comment: item.comment,
+        before: items.length
+      });
+    } else {
+      if (next) {
+        var _msg2 = "Expected a ".concat(next, " in flow sequence");
+
+        doc.errors.push(new _errors.YAMLSemanticError(item, _msg2));
+      }
+
+      var value = doc.resolveNode(item);
+
+      if (key === undefined) {
+        items.push(value);
+      } else {
+        items.push(new _Pair.default(key, value));
+        key = undefined;
+      }
+
+      keyStart = item.range.start;
+      next = ',';
+    }
+  }
+
+  (0, _parseUtils.checkFlowCollectionEnd)(doc.errors, cst);
+  if (key !== undefined) items.push(new _Pair.default(key));
+  return {
+    comments: comments,
+    items: items
+  };
+}
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./parseUtils":"node_modules/yaml/browser/dist/schema/parseUtils.js","./Seq":"node_modules/yaml/browser/dist/schema/Seq.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js"}],"node_modules/yaml/browser/dist/tags/failsafe/seq.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _parseSeq = _interopRequireDefault(require("../../schema/parseSeq"));
+
+var _Seq = _interopRequireDefault(require("../../schema/Seq"));
+
+function createSeq(schema, obj, ctx) {
+  var seq = new _Seq.default();
+
+  if (obj && obj[Symbol.iterator]) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = obj[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var it = _step.value;
+        var v = schema.createNode(it, ctx.wrapScalars, null, ctx);
+        seq.items.push(v);
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  }
+
+  return seq;
+}
+
+var _default = {
+  createNode: createSeq,
+  default: true,
+  nodeClass: _Seq.default,
+  tag: 'tag:yaml.org,2002:seq',
+  resolve: _parseSeq.default
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../../schema/parseSeq":"node_modules/yaml/browser/dist/schema/parseSeq.js","../../schema/Seq":"node_modules/yaml/browser/dist/schema/Seq.js"}],"node_modules/yaml/browser/dist/tags/failsafe/string.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.resolveString = void 0;
+
+var _stringify = require("../../stringify");
+
+var _options = require("../options");
+
+var resolveString = function resolveString(doc, node) {
+  // on error, will return { str: string, errors: Error[] }
+  var res = node.strValue;
+  if (!res) return '';
+  if (typeof res === 'string') return res;
+  res.errors.forEach(function (error) {
+    if (!error.source) error.source = node;
+    doc.errors.push(error);
+  });
+  return res.str;
+};
+
+exports.resolveString = resolveString;
+var _default = {
+  identify: function identify(value) {
+    return typeof value === 'string';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:str',
+  resolve: resolveString,
+  stringify: function stringify(item, ctx, onComment, onChompKeep) {
+    ctx = Object.assign({
+      actualString: true
+    }, ctx);
+    return (0, _stringify.stringifyString)(item, ctx, onComment, onChompKeep);
+  },
+  options: _options.strOptions
+};
+exports.default = _default;
+},{"../../stringify":"node_modules/yaml/browser/dist/stringify.js","../options":"node_modules/yaml/browser/dist/tags/options.js"}],"node_modules/yaml/browser/dist/tags/failsafe/index.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _map = _interopRequireDefault(require("./map"));
+
+var _seq = _interopRequireDefault(require("./seq"));
+
+var _string = _interopRequireDefault(require("./string"));
+
+var _default = [_map.default, _seq.default, _string.default];
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","./map":"node_modules/yaml/browser/dist/tags/failsafe/map.js","./seq":"node_modules/yaml/browser/dist/tags/failsafe/seq.js","./string":"node_modules/yaml/browser/dist/tags/failsafe/string.js"}],"node_modules/yaml/browser/dist/tags/core.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Scalar = _interopRequireDefault(require("../schema/Scalar"));
+
+var _stringify = require("../stringify");
+
+var _failsafe = _interopRequireDefault(require("./failsafe"));
+
+var _options = require("./options");
+
+var _default = _failsafe.default.concat([{
+  identify: function identify(value) {
+    return value == null;
+  },
+  createNode: function createNode(schema, value, ctx) {
+    return ctx.wrapScalars ? new _Scalar.default(null) : null;
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^(?:~|[Nn]ull|NULL)?$/,
+  resolve: function resolve() {
+    return null;
+  },
+  options: _options.nullOptions,
+  stringify: function stringify() {
+    return _options.nullOptions.nullStr;
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'boolean';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:[Tt]rue|TRUE|[Ff]alse|FALSE)$/,
+  resolve: function resolve(str) {
+    return str[0] === 't' || str[0] === 'T';
+  },
+  options: _options.boolOptions,
+  stringify: function stringify(_ref) {
+    var value = _ref.value;
+    return value ? _options.boolOptions.trueStr : _options.boolOptions.falseStr;
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'OCT',
+  test: /^0o([0-7]+)$/,
+  resolve: function resolve(str, oct) {
+    return parseInt(oct, 8);
+  },
+  stringify: function stringify(_ref2) {
+    var value = _ref2.value;
+    return '0o' + value.toString(8);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^[-+]?[0-9]+$/,
+  resolve: function resolve(str) {
+    return parseInt(str, 10);
+  },
+  stringify: _stringify.stringifyNumber
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'HEX',
+  test: /^0x([0-9a-fA-F]+)$/,
+  resolve: function resolve(str, hex) {
+    return parseInt(hex, 16);
+  },
+  stringify: function stringify(_ref3) {
+    var value = _ref3.value;
+    return '0x' + value.toString(16);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^(?:[-+]?\.inf|(\.nan))$/i,
+  resolve: function resolve(str, nan) {
+    return nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+  },
+  stringify: _stringify.stringifyNumber
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'EXP',
+  test: /^[-+]?(?:0|[1-9][0-9]*)(\.[0-9]*)?[eE][-+]?[0-9]+$/,
+  resolve: function resolve(str) {
+    return parseFloat(str);
+  },
+  stringify: function stringify(_ref4) {
+    var value = _ref4.value;
+    return Number(value).toExponential();
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^[-+]?(?:0|[1-9][0-9]*)\.([0-9]*)$/,
+  resolve: function resolve(str, frac) {
+    var node = new _Scalar.default(parseFloat(str));
+    if (frac && frac[frac.length - 1] === '0') node.minFractionDigits = frac.length;
+    return node;
+  },
+  stringify: _stringify.stringifyNumber
+}]);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","../stringify":"node_modules/yaml/browser/dist/stringify.js","./failsafe":"node_modules/yaml/browser/dist/tags/failsafe/index.js","./options":"node_modules/yaml/browser/dist/tags/options.js"}],"node_modules/yaml/browser/dist/tags/json.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _map = _interopRequireDefault(require("./failsafe/map"));
+
+var _seq = _interopRequireDefault(require("./failsafe/seq"));
+
+var _Scalar = _interopRequireDefault(require("../schema/Scalar"));
+
+var _string = require("./failsafe/string");
+
+var schema = [_map.default, _seq.default, {
+  identify: function identify(value) {
+    return typeof value === 'string';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:str',
+  resolve: _string.resolveString,
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}, {
+  identify: function identify(value) {
+    return value == null;
+  },
+  createNode: function createNode(schema, value, ctx) {
+    return ctx.wrapScalars ? new _Scalar.default(null) : null;
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^null$/,
+  resolve: function resolve() {
+    return null;
+  },
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'boolean';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^true$/,
+  resolve: function resolve() {
+    return true;
+  },
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'boolean';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^false$/,
+  resolve: function resolve() {
+    return false;
+  },
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^-?(?:0|[1-9][0-9]*)$/,
+  resolve: function resolve(str) {
+    return parseInt(str, 10);
+  },
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]*)?(?:[eE][-+]?[0-9]+)?$/,
+  resolve: function resolve(str) {
+    return parseFloat(str);
+  },
+  stringify: function stringify(value) {
+    return JSON.stringify(value);
+  }
+}];
+
+schema.scalarFallback = function (str) {
+  throw new SyntaxError("Unresolved plain scalar ".concat(JSON.stringify(str)));
+};
+
+var _default = schema;
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","./failsafe/map":"node_modules/yaml/browser/dist/tags/failsafe/map.js","./failsafe/seq":"node_modules/yaml/browser/dist/tags/failsafe/seq.js","../schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","./failsafe/string":"node_modules/yaml/browser/dist/tags/failsafe/string.js"}],"node_modules/base64-js/index.js":[function(require,module,exports) {
+'use strict'
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function getLens (b64) {
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // Trim off extra bytes after placeholder bytes are found
+  // See: https://github.com/beatgammit/base64-js/issues/42
+  var validLen = b64.indexOf('=')
+  if (validLen === -1) validLen = len
+
+  var placeHoldersLen = validLen === len
+    ? 0
+    : 4 - (validLen % 4)
+
+  return [validLen, placeHoldersLen]
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength (b64) {
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function _byteLength (b64, validLen, placeHoldersLen) {
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function toByteArray (b64) {
+  var tmp
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+
+  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
+
+  var curByte = 0
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  var len = placeHoldersLen > 0
+    ? validLen - 4
+    : validLen
+
+  var i
+  for (i = 0; i < len; i += 4) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 18) |
+      (revLookup[b64.charCodeAt(i + 1)] << 12) |
+      (revLookup[b64.charCodeAt(i + 2)] << 6) |
+      revLookup[b64.charCodeAt(i + 3)]
+    arr[curByte++] = (tmp >> 16) & 0xFF
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 2) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 2) |
+      (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 1) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 10) |
+      (revLookup[b64.charCodeAt(i + 1)] << 4) |
+      (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] +
+    lookup[num >> 12 & 0x3F] +
+    lookup[num >> 6 & 0x3F] +
+    lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp =
+      ((uint8[i] << 16) & 0xFF0000) +
+      ((uint8[i + 1] << 8) & 0xFF00) +
+      (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(
+      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+    ))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 2] +
+      lookup[(tmp << 4) & 0x3F] +
+      '=='
+    )
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 10] +
+      lookup[(tmp >> 4) & 0x3F] +
+      lookup[(tmp << 2) & 0x3F] +
+      '='
+    )
+  }
+
+  return parts.join('')
+}
+
+},{}],"node_modules/ieee754/index.js":[function(require,module,exports) {
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = (nBytes * 8) - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = (nBytes * 8) - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = ((value * c) - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+},{}],"node_modules/isarray/index.js":[function(require,module,exports) {
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],"node_modules/buffer/index.js":[function(require,module,exports) {
+
+var global = arguments[3];
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <http://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+'use strict'
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+var isArray = require('isarray')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
+  ? global.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+/*
+ * Export kMaxLength after typed array support is determined.
+ */
+exports.kMaxLength = kMaxLength()
+
+function typedArraySupport () {
+  try {
+    var arr = new Uint8Array(1)
+    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    return arr.foo() === 42 && // typed array instances can be augmented
+        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
+        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+  } catch (e) {
+    return false
+  }
+}
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+function createBuffer (that, length) {
+  if (kMaxLength() < length) {
+    throw new RangeError('Invalid typed array length')
+  }
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    if (that === null) {
+      that = new Buffer(length)
+    }
+    that.length = length
+  }
+
+  return that
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
+    return new Buffer(arg, encodingOrOffset, length)
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(this, arg)
+  }
+  return from(this, arg, encodingOrOffset, length)
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype
+  return arr
+}
+
+function from (that, value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
+    return fromArrayBuffer(that, value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(that, value, encodingOrOffset)
+  }
+
+  return fromObject(that, value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(null, value, encodingOrOffset, length)
+}
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+  if (typeof Symbol !== 'undefined' && Symbol.species &&
+      Buffer[Symbol.species] === Buffer) {
+    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+    Object.defineProperty(Buffer, Symbol.species, {
+      value: null,
+      configurable: true
+    })
+  }
+}
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
+  }
+}
+
+function alloc (that, size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(that, size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(that, size).fill(fill, encoding)
+      : createBuffer(that, size).fill(fill)
+  }
+  return createBuffer(that, size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(null, size, fill, encoding)
+}
+
+function allocUnsafe (that, size) {
+  assertSize(size)
+  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < size; ++i) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(null, size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(null, size)
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0
+  that = createBuffer(that, length)
+
+  var actual = that.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    that = that.slice(0, actual)
+  }
+
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
+  that = createBuffer(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array, byteOffset, length) {
+  array.byteLength // this throws if `array` is not a valid ArrayBuffer
+
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  if (byteOffset === undefined && length === undefined) {
+    array = new Uint8Array(array)
+  } else if (length === undefined) {
+    array = new Uint8Array(array, byteOffset)
+  } else {
+    array = new Uint8Array(array, byteOffset, length)
+  }
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = array
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromArrayLike(that, array)
+  }
+  return that
+}
+
+function fromObject (that, obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    that = createBuffer(that, len)
+
+    if (that.length === 0) {
+      return that
+    }
+
+    obj.copy(that, 0, 0, len)
+    return that
+  }
+
+  if (obj) {
+    if ((typeof ArrayBuffer !== 'undefined' &&
+        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || isnan(obj.length)) {
+        return createBuffer(that, 0)
+      }
+      return fromArrayLike(that, obj)
+    }
+
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
+      return fromArrayLike(that, obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength()` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i]
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
+      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string
+  }
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3)
+    swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset  // Coerce to Number.
+  if (isNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (Buffer.TYPED_ARRAY_SUPPORT &&
+        typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (isNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; ++i) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end)
+    newBuf.__proto__ = Buffer.prototype
+  } else {
+    var sliceLen = end - start
+    newBuf = new Buffer(sliceLen, undefined)
+    for (var i = 0; i < sliceLen; ++i) {
+      newBuf[i] = this[i + start]
+    }
+  }
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 1] = (value >>> 8)
+    this[offset] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 3] = (value >>> 24)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; ++i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if (code < 256) {
+        val = code
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : utf8ToBytes(new Buffer(val, encoding).toString())
+    var len = bytes.length
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function isnan (val) {
+  return val !== val // eslint-disable-line no-self-compare
+}
+
+},{"base64-js":"node_modules/base64-js/index.js","ieee754":"node_modules/ieee754/index.js","isarray":"node_modules/isarray/index.js","buffer":"node_modules/buffer/index.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/binary.js":[function(require,module,exports) {
+var Buffer = require("buffer").Buffer;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _constants = require("../../constants");
+
+var _errors = require("../../errors");
+
+var _stringify = require("../../stringify");
+
+var _string = require("../failsafe/string");
+
+var _options = require("../options");
+/* global atob, btoa, Buffer */
+
+
+var _default = {
+  identify: function identify(value) {
+    return value instanceof Uint8Array;
+  },
+  // Buffer inherits from Uint8Array
+  default: false,
+  tag: 'tag:yaml.org,2002:binary',
+
+  /**
+   * Returns a Buffer in node and an Uint8Array in browsers
+   *
+   * To use the resulting buffer as an image, you'll want to do something like:
+   *
+   *   const blob = new Blob([buffer], { type: 'image/jpeg' })
+   *   document.querySelector('#photo').src = URL.createObjectURL(blob)
+   */
+  resolve: function resolve(doc, node) {
+    if (typeof Buffer === 'function') {
+      var src = (0, _string.resolveString)(doc, node);
+      return Buffer.from(src, 'base64');
+    } else if (typeof atob === 'function') {
+      var _src = atob((0, _string.resolveString)(doc, node));
+
+      var buffer = new Uint8Array(_src.length);
+
+      for (var i = 0; i < _src.length; ++i) {
+        buffer[i] = _src.charCodeAt(i);
+      }
+
+      return buffer;
+    } else {
+      doc.errors.push(new _errors.YAMLReferenceError(node, 'This environment does not support reading binary tags; either Buffer or atob is required'));
+      return null;
+    }
+  },
+  options: _options.binaryOptions,
+  stringify: function stringify(_ref, ctx, onComment, onChompKeep) {
+    var comment = _ref.comment,
+        type = _ref.type,
+        value = _ref.value;
+    var src;
+
+    if (typeof Buffer === 'function') {
+      src = value instanceof Buffer ? value.toString('base64') : Buffer.from(value.buffer).toString('base64');
+    } else if (typeof btoa === 'function') {
+      var s = '';
+
+      for (var i = 0; i < value.length; ++i) {
+        s += String.fromCharCode(value[i]);
+      }
+
+      src = btoa(s);
+    } else {
+      throw new Error('This environment does not support writing binary tags; either Buffer or btoa is required');
+    }
+
+    if (!type) type = _options.binaryOptions.defaultType;
+
+    if (type === _constants.Type.QUOTE_DOUBLE) {
+      value = src;
+    } else {
+      var lineWidth = _options.binaryOptions.lineWidth;
+      var n = Math.ceil(src.length / lineWidth);
+      var lines = new Array(n);
+
+      for (var _i = 0, o = 0; _i < n; ++_i, o += lineWidth) {
+        lines[_i] = src.substr(o, lineWidth);
+      }
+
+      value = lines.join(type === _constants.Type.BLOCK_LITERAL ? '\n' : ' ');
+    }
+
+    return (0, _stringify.stringifyString)({
+      comment: comment,
+      type: type,
+      value: value
+    }, ctx, onComment, onChompKeep);
+  }
+};
+exports.default = _default;
+},{"../../constants":"node_modules/yaml/browser/dist/constants.js","../../errors":"node_modules/yaml/browser/dist/errors.js","../../stringify":"node_modules/yaml/browser/dist/stringify.js","../failsafe/string":"node_modules/yaml/browser/dist/tags/failsafe/string.js","../options":"node_modules/yaml/browser/dist/tags/options.js","buffer":"node_modules/buffer/index.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/pairs.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.parsePairs = parsePairs;
+exports.createPairs = createPairs;
+exports.default = void 0;
+
+var _errors = require("../../errors");
+
+var _Map = _interopRequireDefault(require("../../schema/Map"));
+
+var _Pair = _interopRequireDefault(require("../../schema/Pair"));
+
+var _parseSeq = _interopRequireDefault(require("../../schema/parseSeq"));
+
+var _Seq = _interopRequireDefault(require("../../schema/Seq"));
+
+function parsePairs(doc, cst) {
+  var seq = (0, _parseSeq.default)(doc, cst);
+
+  for (var i = 0; i < seq.items.length; ++i) {
+    var item = seq.items[i];
+    if (item instanceof _Pair.default) continue;else if (item instanceof _Map.default) {
+      if (item.items.length > 1) {
+        var msg = 'Each pair must have its own sequence indicator';
+        throw new _errors.YAMLSemanticError(cst, msg);
+      }
+
+      var pair = item.items[0] || new _Pair.default();
+      if (item.commentBefore) pair.commentBefore = pair.commentBefore ? "".concat(item.commentBefore, "\n").concat(pair.commentBefore) : item.commentBefore;
+      if (item.comment) pair.comment = pair.comment ? "".concat(item.comment, "\n").concat(pair.comment) : item.comment;
+      item = pair;
+    }
+    seq.items[i] = item instanceof _Pair.default ? item : new _Pair.default(item);
+  }
+
+  return seq;
+}
+
+function createPairs(schema, iterable, ctx) {
+  var pairs = new _Seq.default();
+  pairs.tag = 'tag:yaml.org,2002:pairs';
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = iterable[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var it = _step.value;
+      var key = void 0,
+          value = void 0;
+
+      if (Array.isArray(it)) {
+        if (it.length === 2) {
+          key = it[0];
+          value = it[1];
+        } else throw new TypeError("Expected [key, value] tuple: ".concat(it));
+      } else if (it && it instanceof Object) {
+        var keys = Object.keys(it);
+
+        if (keys.length === 1) {
+          key = keys[0];
+          value = it[key];
+        } else throw new TypeError("Expected { key: value } tuple: ".concat(it));
+      } else {
+        key = it;
+      }
+
+      var pair = schema.createPair(key, value, ctx);
+      pairs.items.push(pair);
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return pairs;
+}
+
+var _default = {
+  default: false,
+  tag: 'tag:yaml.org,2002:pairs',
+  resolve: parsePairs,
+  createNode: createPairs
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../../errors":"node_modules/yaml/browser/dist/errors.js","../../schema/Map":"node_modules/yaml/browser/dist/schema/Map.js","../../schema/Pair":"node_modules/yaml/browser/dist/schema/Pair.js","../../schema/parseSeq":"node_modules/yaml/browser/dist/schema/parseSeq.js","../../schema/Seq":"node_modules/yaml/browser/dist/schema/Seq.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/omap.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.YAMLOMap = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _errors = require("../../errors");
+
+var _toJSON2 = _interopRequireDefault(require("../../toJSON"));
+
+var _Map = _interopRequireDefault(require("../../schema/Map"));
+
+var _Pair = _interopRequireDefault(require("../../schema/Pair"));
+
+var _Scalar = _interopRequireDefault(require("../../schema/Scalar"));
+
+var _Seq = _interopRequireDefault(require("../../schema/Seq"));
+
+var _pairs = require("./pairs");
+
+var YAMLOMap =
+/*#__PURE__*/
+function (_YAMLSeq) {
+  (0, _inherits2.default)(YAMLOMap, _YAMLSeq);
+
+  function YAMLOMap() {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, YAMLOMap);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLOMap).call(this));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "add", _Map.default.prototype.add.bind((0, _assertThisInitialized2.default)(_this)));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "delete", _Map.default.prototype.delete.bind((0, _assertThisInitialized2.default)(_this)));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "get", _Map.default.prototype.get.bind((0, _assertThisInitialized2.default)(_this)));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "has", _Map.default.prototype.has.bind((0, _assertThisInitialized2.default)(_this)));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "set", _Map.default.prototype.set.bind((0, _assertThisInitialized2.default)(_this)));
+    _this.tag = YAMLOMap.tag;
+    return _this;
+  }
+
+  (0, _createClass2.default)(YAMLOMap, [{
+    key: "toJSON",
+    value: function toJSON(_, ctx) {
+      var map = new Map();
+      if (ctx && ctx.onCreate) ctx.onCreate(map);
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var pair = _step.value;
+          var key = void 0,
+              value = void 0;
+
+          if (pair instanceof _Pair.default) {
+            key = (0, _toJSON2.default)(pair.key, '', ctx);
+            value = (0, _toJSON2.default)(pair.value, key, ctx);
+          } else {
+            key = (0, _toJSON2.default)(pair, '', ctx);
+          }
+
+          if (map.has(key)) throw new Error('Ordered maps must not include duplicate keys');
+          map.set(key, value);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return map;
+    }
+  }]);
+  return YAMLOMap;
+}(_Seq.default);
+
+exports.YAMLOMap = YAMLOMap;
+(0, _defineProperty2.default)(YAMLOMap, "tag", 'tag:yaml.org,2002:omap');
+
+function parseOMap(doc, cst) {
+  var pairs = (0, _pairs.parsePairs)(doc, cst);
+  var seenKeys = [];
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = pairs.items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var key = _step2.value.key;
+
+      if (key instanceof _Scalar.default) {
+        if (seenKeys.includes(key.value)) {
+          var msg = 'Ordered maps must not include duplicate keys';
+          throw new _errors.YAMLSemanticError(cst, msg);
+        } else {
+          seenKeys.push(key.value);
+        }
+      }
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return Object.assign(new YAMLOMap(), pairs);
+}
+
+function createOMap(schema, iterable, ctx) {
+  var pairs = (0, _pairs.createPairs)(schema, iterable, ctx);
+  var omap = new YAMLOMap();
+  omap.items = pairs.items;
+  return omap;
+}
+
+var _default = {
+  identify: function identify(value) {
+    return value instanceof Map;
+  },
+  nodeClass: YAMLOMap,
+  default: false,
+  tag: 'tag:yaml.org,2002:omap',
+  resolve: parseOMap,
+  createNode: createOMap
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/assertThisInitialized":"node_modules/@babel/runtime/helpers/assertThisInitialized.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","../../errors":"node_modules/yaml/browser/dist/errors.js","../../toJSON":"node_modules/yaml/browser/dist/toJSON.js","../../schema/Map":"node_modules/yaml/browser/dist/schema/Map.js","../../schema/Pair":"node_modules/yaml/browser/dist/schema/Pair.js","../../schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","../../schema/Seq":"node_modules/yaml/browser/dist/schema/Seq.js","./pairs":"node_modules/yaml/browser/dist/tags/yaml-1.1/pairs.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/set.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.YAMLSet = void 0;
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _errors = require("../../errors");
+
+var _Map = _interopRequireWildcard(require("../../schema/Map"));
+
+var _Pair = _interopRequireDefault(require("../../schema/Pair"));
+
+var _parseMap = _interopRequireDefault(require("../../schema/parseMap"));
+
+var _Scalar = _interopRequireDefault(require("../../schema/Scalar"));
+
+var YAMLSet =
+/*#__PURE__*/
+function (_YAMLMap) {
+  (0, _inherits2.default)(YAMLSet, _YAMLMap);
+
+  function YAMLSet() {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, YAMLSet);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(YAMLSet).call(this));
+    _this.tag = YAMLSet.tag;
+    return _this;
+  }
+
+  (0, _createClass2.default)(YAMLSet, [{
+    key: "add",
+    value: function add(key) {
+      var pair = key instanceof _Pair.default ? key : new _Pair.default(key);
+      var prev = (0, _Map.findPair)(this.items, pair.key);
+      if (!prev) this.items.push(pair);
+    }
+  }, {
+    key: "get",
+    value: function get(key, keepPair) {
+      var pair = (0, _Map.findPair)(this.items, key);
+      return !keepPair && pair instanceof _Pair.default ? pair.key instanceof _Scalar.default ? pair.key.value : pair.key : pair;
+    }
+  }, {
+    key: "set",
+    value: function set(key, value) {
+      if (typeof value !== 'boolean') throw new Error("Expected boolean value for set(key, value) in a YAML set, not ".concat((0, _typeof2.default)(value)));
+      var prev = (0, _Map.findPair)(this.items, key);
+
+      if (prev && !value) {
+        this.items.splice(this.items.indexOf(prev), 1);
+      } else if (!prev && value) {
+        this.items.push(new _Pair.default(key));
+      }
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(_, ctx) {
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(YAMLSet.prototype), "toJSON", this).call(this, _, ctx, Set);
+    }
+  }, {
+    key: "toString",
+    value: function toString(ctx, onComment, onChompKeep) {
+      if (!ctx) return JSON.stringify(this);
+      if (this.hasAllNullValues()) return (0, _get2.default)((0, _getPrototypeOf2.default)(YAMLSet.prototype), "toString", this).call(this, ctx, onComment, onChompKeep);else throw new Error('Set items must all have null values');
+    }
+  }]);
+  return YAMLSet;
+}(_Map.default);
+
+exports.YAMLSet = YAMLSet;
+(0, _defineProperty2.default)(YAMLSet, "tag", 'tag:yaml.org,2002:set');
+
+function parseSet(doc, cst) {
+  var map = (0, _parseMap.default)(doc, cst);
+  if (!map.hasAllNullValues()) throw new _errors.YAMLSemanticError(cst, 'Set items must all have null values');
+  return Object.assign(new YAMLSet(), map);
+}
+
+function createSet(schema, iterable, ctx) {
+  var set = new YAMLSet();
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = iterable[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var value = _step.value;
+      set.items.push(schema.createPair(value, null, ctx));
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return set;
+}
+
+var _default = {
+  identify: function identify(value) {
+    return value instanceof Set;
+  },
+  nodeClass: YAMLSet,
+  default: false,
+  tag: 'tag:yaml.org,2002:set',
+  resolve: parseSet,
+  createNode: createSet
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireWildcard":"node_modules/@babel/runtime/helpers/interopRequireWildcard.js","@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/get":"node_modules/@babel/runtime/helpers/get.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","../../errors":"node_modules/yaml/browser/dist/errors.js","../../schema/Map":"node_modules/yaml/browser/dist/schema/Map.js","../../schema/Pair":"node_modules/yaml/browser/dist/schema/Pair.js","../../schema/parseMap":"node_modules/yaml/browser/dist/schema/parseMap.js","../../schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/timestamp.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.timestamp = exports.floatTime = exports.intTime = void 0;
+
+var _stringify = require("../../stringify");
+
+var parseSexagesimal = function parseSexagesimal(sign, parts) {
+  var n = parts.split(':').reduce(function (n, p) {
+    return n * 60 + Number(p);
+  }, 0);
+  return sign === '-' ? -n : n;
+}; // hhhh:mm:ss.sss
+
+
+var stringifySexagesimal = function stringifySexagesimal(_ref) {
+  var value = _ref.value;
+  if (isNaN(value) || !isFinite(value)) return (0, _stringify.stringifyNumber)(value);
+  var sign = '';
+
+  if (value < 0) {
+    sign = '-';
+    value = Math.abs(value);
+  }
+
+  var parts = [value % 60]; // seconds, including ms
+
+  if (value < 60) {
+    parts.unshift(0); // at least one : is required
+  } else {
+    value = Math.round((value - parts[0]) / 60);
+    parts.unshift(value % 60); // minutes
+
+    if (value >= 60) {
+      value = Math.round((value - parts[0]) / 60);
+      parts.unshift(value); // hours
+    }
+  }
+
+  return sign + parts.map(function (n) {
+    return n < 10 ? '0' + String(n) : String(n);
+  }).join(':').replace(/000000\d*$/, '') // % 60 may introduce error
+  ;
+};
+
+var intTime = {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'TIME',
+  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+)$/,
+  resolve: function resolve(str, sign, parts) {
+    return parseSexagesimal(sign, parts.replace(/_/g, ''));
+  },
+  stringify: stringifySexagesimal
+};
+exports.intTime = intTime;
+var floatTime = {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'TIME',
+  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*)$/,
+  resolve: function resolve(str, sign, parts) {
+    return parseSexagesimal(sign, parts.replace(/_/g, ''));
+  },
+  stringify: stringifySexagesimal
+};
+exports.floatTime = floatTime;
+var timestamp = {
+  identify: function identify(value) {
+    return value instanceof Date;
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:timestamp',
+  // If the time zone is omitted, the timestamp is assumed to be specified in UTC. The time part
+  // may be omitted altogether, resulting in a date format. In such a case, the time part is
+  // assumed to be 00:00:00Z (start of day, UTC).
+  test: RegExp('^(?:' + '([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})' + // YYYY-Mm-Dd
+  '(?:(?:t|T|[ \\t]+)' + // t | T | whitespace
+  '([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}(\\.[0-9]+)?)' + // Hh:Mm:Ss(.ss)?
+  '(?:[ \\t]*(Z|[-+][012]?[0-9](?::[0-9]{2})?))?' + // Z | +5 | -03:30
+  ')?' + ')$'),
+  resolve: function resolve(str, year, month, day, hour, minute, second, millisec, tz) {
+    if (millisec) millisec = (millisec + '00').substr(1, 3);
+    var date = Date.UTC(year, month - 1, day, hour || 0, minute || 0, second || 0, millisec || 0);
+
+    if (tz && tz !== 'Z') {
+      var d = parseSexagesimal(tz[0], tz.slice(1));
+      if (Math.abs(d) < 30) d *= 60;
+      date -= 60000 * d;
+    }
+
+    return new Date(date);
+  },
+  stringify: function stringify(_ref2) {
+    var value = _ref2.value;
+    return value.toISOString().replace(/((T00:00)?:00)?\.000Z$/, '');
+  }
+};
+exports.timestamp = timestamp;
+},{"../../stringify":"node_modules/yaml/browser/dist/stringify.js"}],"node_modules/yaml/browser/dist/tags/yaml-1.1/index.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Scalar = _interopRequireDefault(require("../../schema/Scalar"));
+
+var _stringify = require("../../stringify");
+
+var _failsafe = _interopRequireDefault(require("../failsafe"));
+
+var _options = require("../options");
+
+var _binary = _interopRequireDefault(require("./binary"));
+
+var _omap = _interopRequireDefault(require("./omap"));
+
+var _pairs = _interopRequireDefault(require("./pairs"));
+
+var _set = _interopRequireDefault(require("./set"));
+
+var _timestamp = require("./timestamp");
+
+var _default = _failsafe.default.concat([{
+  identify: function identify(value) {
+    return value == null;
+  },
+  createNode: function createNode(schema, value, ctx) {
+    return ctx.wrapScalars ? new _Scalar.default(null) : null;
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^(?:~|[Nn]ull|NULL)?$/,
+  resolve: function resolve() {
+    return null;
+  },
+  options: _options.nullOptions,
+  stringify: function stringify() {
+    return _options.nullOptions.nullStr;
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'boolean';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:Y|y|[Yy]es|YES|[Tt]rue|TRUE|[Oo]n|ON)$/,
+  resolve: function resolve() {
+    return true;
+  },
+  options: _options.boolOptions,
+  stringify: function stringify(_ref) {
+    var value = _ref.value;
+    return value ? _options.boolOptions.trueStr : _options.boolOptions.falseStr;
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'boolean';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:N|n|[Nn]o|NO|[Ff]alse|FALSE|[Oo]ff|OFF)$/i,
+  resolve: function resolve() {
+    return false;
+  },
+  options: _options.boolOptions,
+  stringify: function stringify(_ref2) {
+    var value = _ref2.value;
+    return value ? _options.boolOptions.trueStr : _options.boolOptions.falseStr;
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'BIN',
+  test: /^0b([0-1_]+)$/,
+  resolve: function resolve(str, bin) {
+    return parseInt(bin.replace(/_/g, ''), 2);
+  },
+  stringify: function stringify(_ref3) {
+    var value = _ref3.value;
+    return '0b' + value.toString(2);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'OCT',
+  test: /^[-+]?0([0-7_]+)$/,
+  resolve: function resolve(str, oct) {
+    return parseInt(oct.replace(/_/g, ''), 8);
+  },
+  stringify: function stringify(_ref4) {
+    var value = _ref4.value;
+    return (value < 0 ? '-0' : '0') + value.toString(8);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^[-+]?[0-9][0-9_]*$/,
+  resolve: function resolve(str) {
+    return parseInt(str.replace(/_/g, ''), 10);
+  },
+  stringify: _stringify.stringifyNumber
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'HEX',
+  test: /^0x([0-9a-fA-F_]+)$/,
+  resolve: function resolve(str, hex) {
+    return parseInt(hex.replace(/_/g, ''), 16);
+  },
+  stringify: function stringify(_ref5) {
+    var value = _ref5.value;
+    return (value < 0 ? '-0x' : '0x') + value.toString(16);
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^(?:[-+]?\.inf|(\.nan))$/i,
+  resolve: function resolve(str, nan) {
+    return nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+  },
+  stringify: _stringify.stringifyNumber
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'EXP',
+  test: /^[-+]?([0-9][0-9_]*)?(\.[0-9_]*)?[eE][-+]?[0-9]+$/,
+  resolve: function resolve(str) {
+    return parseFloat(str.replace(/_/g, ''));
+  },
+  stringify: function stringify(_ref6) {
+    var value = _ref6.value;
+    return Number(value).toExponential();
+  }
+}, {
+  identify: function identify(value) {
+    return typeof value === 'number';
+  },
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^[-+]?(?:[0-9][0-9_]*)?\.([0-9_]*)$/,
+  resolve: function resolve(str, frac) {
+    var node = new _Scalar.default(parseFloat(str.replace(/_/g, '')));
+
+    if (frac) {
+      var f = frac.replace(/_/g, '');
+      if (f[f.length - 1] === '0') node.minFractionDigits = f.length;
+    }
+
+    return node;
+  },
+  stringify: _stringify.stringifyNumber
+}], _binary.default, _omap.default, _pairs.default, _set.default, _timestamp.intTime, _timestamp.floatTime, _timestamp.timestamp);
+
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","../../schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","../../stringify":"node_modules/yaml/browser/dist/stringify.js","../failsafe":"node_modules/yaml/browser/dist/tags/failsafe/index.js","../options":"node_modules/yaml/browser/dist/tags/options.js","./binary":"node_modules/yaml/browser/dist/tags/yaml-1.1/binary.js","./omap":"node_modules/yaml/browser/dist/tags/yaml-1.1/omap.js","./pairs":"node_modules/yaml/browser/dist/tags/yaml-1.1/pairs.js","./set":"node_modules/yaml/browser/dist/tags/yaml-1.1/set.js","./timestamp":"node_modules/yaml/browser/dist/tags/yaml-1.1/timestamp.js"}],"node_modules/yaml/browser/dist/tags/index.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tags = exports.schemas = void 0;
+
+var _core = _interopRequireDefault(require("./core"));
+
+var _failsafe = _interopRequireDefault(require("./failsafe"));
+
+var _json = _interopRequireDefault(require("./json"));
+
+var _yaml = _interopRequireDefault(require("./yaml-1.1"));
+
+var _map = _interopRequireDefault(require("./failsafe/map"));
+
+var _seq = _interopRequireDefault(require("./failsafe/seq"));
+
+var _binary = _interopRequireDefault(require("./yaml-1.1/binary"));
+
+var _omap = _interopRequireDefault(require("./yaml-1.1/omap"));
+
+var _pairs = _interopRequireDefault(require("./yaml-1.1/pairs"));
+
+var _set = _interopRequireDefault(require("./yaml-1.1/set"));
+
+var _timestamp = require("./yaml-1.1/timestamp");
+
+var schemas = {
+  core: _core.default,
+  failsafe: _failsafe.default,
+  json: _json.default,
+  yaml11: _yaml.default
+};
+exports.schemas = schemas;
+var tags = {
+  binary: _binary.default,
+  floatTime: _timestamp.floatTime,
+  intTime: _timestamp.intTime,
+  map: _map.default,
+  omap: _omap.default,
+  pairs: _pairs.default,
+  seq: _seq.default,
+  set: _set.default,
+  timestamp: _timestamp.timestamp
+};
+exports.tags = tags;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","./core":"node_modules/yaml/browser/dist/tags/core.js","./failsafe":"node_modules/yaml/browser/dist/tags/failsafe/index.js","./json":"node_modules/yaml/browser/dist/tags/json.js","./yaml-1.1":"node_modules/yaml/browser/dist/tags/yaml-1.1/index.js","./failsafe/map":"node_modules/yaml/browser/dist/tags/failsafe/map.js","./failsafe/seq":"node_modules/yaml/browser/dist/tags/failsafe/seq.js","./yaml-1.1/binary":"node_modules/yaml/browser/dist/tags/yaml-1.1/binary.js","./yaml-1.1/omap":"node_modules/yaml/browser/dist/tags/yaml-1.1/omap.js","./yaml-1.1/pairs":"node_modules/yaml/browser/dist/tags/yaml-1.1/pairs.js","./yaml-1.1/set":"node_modules/yaml/browser/dist/tags/yaml-1.1/set.js","./yaml-1.1/timestamp":"node_modules/yaml/browser/dist/tags/yaml-1.1/timestamp.js"}],"node_modules/yaml/browser/dist/schema/index.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _warnings = require("../warnings");
+
+var _constants = require("../constants");
+
+var _errors = require("../errors");
+
+var _stringify = require("../stringify");
+
+var _tags = require("../tags");
+
+var _string = require("../tags/failsafe/string");
+
+var _Alias = _interopRequireDefault(require("./Alias"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+var _Node = _interopRequireDefault(require("./Node"));
+
+var _Pair = _interopRequireDefault(require("./Pair"));
+
+var _Scalar = _interopRequireDefault(require("./Scalar"));
+
+var isMap = function isMap(_ref) {
+  var type = _ref.type;
+  return type === _constants.Type.FLOW_MAP || type === _constants.Type.MAP;
+};
+
+var isSeq = function isSeq(_ref2) {
+  var type = _ref2.type;
+  return type === _constants.Type.FLOW_SEQ || type === _constants.Type.SEQ;
+};
+
+var Schema =
+/*#__PURE__*/
+function () {
+  function Schema(_ref3) {
+    var customTags = _ref3.customTags,
+        merge = _ref3.merge,
+        schema = _ref3.schema,
+        deprecatedCustomTags = _ref3.tags;
+    (0, _classCallCheck2.default)(this, Schema);
+    this.merge = !!merge;
+    this.name = schema;
+    this.tags = _tags.schemas[schema.replace(/\W/g, '')]; // 'yaml-1.1' -> 'yaml11'
+
+    if (!this.tags) {
+      var keys = Object.keys(_tags.schemas).map(function (key) {
+        return JSON.stringify(key);
+      }).join(', ');
+      throw new Error("Unknown schema \"".concat(schema, "\"; use one of ").concat(keys));
+    }
+
+    if (!customTags && deprecatedCustomTags) {
+      customTags = deprecatedCustomTags;
+      (0, _warnings.warnOptionDeprecation)('tags', 'customTags');
+    }
+
+    if (Array.isArray(customTags)) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = customTags[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var tag = _step.value;
+          this.tags = this.tags.concat(tag);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return != null) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    } else if (typeof customTags === 'function') {
+      this.tags = customTags(this.tags.slice());
+    }
+
+    for (var i = 0; i < this.tags.length; ++i) {
+      var _tag = this.tags[i];
+
+      if (typeof _tag === 'string') {
+        var tagObj = _tags.tags[_tag];
+
+        if (!tagObj) {
+          var _keys = Object.keys(_tags.tags).map(function (key) {
+            return JSON.stringify(key);
+          }).join(', ');
+
+          throw new Error("Unknown custom tag \"".concat(_tag, "\"; use one of ").concat(_keys));
+        }
+
+        this.tags[i] = tagObj;
+      }
+    }
+  }
+
+  (0, _createClass2.default)(Schema, [{
+    key: "createNode",
+    value: function createNode(value, wrapScalars, tag, ctx) {
+      if (value instanceof _Node.default) return value;
+      var tagObj;
+
+      if (tag) {
+        if (tag.startsWith('!!')) tag = Schema.defaultPrefix + tag.slice(2);
+        var match = this.tags.filter(function (t) {
+          return t.tag === tag;
+        });
+        tagObj = match.find(function (t) {
+          return !t.format;
+        }) || match[0];
+        if (!tagObj) throw new Error("Tag ".concat(tag, " not found"));
+      } else {
+        // TODO: deprecate/remove class check
+        tagObj = this.tags.find(function (t) {
+          return (t.identify && t.identify(value) || t.class && value instanceof t.class) && !t.format;
+        });
+
+        if (!tagObj) {
+          if (typeof value.toJSON === 'function') value = value.toJSON();
+          if ((0, _typeof2.default)(value) !== 'object') return wrapScalars ? new _Scalar.default(value) : value;
+          tagObj = value instanceof Map ? _tags.tags.map : value[Symbol.iterator] ? _tags.tags.seq : _tags.tags.map;
+        }
+      }
+
+      if (!ctx) ctx = {
+        wrapScalars: wrapScalars
+      };else ctx.wrapScalars = wrapScalars;
+
+      if (ctx.onTagObj) {
+        ctx.onTagObj(tagObj);
+        delete ctx.onTagObj;
+      }
+
+      var obj = {};
+
+      if (value && (0, _typeof2.default)(value) === 'object' && ctx.prevObjects) {
+        var prev = ctx.prevObjects.find(function (o) {
+          return o.value === value;
+        });
+
+        if (prev) {
+          var alias = new _Alias.default(prev); // leaves source dirty; must be cleaned by caller
+
+          ctx.aliasNodes.push(alias);
+          return alias;
+        }
+
+        obj.value = value;
+        ctx.prevObjects.push(obj);
+      }
+
+      obj.node = tagObj.createNode ? tagObj.createNode(this, value, ctx) : wrapScalars ? new _Scalar.default(value) : value;
+      return obj.node;
+    }
+  }, {
+    key: "createPair",
+    value: function createPair(key, value, ctx) {
+      var k = this.createNode(key, ctx.wrapScalars, null, ctx);
+      var v = this.createNode(value, ctx.wrapScalars, null, ctx);
+      return new _Pair.default(k, v);
+    } // falls back to string on no match
+
+  }, {
+    key: "resolveScalar",
+    value: function resolveScalar(str, tags) {
+      if (!tags) tags = this.tags;
+
+      for (var i = 0; i < tags.length; ++i) {
+        var _tags$i = tags[i],
+            format = _tags$i.format,
+            test = _tags$i.test,
+            resolve = _tags$i.resolve;
+
+        if (test) {
+          var match = str.match(test);
+
+          if (match) {
+            var res = resolve.apply(null, match);
+            if (!(res instanceof _Scalar.default)) res = new _Scalar.default(res);
+            if (format) res.format = format;
+            return res;
+          }
+        }
+      }
+
+      if (this.tags.scalarFallback) str = this.tags.scalarFallback(str);
+      return new _Scalar.default(str);
+    } // sets node.resolved on success
+
+  }, {
+    key: "resolveNode",
+    value: function resolveNode(doc, node, tagName) {
+      var tags = this.tags.filter(function (_ref4) {
+        var tag = _ref4.tag;
+        return tag === tagName;
+      });
+      var generic = tags.find(function (_ref5) {
+        var test = _ref5.test;
+        return !test;
+      });
+      if (node.error) doc.errors.push(node.error);
+
+      try {
+        if (generic) {
+          var res = generic.resolve(doc, node);
+          if (!(res instanceof _Collection.default)) res = new _Scalar.default(res);
+          node.resolved = res;
+        } else {
+          var str = (0, _string.resolveString)(doc, node);
+
+          if (typeof str === 'string' && tags.length > 0) {
+            node.resolved = this.resolveScalar(str, tags);
+          }
+        }
+      } catch (error) {
+        if (!error.source) error.source = node;
+        doc.errors.push(error);
+        node.resolved = null;
+      }
+
+      if (!node.resolved) return null;
+      if (tagName && node.tag) node.resolved.tag = tagName;
+      return node.resolved;
+    }
+  }, {
+    key: "resolveNodeWithFallback",
+    value: function resolveNodeWithFallback(doc, node, tagName) {
+      var res = this.resolveNode(doc, node, tagName);
+      if (Object.prototype.hasOwnProperty.call(node, 'resolved')) return res;
+      var fallback = isMap(node) ? Schema.defaultTags.MAP : isSeq(node) ? Schema.defaultTags.SEQ : Schema.defaultTags.STR;
+
+      if (fallback) {
+        doc.warnings.push(new _errors.YAMLWarning(node, "The tag ".concat(tagName, " is unavailable, falling back to ").concat(fallback)));
+
+        var _res = this.resolveNode(doc, node, fallback);
+
+        _res.tag = tagName;
+        return _res;
+      } else {
+        doc.errors.push(new _errors.YAMLReferenceError(node, "The tag ".concat(tagName, " is unavailable")));
+      }
+
+      return null;
+    }
+  }, {
+    key: "getTagObject",
+    value: function getTagObject(item) {
+      if (item instanceof _Alias.default) return _Alias.default;
+
+      if (item.tag) {
+        var match = this.tags.filter(function (t) {
+          return t.tag === item.tag;
+        });
+        if (match.length > 0) return match.find(function (t) {
+          return t.format === item.format;
+        }) || match[0];
+      }
+
+      var tagObj, obj;
+
+      if (item instanceof _Scalar.default) {
+        obj = item.value; // TODO: deprecate/remove class check
+
+        var _match = this.tags.filter(function (t) {
+          return t.identify && t.identify(obj) || t.class && obj instanceof t.class;
+        });
+
+        tagObj = _match.find(function (t) {
+          return t.format === item.format;
+        }) || _match.find(function (t) {
+          return !t.format;
+        });
+      } else {
+        obj = item;
+        tagObj = this.tags.find(function (t) {
+          return t.nodeClass && obj instanceof t.nodeClass;
+        });
+      }
+
+      if (!tagObj) {
+        var name = obj && obj.constructor ? obj.constructor.name : (0, _typeof2.default)(obj);
+        throw new Error("Tag not resolved for ".concat(name, " value"));
+      }
+
+      return tagObj;
+    } // needs to be called before stringifier to allow for circular anchor refs
+
+  }, {
+    key: "stringifyProps",
+    value: function stringifyProps(node, tagObj, _ref6) {
+      var anchors = _ref6.anchors,
+          doc = _ref6.doc;
+      var props = [];
+      var anchor = doc.anchors.getName(node);
+
+      if (anchor) {
+        anchors[anchor] = node;
+        props.push("&".concat(anchor));
+      }
+
+      if (node.tag) {
+        props.push(doc.stringifyTag(node.tag));
+      } else if (!tagObj.default) {
+        props.push(doc.stringifyTag(tagObj.tag));
+      }
+
+      return props.join(' ');
+    }
+  }, {
+    key: "stringify",
+    value: function stringify(item, ctx, onComment, onChompKeep) {
+      var tagObj;
+
+      if (!(item instanceof _Node.default)) {
+        var createCtx = {
+          aliasNodes: [],
+          onTagObj: function onTagObj(o) {
+            return tagObj = o;
+          },
+          prevObjects: []
+        };
+        item = this.createNode(item, true, null, createCtx);
+        var anchors = ctx.doc.anchors;
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = createCtx.aliasNodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var alias = _step2.value;
+            alias.source = alias.source.node;
+            var name = anchors.getName(alias.source);
+
+            if (!name) {
+              name = anchors.newName();
+              anchors.map[name] = alias.source;
+            }
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+      }
+
+      ctx.tags = this;
+      if (item instanceof _Pair.default) return item.toString(ctx, onComment, onChompKeep);
+      if (!tagObj) tagObj = this.getTagObject(item);
+      var props = this.stringifyProps(item, tagObj, ctx);
+      var str = typeof tagObj.stringify === 'function' ? tagObj.stringify(item, ctx, onComment, onChompKeep) : item instanceof _Collection.default ? item.toString(ctx, onComment, onChompKeep) : (0, _stringify.stringifyString)(item, ctx, onComment, onChompKeep);
+      return props ? item instanceof _Collection.default && str[0] !== '{' && str[0] !== '[' ? "".concat(props, "\n").concat(ctx.indent).concat(str) : "".concat(props, " ").concat(str) : str;
+    }
+  }]);
+  return Schema;
+}();
+
+exports.default = Schema;
+(0, _defineProperty2.default)(Schema, "defaultPrefix", 'tag:yaml.org,2002:');
+(0, _defineProperty2.default)(Schema, "defaultTags", {
+  MAP: 'tag:yaml.org,2002:map',
+  SEQ: 'tag:yaml.org,2002:seq',
+  STR: 'tag:yaml.org,2002:str'
+});
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/typeof":"node_modules/@babel/runtime/helpers/typeof.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","../warnings":"node_modules/yaml/browser/dist/warnings.js","../constants":"node_modules/yaml/browser/dist/constants.js","../errors":"node_modules/yaml/browser/dist/errors.js","../stringify":"node_modules/yaml/browser/dist/stringify.js","../tags":"node_modules/yaml/browser/dist/tags/index.js","../tags/failsafe/string":"node_modules/yaml/browser/dist/tags/failsafe/string.js","./Alias":"node_modules/yaml/browser/dist/schema/Alias.js","./Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./Node":"node_modules/yaml/browser/dist/schema/Node.js","./Pair":"node_modules/yaml/browser/dist/schema/Pair.js","./Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js"}],"node_modules/yaml/browser/dist/Document.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _addComment = _interopRequireDefault(require("./addComment"));
+
+var _Anchors = _interopRequireDefault(require("./Anchors"));
+
+var _constants = require("./constants");
+
+var _errors = require("./errors");
+
+var _listTagNames = _interopRequireDefault(require("./listTagNames"));
+
+var _schema = _interopRequireDefault(require("./schema"));
+
+var _Alias = _interopRequireDefault(require("./schema/Alias"));
+
+var _Collection = _interopRequireWildcard(require("./schema/Collection"));
+
+var _Node = _interopRequireDefault(require("./schema/Node"));
+
+var _Scalar = _interopRequireDefault(require("./schema/Scalar"));
+
+var _toJSON2 = _interopRequireDefault(require("./toJSON"));
+
+var isCollectionItem = function isCollectionItem(node) {
+  return node && [_constants.Type.MAP_KEY, _constants.Type.MAP_VALUE, _constants.Type.SEQ_ITEM].includes(node.type);
+};
+
+var Document =
+/*#__PURE__*/
+function () {
+  function Document(options) {
+    (0, _classCallCheck2.default)(this, Document);
+    this.anchors = new _Anchors.default(options.anchorPrefix);
+    this.commentBefore = null;
+    this.comment = null;
+    this.contents = null;
+    this.directivesEndMarker = null;
+    this.errors = [];
+    this.options = options;
+    this.schema = null;
+    this.tagPrefixes = [];
+    this.version = null;
+    this.warnings = [];
+  }
+
+  (0, _createClass2.default)(Document, [{
+    key: "assertCollectionContents",
+    value: function assertCollectionContents() {
+      if (this.contents instanceof _Collection.default) return true;
+      throw new Error('Expected a YAML collection as document contents');
+    }
+  }, {
+    key: "add",
+    value: function add(value) {
+      this.assertCollectionContents();
+      return this.contents.add(value);
+    }
+  }, {
+    key: "addIn",
+    value: function addIn(path, value) {
+      this.assertCollectionContents();
+      this.contents.addIn(path, value);
+    }
+  }, {
+    key: "delete",
+    value: function _delete(key) {
+      this.assertCollectionContents();
+      return this.contents.delete(key);
+    }
+  }, {
+    key: "deleteIn",
+    value: function deleteIn(path) {
+      if ((0, _Collection.isEmptyPath)(path)) {
+        if (this.contents == null) return false;
+        this.contents = null;
+        return true;
+      }
+
+      this.assertCollectionContents();
+      return this.contents.deleteIn(path);
+    }
+  }, {
+    key: "getDefaults",
+    value: function getDefaults() {
+      return Document.defaults[this.version] || Document.defaults[this.options.version] || {};
+    }
+  }, {
+    key: "get",
+    value: function get(key, keepScalar) {
+      return this.contents instanceof _Collection.default ? this.contents.get(key, keepScalar) : undefined;
+    }
+  }, {
+    key: "getIn",
+    value: function getIn(path, keepScalar) {
+      if ((0, _Collection.isEmptyPath)(path)) return !keepScalar && this.contents instanceof _Scalar.default ? this.contents.value : this.contents;
+      return this.contents instanceof _Collection.default ? this.contents.getIn(path, keepScalar) : undefined;
+    }
+  }, {
+    key: "has",
+    value: function has(key) {
+      return this.contents instanceof _Collection.default ? this.contents.has(key) : false;
+    }
+  }, {
+    key: "hasIn",
+    value: function hasIn(path) {
+      if ((0, _Collection.isEmptyPath)(path)) return this.contents !== undefined;
+      return this.contents instanceof _Collection.default ? this.contents.hasIn(path) : false;
+    }
+  }, {
+    key: "set",
+    value: function set(key, value) {
+      this.assertCollectionContents();
+      this.contents.set(key, value);
+    }
+  }, {
+    key: "setIn",
+    value: function setIn(path, value) {
+      if ((0, _Collection.isEmptyPath)(path)) this.contents = value;else {
+        this.assertCollectionContents();
+        this.contents.setIn(path, value);
+      }
+    }
+  }, {
+    key: "setSchema",
+    value: function setSchema(id, customTags) {
+      if (!id && !customTags && this.schema) return;
+      if (typeof id === 'number') id = id.toFixed(1);
+
+      if (id === '1.0' || id === '1.1' || id === '1.2') {
+        if (this.version) this.version = id;else this.options.version = id;
+        delete this.options.schema;
+      } else if (id && typeof id === 'string') {
+        this.options.schema = id;
+      }
+
+      if (Array.isArray(customTags)) this.options.customTags = customTags;
+      var opt = Object.assign({}, this.getDefaults(), this.options);
+      this.schema = new _schema.default(opt);
+    }
+  }, {
+    key: "parse",
+    value: function parse(node, prevDoc) {
+      if (this.options.keepCstNodes) this.cstNode = node;
+      if (this.options.keepNodeTypes) this.type = 'DOCUMENT';
+      var _node$directives = node.directives,
+          directives = _node$directives === void 0 ? [] : _node$directives,
+          _node$contents = node.contents,
+          contents = _node$contents === void 0 ? [] : _node$contents,
+          directivesEndMarker = node.directivesEndMarker,
+          error = node.error,
+          valueRange = node.valueRange;
+
+      if (error) {
+        if (!error.source) error.source = this;
+        this.errors.push(error);
+      }
+
+      this.parseDirectives(directives, prevDoc);
+      if (directivesEndMarker) this.directivesEndMarker = true;
+      this.range = valueRange ? [valueRange.start, valueRange.end] : null;
+      this.setSchema();
+      this.anchors._cstAliases = [];
+      this.parseContents(contents);
+      this.anchors.resolveNodes();
+
+      if (this.options.prettyErrors) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = this.errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _error = _step.value;
+            if (_error instanceof _errors.YAMLError) _error.makePretty();
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = this.warnings[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var warn = _step2.value;
+            if (warn instanceof _errors.YAMLError) warn.makePretty();
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+      }
+
+      return this;
+    }
+  }, {
+    key: "parseDirectives",
+    value: function parseDirectives(directives, prevDoc) {
+      var _this = this;
+
+      var directiveComments = [];
+      var hasDirectives = false;
+      directives.forEach(function (directive) {
+        var comment = directive.comment,
+            name = directive.name;
+
+        switch (name) {
+          case 'TAG':
+            _this.resolveTagDirective(directive);
+
+            hasDirectives = true;
+            break;
+
+          case 'YAML':
+          case 'YAML:1.0':
+            _this.resolveYamlDirective(directive);
+
+            hasDirectives = true;
+            break;
+
+          default:
+            if (name) {
+              var msg = "YAML only supports %TAG and %YAML directives, and not %".concat(name);
+
+              _this.warnings.push(new _errors.YAMLWarning(directive, msg));
+            }
+
+        }
+
+        if (comment) directiveComments.push(comment);
+      });
+
+      if (prevDoc && !hasDirectives && '1.1' === (this.version || prevDoc.version || this.options.version)) {
+        var copyTagPrefix = function copyTagPrefix(_ref) {
+          var handle = _ref.handle,
+              prefix = _ref.prefix;
+          return {
+            handle: handle,
+            prefix: prefix
+          };
+        };
+
+        this.tagPrefixes = prevDoc.tagPrefixes.map(copyTagPrefix);
+        this.version = prevDoc.version;
+      }
+
+      this.commentBefore = directiveComments.join('\n') || null;
+    }
+  }, {
+    key: "parseContents",
+    value: function parseContents(contents) {
+      var _this2 = this;
+
+      var comments = {
+        before: [],
+        after: []
+      };
+      var contentNodes = [];
+      var spaceBefore = false;
+      contents.forEach(function (node) {
+        if (node.valueRange) {
+          if (contentNodes.length === 1) {
+            var msg = 'Document is not valid YAML (bad indentation?)';
+
+            _this2.errors.push(new _errors.YAMLSyntaxError(node, msg));
+          }
+
+          var res = _this2.resolveNode(node);
+
+          if (spaceBefore) {
+            res.spaceBefore = true;
+            spaceBefore = false;
+          }
+
+          contentNodes.push(res);
+        } else if (node.comment !== null) {
+          var cc = contentNodes.length === 0 ? comments.before : comments.after;
+          cc.push(node.comment);
+        } else if (node.type === _constants.Type.BLANK_LINE) {
+          spaceBefore = true;
+
+          if (contentNodes.length === 0 && comments.before.length > 0 && !_this2.commentBefore) {
+            // space-separated comments at start are parsed as document comments
+            _this2.commentBefore = comments.before.join('\n');
+            comments.before = [];
+          }
+        }
+      });
+
+      switch (contentNodes.length) {
+        case 0:
+          this.contents = null;
+          comments.after = comments.before;
+          break;
+
+        case 1:
+          this.contents = contentNodes[0];
+
+          if (this.contents) {
+            var cb = comments.before.join('\n') || null;
+
+            if (cb) {
+              var cbNode = this.contents instanceof _Collection.default && this.contents.items[0] ? this.contents.items[0] : this.contents;
+              cbNode.commentBefore = cbNode.commentBefore ? "".concat(cb, "\n").concat(cbNode.commentBefore) : cb;
+            }
+          } else {
+            comments.after = comments.before.concat(comments.after);
+          }
+
+          break;
+
+        default:
+          this.contents = contentNodes;
+
+          if (this.contents[0]) {
+            this.contents[0].commentBefore = comments.before.join('\n') || null;
+          } else {
+            comments.after = comments.before.concat(comments.after);
+          }
+
+      }
+
+      this.comment = comments.after.join('\n') || null;
+    }
+  }, {
+    key: "resolveTagDirective",
+    value: function resolveTagDirective(directive) {
+      var _directive$parameters = (0, _slicedToArray2.default)(directive.parameters, 2),
+          handle = _directive$parameters[0],
+          prefix = _directive$parameters[1];
+
+      if (handle && prefix) {
+        if (this.tagPrefixes.every(function (p) {
+          return p.handle !== handle;
+        })) {
+          this.tagPrefixes.push({
+            handle: handle,
+            prefix: prefix
+          });
+        } else {
+          var msg = 'The %TAG directive must only be given at most once per handle in the same document.';
+          this.errors.push(new _errors.YAMLSemanticError(directive, msg));
+        }
+      } else {
+        var _msg = 'Insufficient parameters given for %TAG directive';
+        this.errors.push(new _errors.YAMLSemanticError(directive, _msg));
+      }
+    }
+  }, {
+    key: "resolveYamlDirective",
+    value: function resolveYamlDirective(directive) {
+      var _directive$parameters2 = (0, _slicedToArray2.default)(directive.parameters, 1),
+          version = _directive$parameters2[0];
+
+      if (directive.name === 'YAML:1.0') version = '1.0';
+
+      if (this.version) {
+        var msg = 'The %YAML directive must only be given at most once per document.';
+        this.errors.push(new _errors.YAMLSemanticError(directive, msg));
+      }
+
+      if (!version) {
+        var _msg2 = 'Insufficient parameters given for %YAML directive';
+        this.errors.push(new _errors.YAMLSemanticError(directive, _msg2));
+      } else {
+        if (!Document.defaults[version]) {
+          var v0 = this.version || this.options.version;
+
+          var _msg3 = "Document will be parsed as YAML ".concat(v0, " rather than YAML ").concat(version);
+
+          this.warnings.push(new _errors.YAMLWarning(directive, _msg3));
+        }
+
+        this.version = version;
+      }
+    }
+  }, {
+    key: "resolveTagName",
+    value: function resolveTagName(node) {
+      var tag = node.tag,
+          type = node.type;
+      var nonSpecific = false;
+
+      if (tag) {
+        var handle = tag.handle,
+            suffix = tag.suffix,
+            verbatim = tag.verbatim;
+
+        if (verbatim) {
+          if (verbatim !== '!' && verbatim !== '!!') return verbatim;
+          var msg = "Verbatim tags aren't resolved, so ".concat(verbatim, " is invalid.");
+          this.errors.push(new _errors.YAMLSemanticError(node, msg));
+        } else if (handle === '!' && !suffix) {
+          nonSpecific = true;
+        } else {
+          var prefix = this.tagPrefixes.find(function (p) {
+            return p.handle === handle;
+          });
+
+          if (!prefix) {
+            var dtp = this.getDefaults().tagPrefixes;
+            if (dtp) prefix = dtp.find(function (p) {
+              return p.handle === handle;
+            });
+          }
+
+          if (prefix) {
+            if (suffix) {
+              if (handle === '!' && (this.version || this.options.version) === '1.0') {
+                if (suffix[0] === '^') return suffix;
+
+                if (/[:/]/.test(suffix)) {
+                  // word/foo -> tag:word.yaml.org,2002:foo
+                  var vocab = suffix.match(/^([a-z0-9-]+)\/(.*)/i);
+                  return vocab ? "tag:".concat(vocab[1], ".yaml.org,2002:").concat(vocab[2]) : "tag:".concat(suffix);
+                }
+              }
+
+              return prefix.prefix + decodeURIComponent(suffix);
+            }
+
+            this.errors.push(new _errors.YAMLSemanticError(node, "The ".concat(handle, " tag has no suffix.")));
+          } else {
+            var _msg4 = "The ".concat(handle, " tag handle is non-default and was not declared.");
+
+            this.errors.push(new _errors.YAMLSemanticError(node, _msg4));
+          }
+        }
+      }
+
+      switch (type) {
+        case _constants.Type.BLOCK_FOLDED:
+        case _constants.Type.BLOCK_LITERAL:
+        case _constants.Type.QUOTE_DOUBLE:
+        case _constants.Type.QUOTE_SINGLE:
+          return _schema.default.defaultTags.STR;
+
+        case _constants.Type.FLOW_MAP:
+        case _constants.Type.MAP:
+          return _schema.default.defaultTags.MAP;
+
+        case _constants.Type.FLOW_SEQ:
+        case _constants.Type.SEQ:
+          return _schema.default.defaultTags.SEQ;
+
+        case _constants.Type.PLAIN:
+          return nonSpecific ? _schema.default.defaultTags.STR : null;
+
+        default:
+          return null;
+      }
+    }
+  }, {
+    key: "resolveNode",
+    value: function resolveNode(node) {
+      if (!node) return null;
+      var anchors = this.anchors,
+          errors = this.errors,
+          schema = this.schema;
+      var hasAnchor = false;
+      var hasTag = false;
+      var comments = {
+        before: [],
+        after: []
+      };
+      var props = isCollectionItem(node.context.parent) ? node.context.parent.props.concat(node.props) : node.props;
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = props[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var _step3$value = _step3.value,
+              start = _step3$value.start,
+              end = _step3$value.end;
+
+          switch (node.context.src[start]) {
+            case _constants.Char.COMMENT:
+              {
+                if (!node.commentHasRequiredWhitespace(start)) {
+                  var _msg7 = 'Comments must be separated from other tokens by white space characters';
+                  errors.push(new _errors.YAMLSemanticError(node, _msg7));
+                }
+
+                var c = node.context.src.slice(start + 1, end);
+                var header = node.header,
+                    valueRange = node.valueRange;
+
+                if (valueRange && (start > valueRange.start || header && start > header.start)) {
+                  comments.after.push(c);
+                } else {
+                  comments.before.push(c);
+                }
+              }
+              break;
+
+            case _constants.Char.ANCHOR:
+              if (hasAnchor) {
+                var _msg8 = 'A node can have at most one anchor';
+                errors.push(new _errors.YAMLSemanticError(node, _msg8));
+              }
+
+              hasAnchor = true;
+              break;
+
+            case _constants.Char.TAG:
+              if (hasTag) {
+                var _msg9 = 'A node can have at most one tag';
+                errors.push(new _errors.YAMLSemanticError(node, _msg9));
+              }
+
+              hasTag = true;
+              break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      if (hasAnchor) {
+        var name = node.anchor;
+        var prev = anchors.getNode(name); // At this point, aliases for any preceding node with the same anchor
+        // name have already been resolved, so it may safely be renamed.
+
+        if (prev) anchors.map[anchors.newName(name)] = prev; // During parsing, we need to store the CST node in anchors.map as
+        // anchors need to be available during resolution to allow for
+        // circular references.
+
+        anchors.map[name] = node;
+      }
+
+      var res;
+
+      if (node.type === _constants.Type.ALIAS) {
+        if (hasAnchor || hasTag) {
+          var msg = 'An alias node must not specify any properties';
+          errors.push(new _errors.YAMLSemanticError(node, msg));
+        }
+
+        var _name = node.rawValue;
+        var src = anchors.getNode(_name);
+
+        if (!src) {
+          var _msg5 = "Aliased anchor not found: ".concat(_name);
+
+          errors.push(new _errors.YAMLReferenceError(node, _msg5));
+          return null;
+        } // Lazy resolution for circular references
+
+
+        res = new _Alias.default(src);
+
+        anchors._cstAliases.push(res);
+      } else {
+        var tagName = this.resolveTagName(node);
+
+        if (tagName) {
+          res = schema.resolveNodeWithFallback(this, node, tagName);
+        } else {
+          if (node.type !== _constants.Type.PLAIN) {
+            var _msg6 = "Failed to resolve ".concat(node.type, " node here");
+
+            errors.push(new _errors.YAMLSyntaxError(node, _msg6));
+            return null;
+          }
+
+          try {
+            res = schema.resolveScalar(node.strValue || '');
+          } catch (error) {
+            if (!error.source) error.source = node;
+            errors.push(error);
+            return null;
+          }
+        }
+      }
+
+      if (res) {
+        res.range = [node.range.start, node.range.end];
+        if (this.options.keepCstNodes) res.cstNode = node;
+        if (this.options.keepNodeTypes) res.type = node.type;
+        var cb = comments.before.join('\n');
+
+        if (cb) {
+          res.commentBefore = res.commentBefore ? "".concat(res.commentBefore, "\n").concat(cb) : cb;
+        }
+
+        var ca = comments.after.join('\n');
+        if (ca) res.comment = res.comment ? "".concat(res.comment, "\n").concat(ca) : ca;
+      }
+
+      return node.resolved = res;
+    }
+  }, {
+    key: "listNonDefaultTags",
+    value: function listNonDefaultTags() {
+      return (0, _listTagNames.default)(this.contents).filter(function (t) {
+        return t.indexOf(_schema.default.defaultPrefix) !== 0;
+      });
+    }
+  }, {
+    key: "setTagPrefix",
+    value: function setTagPrefix(handle, prefix) {
+      if (handle[0] !== '!' || handle[handle.length - 1] !== '!') throw new Error('Handle must start and end with !');
+
+      if (prefix) {
+        var prev = this.tagPrefixes.find(function (p) {
+          return p.handle === handle;
+        });
+        if (prev) prev.prefix = prefix;else this.tagPrefixes.push({
+          handle: handle,
+          prefix: prefix
+        });
+      } else {
+        this.tagPrefixes = this.tagPrefixes.filter(function (p) {
+          return p.handle !== handle;
+        });
+      }
+    }
+  }, {
+    key: "stringifyTag",
+    value: function stringifyTag(tag) {
+      if ((this.version || this.options.version) === '1.0') {
+        var priv = tag.match(/^tag:private\.yaml\.org,2002:([^:/]+)$/);
+        if (priv) return '!' + priv[1];
+        var vocab = tag.match(/^tag:([a-zA-Z0-9-]+)\.yaml\.org,2002:(.*)/);
+        return vocab ? "!".concat(vocab[1], "/").concat(vocab[2]) : "!".concat(tag.replace(/^tag:/, ''));
+      } else {
+        var p = this.tagPrefixes.find(function (p) {
+          return tag.indexOf(p.prefix) === 0;
+        });
+
+        if (!p) {
+          var dtp = this.getDefaults().tagPrefixes;
+          p = dtp && dtp.find(function (p) {
+            return tag.indexOf(p.prefix) === 0;
+          });
+        }
+
+        if (!p) return tag[0] === '!' ? tag : "!<".concat(tag, ">");
+        var suffix = tag.substr(p.prefix.length).replace(/[!,[\]{}]/g, function (ch) {
+          return {
+            '!': '%21',
+            ',': '%2C',
+            '[': '%5B',
+            ']': '%5D',
+            '{': '%7B',
+            '}': '%7D'
+          }[ch];
+        });
+        return p.handle + suffix;
+      }
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON(arg) {
+      var _this3 = this;
+
+      var _this$options = this.options,
+          keepBlobsInJSON = _this$options.keepBlobsInJSON,
+          mapAsMap = _this$options.mapAsMap,
+          maxAliasCount = _this$options.maxAliasCount;
+      var keep = keepBlobsInJSON && (typeof arg !== 'string' || !(this.contents instanceof _Scalar.default));
+      var ctx = {
+        doc: this,
+        keep: keep,
+        mapAsMap: keep && !!mapAsMap,
+        maxAliasCount: maxAliasCount
+      };
+      var anchorNames = Object.keys(this.anchors.map);
+      if (anchorNames.length > 0) ctx.anchors = anchorNames.map(function (name) {
+        return {
+          alias: [],
+          aliasCount: 0,
+          count: 1,
+          node: _this3.anchors.map[name]
+        };
+      });
+      return (0, _toJSON2.default)(this.contents, arg, ctx);
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      if (this.errors.length > 0) throw new Error('Document with errors cannot be stringified');
+      this.setSchema();
+      var lines = [];
+      var hasDirectives = false;
+
+      if (this.version) {
+        var vd = '%YAML 1.2';
+
+        if (this.schema.name === 'yaml-1.1') {
+          if (this.version === '1.0') vd = '%YAML:1.0';else if (this.version === '1.1') vd = '%YAML 1.1';
+        }
+
+        lines.push(vd);
+        hasDirectives = true;
+      }
+
+      var tagNames = this.listNonDefaultTags();
+      this.tagPrefixes.forEach(function (_ref2) {
+        var handle = _ref2.handle,
+            prefix = _ref2.prefix;
+
+        if (tagNames.some(function (t) {
+          return t.indexOf(prefix) === 0;
+        })) {
+          lines.push("%TAG ".concat(handle, " ").concat(prefix));
+          hasDirectives = true;
+        }
+      });
+      if (hasDirectives || this.directivesEndMarker) lines.push('---');
+
+      if (this.commentBefore) {
+        if (hasDirectives || !this.directivesEndMarker) lines.unshift('');
+        lines.unshift(this.commentBefore.replace(/^/gm, '#'));
+      }
+
+      var ctx = {
+        anchors: {},
+        doc: this,
+        indent: ''
+      };
+      var chompKeep = false;
+      var contentComment = null;
+
+      if (this.contents) {
+        if (this.contents instanceof _Node.default) {
+          if (this.contents.spaceBefore && (hasDirectives || this.directivesEndMarker)) lines.push('');
+          if (this.contents.commentBefore) lines.push(this.contents.commentBefore.replace(/^/gm, '#')); // top-level block scalars need to be indented if followed by a comment
+
+          ctx.forceBlockIndent = !!this.comment;
+          contentComment = this.contents.comment;
+        }
+
+        var onChompKeep = contentComment ? null : function () {
+          return chompKeep = true;
+        };
+        var body = this.schema.stringify(this.contents, ctx, function () {
+          return contentComment = null;
+        }, onChompKeep);
+        lines.push((0, _addComment.default)(body, '', contentComment));
+      } else if (this.contents !== undefined) {
+        lines.push(this.schema.stringify(this.contents, ctx));
+      }
+
+      if (this.comment) {
+        if ((!chompKeep || contentComment) && lines[lines.length - 1] !== '') lines.push('');
+        lines.push(this.comment.replace(/^/gm, '#'));
+      }
+
+      return lines.join('\n') + '\n';
+    }
+  }]);
+  return Document;
+}();
+
+exports.default = Document;
+(0, _defineProperty2.default)(Document, "defaults", {
+  '1.0': {
+    schema: 'yaml-1.1',
+    merge: true,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: _schema.default.defaultPrefix
+    }, {
+      handle: '!!',
+      prefix: 'tag:private.yaml.org,2002:'
+    }]
+  },
+  '1.1': {
+    schema: 'yaml-1.1',
+    merge: true,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: '!'
+    }, {
+      handle: '!!',
+      prefix: _schema.default.defaultPrefix
+    }]
+  },
+  '1.2': {
+    schema: 'core',
+    merge: false,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: '!'
+    }, {
+      handle: '!!',
+      prefix: _schema.default.defaultPrefix
+    }]
+  }
+});
+},{"@babel/runtime/helpers/interopRequireWildcard":"node_modules/@babel/runtime/helpers/interopRequireWildcard.js","@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/slicedToArray":"node_modules/@babel/runtime/helpers/slicedToArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","./addComment":"node_modules/yaml/browser/dist/addComment.js","./Anchors":"node_modules/yaml/browser/dist/Anchors.js","./constants":"node_modules/yaml/browser/dist/constants.js","./errors":"node_modules/yaml/browser/dist/errors.js","./listTagNames":"node_modules/yaml/browser/dist/listTagNames.js","./schema":"node_modules/yaml/browser/dist/schema/index.js","./schema/Alias":"node_modules/yaml/browser/dist/schema/Alias.js","./schema/Collection":"node_modules/yaml/browser/dist/schema/Collection.js","./schema/Node":"node_modules/yaml/browser/dist/schema/Node.js","./schema/Scalar":"node_modules/yaml/browser/dist/schema/Scalar.js","./toJSON":"node_modules/yaml/browser/dist/toJSON.js"}],"node_modules/yaml/browser/dist/index.js":[function(require,module,exports) {
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _parse = _interopRequireDefault(require("./cst/parse"));
+
+var _Document = _interopRequireDefault(require("./Document"));
+
+var _errors = require("./errors");
+
+var _schema = _interopRequireDefault(require("./schema"));
+
+var _warnings = require("./warnings");
+
+var defaultOptions = {
+  anchorPrefix: 'a',
+  customTags: null,
+  keepCstNodes: false,
+  keepNodeTypes: true,
+  keepBlobsInJSON: true,
+  mapAsMap: false,
+  maxAliasCount: 100,
+  prettyErrors: false,
+  // TODO Set true in v2
+  simpleKeys: false,
+  version: '1.2'
+};
+
+function createNode(value) {
+  var wrapScalars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var tag = arguments.length > 2 ? arguments[2] : undefined;
+
+  if (tag === undefined && typeof wrapScalars === 'string') {
+    tag = wrapScalars;
+    wrapScalars = true;
+  }
+
+  var options = Object.assign({}, _Document.default.defaults[defaultOptions.version], defaultOptions);
+  var schema = new _schema.default(options);
+  return schema.createNode(value, wrapScalars, tag);
+}
+
+var Document =
+/*#__PURE__*/
+function (_YAMLDocument) {
+  (0, _inherits2.default)(Document, _YAMLDocument);
+
+  function Document(options) {
+    (0, _classCallCheck2.default)(this, Document);
+    return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(Document).call(this, Object.assign({}, defaultOptions, options)));
+  }
+
+  return Document;
+}(_Document.default);
+
+function parseAllDocuments(src, options) {
+  var stream = [];
+  var prev;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = (0, _parse.default)(src)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var cstDoc = _step.value;
+      var doc = new Document(options);
+      doc.parse(cstDoc, prev);
+      stream.push(doc);
+      prev = doc;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return stream;
+}
+
+function parseDocument(src, options) {
+  var cst = (0, _parse.default)(src);
+  var doc = new Document(options).parse(cst[0]);
+
+  if (cst.length > 1) {
+    var errMsg = 'Source contains multiple documents; please use YAML.parseAllDocuments()';
+    doc.errors.unshift(new _errors.YAMLSemanticError(cst[1], errMsg));
+  }
+
+  return doc;
+}
+
+function parse(src, options) {
+  var doc = parseDocument(src, options);
+  doc.warnings.forEach(function (warning) {
+    return (0, _warnings.warn)(warning);
+  });
+  if (doc.errors.length > 0) throw doc.errors[0];
+  return doc.toJSON();
+}
+
+function stringify(value, options) {
+  var doc = new Document(options);
+  doc.contents = value;
+  return String(doc);
+}
+
+var _default = {
+  createNode: createNode,
+  defaultOptions: defaultOptions,
+  Document: Document,
+  parse: parse,
+  parseAllDocuments: parseAllDocuments,
+  parseCST: _parse.default,
+  parseDocument: parseDocument,
+  stringify: stringify
+};
+exports.default = _default;
+},{"@babel/runtime/helpers/interopRequireDefault":"node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/possibleConstructorReturn":"node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"node_modules/@babel/runtime/helpers/getPrototypeOf.js","@babel/runtime/helpers/inherits":"node_modules/@babel/runtime/helpers/inherits.js","./cst/parse":"node_modules/yaml/browser/dist/cst/parse.js","./Document":"node_modules/yaml/browser/dist/Document.js","./errors":"node_modules/yaml/browser/dist/errors.js","./schema":"node_modules/yaml/browser/dist/schema/index.js","./warnings":"node_modules/yaml/browser/dist/warnings.js"}],"node_modules/yaml/browser/index.js":[function(require,module,exports) {
+module.exports = require('./dist').default;
+},{"./dist":"node_modules/yaml/browser/dist/index.js"}],"app/app.js":[function(require,module,exports) {
+"use strict";
 
 require("import-jquery");
 
 require("jquery-ui-dist/jquery-ui.js");
 
+var YAML = require('yaml');
 /* Begin jQuery */
+
+
 $(function () {
   // Logo takes you home
   $('#logo').on('click', function () {
     window.location.href = '/';
   }); //without this line, PixiPlugin and MotionPathPlugin may get dropped by your bundler (tree shaking)...
 
-  _gsap.gsap.registerPlugin(_PixiPlugin.PixiPlugin, _MotionPathPlugin.MotionPathPlugin);
+  gsap.registerPlugin(PixiPlugin, MotionPathPlugin);
 
   if ($('.tween').height() !== this.undefined) {
-    _gsap.gsap.to('.tween', {
+    gsap.to('.tween', {
       x: "+=100px",
       duration: 1,
       opacity: 1,
@@ -37665,8 +40698,7 @@ $(function () {
         grid: "auto"
       }
     });
-
-    _gsap.gsap.to('.background__wrapper', {
+    gsap.to('.background__wrapper', {
       scale: "1.2",
       duration: 1,
       opacity: 0.4,
@@ -37722,7 +40754,7 @@ $(function () {
 
       if (scrolling > offset && scrolling > $('.page__part__two').position().top - offset) {
         // animate in gsap
-        _gsap.gsap.to('.process-tween', {
+        gsap.to('.process-tween', {
           y: "-100px",
           duration: 1,
           opacity: 1,
@@ -37737,7 +40769,7 @@ $(function () {
 
       if (scrolling > offset && scrolling > $('.page__part__three').position().top - offset) {
         // animate in gsap
-        _gsap.gsap.to('.display__bg', {
+        gsap.to('.display__bg', {
           scale: 1.3,
           duration: 1
         });
@@ -37771,7 +40803,7 @@ $(function () {
     return true;
   });
 });
-},{"gsap":"node_modules/gsap/index.js","gsap/PixiPlugin.js":"node_modules/gsap/PixiPlugin.js","gsap/MotionPathPlugin.js":"node_modules/gsap/MotionPathPlugin.js","import-jquery":"node_modules/import-jquery/import-jquery.js","jquery-ui-dist/jquery-ui.js":"node_modules/jquery-ui-dist/jquery-ui.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"import-jquery":"node_modules/import-jquery/import-jquery.js","jquery-ui-dist/jquery-ui.js":"node_modules/jquery-ui-dist/jquery-ui.js","yaml":"node_modules/yaml/browser/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -37799,7 +40831,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51103" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52893" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
