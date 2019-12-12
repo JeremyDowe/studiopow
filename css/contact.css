@@ -25,7 +25,7 @@ body.contact #logo.normal {
 }
 .page__contact .right {
     grid-area: 1 / 2 / 2 / 3;
-    padding: 30vh 0 0 15rem;
+    padding: 30vh 0 0 10rem;
     height: 70vh;
 }
 .page__contact .right h3 {
