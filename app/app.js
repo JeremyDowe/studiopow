@@ -1,7 +1,3 @@
-import "import-jquery";
-import "jquery-ui-dist/jquery-ui.js";
-const YAML = require('yaml');
-
 /* Begin jQuery */
 $(function(){
     // Logo takes you home
