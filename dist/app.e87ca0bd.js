@@ -163,7 +163,7 @@ $(function () {
 
     var paddingScroll = height / 3 * scrolling;
     var scroll = Math.sqrt(scrolling / height) + 1;
-    var axisScroll = Math.atan(scrolling / height) * Math.tan(scrolling / height) * 1000;
+    var axisScroll = Math.atan(scrolling / height) * Math.tan(scrolling / height) * scrolling;
     var cosScroll = Math.acos(scrolling / height) * Math.cos(scrolling / height); // scrolling behaviour logo / menu
 
     $('#logo').addClass('normal');
@@ -185,7 +185,8 @@ $(function () {
 
       if (scrolling > offset && scrolling < $('.page__part__two').position().top - offset) {
         $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.2) + 'px)');
-        $('.page__part__one').css('opacity', Math.round(Math.sqrt(cosScroll / axisScroll) * 100) / 100);
+        $('.page__part__one').css('opacity', Math.round(Math.sqrt(cosScroll / axisScroll) * 100) / 100 - 0.4);
+        $('.center').css('opacity', Math.round(Math.sqrt(cosScroll / axisScroll) * 100) / 100);
         $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
       } // scrolling to work section
 
@@ -221,18 +222,18 @@ $(function () {
 
       if (scrolling > lastScrollPos) {
         // downscroll code
-        $('.work__piece').css('transform', 'translateY( ' + axisScroll + 'px )');
-        $('.work__piece').css('top', cosScroll + 150 + 'px'); // title
+        $('.work__piece').css('transform', 'translateY( ' + Math.sqrt(cosScroll) * axisScroll * 0.5 + 'px )'); //$('.work__piece').css('top', (cosScroll + 150) + 'px');
+        // title
 
-        $('.work__title').css('transform', 'translateY( ' + (axisScroll + cosScroll) + 'px )');
-        $('.work__title').css('top', axisScroll + cosScroll + 150 + 'px'); //console.log('down');
+        $('.work__title').css('transform', 'translateY( ' + Math.sqrt(cosScroll) * axisScroll * 0.8 + 'px )'); //$('.work__title').css('top', (axisScroll / cosScroll)+150 + 'px');
+        //console.log('down');
       } else {
         // upscroll code
-        $('.work__piece').css('transform', 'translateY( ' + axisScroll + 'px )');
-        $('.work__piece').css('top', cosScroll + 150 + 'px'); // title
+        $('.work__piece').css('transform', 'translateY( ' + Math.sqrt(cosScroll) * axisScroll * 0.5 + 'px )'); //$('.work__piece').css('top', (cosScroll + 150) + 'px');
+        // title
 
-        $('.work__title').css('transform', 'translateY( ' + (axisScroll + cosScroll) + 'px )');
-        $('.work__title').css('top', axisScroll + cosScroll + 150 + 'px'); //console.log('up');
+        $('.work__title').css('transform', 'translateY( ' + Math.sqrt(cosScroll) * axisScroll * 0.8 + 'px )'); //$('.work__title').css('top', (axisScroll / cosScroll)+150 + 'px');
+        //console.log('up');
       }
 
       lastScrollPos = scrolling;
@@ -269,7 +270,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54752" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57538" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

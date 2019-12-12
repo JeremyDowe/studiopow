@@ -1,12 +1,13 @@
 .page__work {
     height: 480vh;
+    padding-top: 5rem;
     background: rgb(36,36,36);
 }
 
 .page__work .piece {
     position: relative;
     padding: 4.5rem;
-    height: 700px;
+    height: 800px;
 }
 
 .page__work h2.work__title {
@@ -28,7 +29,7 @@
 }
 
 .page__work .work__piece {
-    height: 50vh;
+    height: 500px;
     width: 50vw;
     background-color: rgb(55,55,55);
     position: absolute;
