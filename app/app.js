@@ -4,8 +4,6 @@ $(function(){
     $('#logo').on('click',function(){
         window.location.href= '/';
     });
-    //without this line, PixiPlugin and MotionPathPlugin may get dropped by your bundler (tree shaking)...
-    gsap.registerPlugin(PixiPlugin, MotionPathPlugin);
     if ($('.tween').height() !== this.undefined){
         gsap.to(
         '.tween',

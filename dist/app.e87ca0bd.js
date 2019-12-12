@@ -123,9 +123,7 @@ $(function () {
   // Logo takes you home
   $('#logo').on('click', function () {
     window.location.href = '/';
-  }); //without this line, PixiPlugin and MotionPathPlugin may get dropped by your bundler (tree shaking)...
-
-  gsap.registerPlugin(PixiPlugin, MotionPathPlugin);
+  });
 
   if ($('.tween').height() !== this.undefined) {
     gsap.to('.tween', {
@@ -271,7 +269,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53491" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54752" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
