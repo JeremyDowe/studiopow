@@ -46,8 +46,9 @@ $(function(){
         // Math recipes
         const paddingScroll = (height / 3) * scrolling;
         const scroll = Math.sqrt(scrolling / height) + 1;
-        const axisScroll = Math.atan(scrolling/height) * Math.tan(scrolling/height) * scrolling;
-        const cosScroll = Math.acos(scrolling/height) * Math.cos(scrolling/height);
+        const axisScroll = this.Math.tan(2/this.Math.PI)/height;
+        const cosScroll = this.Math.cos(2/this.Math.PI)/height;
+        const opacityScroll = Math.log(this.Math.PI)/this.Math.log(this.Math.cosh(scroll))-1;
         // scrolling behaviour logo / menu
         $('#logo').addClass('normal');
         $('nav ul li').addClass('normal');        
@@ -72,8 +73,8 @@ $(function(){
                 (scrolling < $('.page__part__two').position().top - offset)
             ){
                 $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.2) + 'px)');
-                $('.page__part__one').css('opacity', (Math.round(Math.sqrt(cosScroll/axisScroll)*100)/100)-0.4 );
-                $('.center').css('opacity', Math.round(Math.sqrt(cosScroll/axisScroll)*100)/100 );
+                $('.page__part__one').css('opacity', opacityScroll );
+                $('.center').css('opacity', opacityScroll );
                 $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
             }
             // scrolling to work section
@@ -118,19 +119,15 @@ $(function(){
             // work section scroll
             if (scrolling > lastScrollPos) {
                 // downscroll code
-                $('.work__piece').css('transform', 'translateY( ' + Math.sqrt(cosScroll)*axisScroll*0.5 + 'px )');
-                //$('.work__piece').css('top', (cosScroll + 150) + 'px');
+                $('.work__piece').css('transform', 'translateY( ' + (cosScroll*scrolling) + 'px )');
                 // title
-                $('.work__title').css('transform', 'translateY( ' + Math.sqrt(cosScroll)*axisScroll*0.8 + 'px )');
-                //$('.work__title').css('top', (axisScroll / cosScroll)+150 + 'px');
+                $('.work__title').css('transform', 'translateY( ' + (axisScroll*scrolling) + 'px )');
                 //console.log('down');
             } else {
                 // upscroll code
-                $('.work__piece').css('transform', 'translateY( ' + Math.sqrt(cosScroll)*axisScroll*0.5 + 'px )');
-                //$('.work__piece').css('top', (cosScroll + 150) + 'px');
+                $('.work__piece').css('transform', 'translateY( ' + (axisScroll/scrolling) + 'px )');
                 // title
-                $('.work__title').css('transform', 'translateY( ' + Math.sqrt(cosScroll)*axisScroll*0.8 + 'px )');
-                //$('.work__title').css('top', (axisScroll / cosScroll)+150 + 'px');
+                $('.work__title').css('transform', 'translateY( ' + (cosScroll/scrolling) + 'px )');
                 //console.log('up');
             }
             lastScrollPos = scrolling;
