@@ -48,10 +48,10 @@ body.studio header ul li a span.line {
 }
 
 .studio__picture {
-    width: 680px;
-    height: 600px;
+    width: 640px;
+    height: 580px;
     padding: 0;
     margin: 0;
     background: url('../assets/img/studio-picture.jpg') left top no-repeat;
-    background-size: cover;
+    background-size: contain;
 }
