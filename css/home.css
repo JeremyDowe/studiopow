@@ -62,6 +62,16 @@
     width: 100%;
     height: 100%;
 }
+/* work backgrounds */
+body.work--letts .background__wrapper {
+    background-image: url('../assets/img/alexander-ruiz-sHAucwW08Fk-unsplash.jpg');
+}
+body.work--moody .background__wrapper {
+    background-image: url('../assets/img/trevor-brown-ifgisB1W8w8-unsplash.jpg');
+}
+body.work--deakin .background__wrapper {
+    background-image: url('../assets/img/nastuh-abootalebi-yWwob8kwOCk-unsplash.jpg');
+}
 .scroll__down {
     position: absolute;
     right: auto;
@@ -144,7 +154,7 @@
 .page__part__one .middle .center {
     text-align: center;
     position: relative;
-    transform: translateY(30%);
+    transform: translateY(163px);
     z-index: 5;
 }
 .page__part__one .left {
