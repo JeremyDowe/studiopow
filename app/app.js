@@ -33,7 +33,8 @@ $(function(){
     $('#logo').addClass('invert');
     $('nav ul li').addClass('invert');
     // Window scroll
-    var lastScrollPos = 0;
+    var lastScroll = 0;
+    var lastScrollPane = 798;
     $(window).scroll(function() {
         // Declare vars
         const offset = 100;
@@ -43,12 +44,11 @@ $(function(){
         const html = document.documentElement;
         const height = Math.max( body.scrollHeight, body.offsetHeight, 
                         html.clientHeight, html.scrollHeight, html.offsetHeight );
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
         // Math recipes
         const paddingScroll = (height / 3) * scrolling;
-        const scroll = Math.sqrt(scrolling / height) + 1;
-        const axisScroll = this.Math.tan(2/this.Math.PI)/(height*0.3332);
-        const cosScroll = this.Math.cos(2/this.Math.PI)/(height*0.3332);
-        const opacityScroll = Math.log(this.Math.PI)/this.Math.log(this.Math.cosh(scroll))-1;
+        const pieAxisScroll = windowHeight/(this.Math.PI*scrolling);
+        const opacityScroll = windowHeight/(this.Math.PI*scrolling);
         // scrolling behaviour logo / menu
         $('#logo').addClass('normal');
         $('nav ul li').addClass('normal');    
@@ -59,10 +59,10 @@ $(function(){
                 (scrolling > offset && scrolling > scrollPart2 - offset) && 
                 (scrolling < scrollPart3 - offset)
             ){
-                $('#logo').removeClass('invert');
-                $('nav ul li').removeClass('invert');
                 $('#logo').addClass('normal');
                 $('nav ul li').addClass('normal');
+                $('#logo').removeClass('invert');
+                $('nav ul li').removeClass('invert');                
             } else {
                 $('#logo').removeClass('normal');
                 $('nav ul li').removeClass('normal');
@@ -123,25 +123,23 @@ $(function(){
                 });
             }
         }
-        if ($('.piece').height() !== this.undefined){
-            $('.piece').each(function(){
+        if ($('.pane').height() !== this.undefined){
+            $('.pane').each(function(){
                 $(this).css('height', $(window).height());
             });
             // work section scroll
-            if (scrolling > lastScrollPos) {
-                // downscroll code
-                $('.work__piece').css('transform', 'translateY( ' + scrolling/this.Math.log(cosScroll) + 'px )');
-                // title
-                $('.work__title').css('transform', 'translateY( ' + scrolling/this.Math.log2(axisScroll) + 'px )');
-                //console.log('down');
+            const scrollPane = scrolling * 0.00035;
+            //this.console.log(scrollPiece);
+            if (scrolling < lastScrollPane) {
+                if ( (scrollPane/pieAxisScroll*100)/100 < 0.2) {
+                    $('.work--pane').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.2) + 'px)');
+                    $('.work--pane').css('opacity', (scrollPane/pieAxisScroll*100)/10 );
+                    $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + (scrollPane/pieAxisScroll)*100 + ')');
+                }
             } else {
-                // upscroll code
-                $('.work__piece').css('transform', 'translateY( ' + scrolling/this.Math.log(axisScroll) + 'px )');
-                // title
-                $('.work__title').css('transform', 'translateY( ' + scrolling/this.Math.log2(cosScroll) + 'px )');
-                //console.log('up');
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, 0)');
             }
-            lastScrollPos = scrolling;
+            //this.console.log(scrolling,pieAxisScroll,axisScroll);
         }
         return true;
      });

@@ -1,16 +1,17 @@
-.page__work {
+.page--work {
     padding-top: 8.5rem;
     padding-bottom: 8.5rem;
     background: rgb(36,36,36);
+    overflow-x: hidden;
 }
 
-.page__work .piece {
+.page--work .pane {
     position: relative;
     padding: 4.5rem;
-    height: 800px;
+    height: 798px;
 }
 
-.page__work h2.work__title {
+.page--work h2.work--title {
     font-family: 'WhyteTrail-Medium', 'Work Sans', sans-serif;
     font-size: 8.5vw;
     padding: 4.5rem 0;
@@ -18,40 +19,39 @@
     color: rgb(255,255,255);
     position: absolute;
     z-index: 1;
-    height: 700px;
     top: 200px;
-    /*transition: top .3s ease-in-out;*/
 }
 
-.page__work h2.work__title > a {
+.page--work h2.work--title > a {
     text-decoration: none;
     color: rgb(255,255,255);
 }
 
-.page__work .work__piece {
+.page--work .work--pane {
     height: 500px;
     width: 50vw;
     background-color: rgb(55,55,55);
     position: absolute;
     right: 100px;
     top: 150px;
+    opacity: 0;
     transform: translateY(0px);
 }
 
-.page__work .work__letts {
+.page--work .work--letts {
     background: url('../assets/img/work_piece_letts.jpg') center center no-repeat;
     background-size: cover;
-    opacity: 0.5;
+    opacity: 0;
 }
 
-.page__work .work__moody {
+.page--work .work--moody {
     background: url('../assets/img/work_piece_moody.jpg') center center no-repeat;
     background-size: cover;
-    opacity: 0.5;
+    opacity: 0;
 }
 
-.page__work .work__atar {
+.page--work .work--atar {
     background: url('../assets/img/work_piece_atar.jpg') center center no-repeat;
     background-size: cover;
-    opacity: 0.5;
+    opacity: 0;
 }
