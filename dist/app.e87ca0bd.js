@@ -167,7 +167,7 @@ $(function () {
     $('#logo').addClass('normal');
     $('nav ul li').addClass('normal');
 
-    if ($('.page__part__two').height() !== this.undefined || $('.page__part__three').height() !== this.undefined) {
+    if ($('.page__part__one').height() !== this.undefined) {
       var scrollPart2 = $('.page__part__two').position().top;
       var scrollPart3 = $('.page__part__two').position().top;
 
