@@ -34,7 +34,9 @@ $(function(){
     $('nav ul li').addClass('invert');
     // Window scroll
     var lastScroll = 0;
-    var lastScrollPane = 798;
+    var lastScrollPane = $('.pane--letts').position().top;
+    var last2ScrollPane = $('.pane--moody').position().top;
+    var last3ScrollPane = $('.pane--atar').position().top;
     $(window).scroll(function() {
         // Declare vars
         const offset = 100;
@@ -130,16 +132,28 @@ $(function(){
             // work section scroll
             const scrollPane = scrolling * 0.00035;
             //this.console.log(scrollPiece);
-            if (scrolling < lastScrollPane) {
-                if ( (scrollPane/pieAxisScroll*100)/100 < 0.2) {
-                    $('.work--pane').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.2) + 'px)');
+            if (scrolling < lastScrollPane === true) {
+                if ( (scrollPane/pieAxisScroll*100)/100 < 0.25 ) {
+                    $('.work--pane').css('transform', 'translateY(' + this.Math.sqrt(paddingScroll*0.25) + 'px)');
                     $('.work--pane').css('opacity', (scrollPane/pieAxisScroll*100)/10 );
                     $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + (scrollPane/pieAxisScroll)*100 + ')');
                 }
             } else {
                 $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, 0)');
             }
-            //this.console.log(scrolling,pieAxisScroll,axisScroll);
+            if (scrolling > lastScrollPane) {
+                $('.work--pane').css('transform', 'translateY(196px)');
+                $('.work--pane').css('opacity', 1 );
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, 3.1)');
+            }
+            if ( (scrollPane/pieAxisScroll*100)/100 > 0.25 && scrolling < last2ScrollPane ){
+                $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
+                $('.work--pane').css('opacity', (pieAxisScroll/scrollPane*100)/100 );
+            }
+            if ( (scrollPane/pieAxisScroll*100)/100 > 0.25 && scrolling < last3ScrollPane ){
+                $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
+                $('.work--pane').css('opacity', (pieAxisScroll/scrollPane*100)/100 );
+            }
         }
         return true;
      });

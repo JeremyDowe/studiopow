@@ -36,6 +36,7 @@
     top: 150px;
     opacity: 0;
     transform: translateY(0px);
+    transition: all .3s ease-in-out;
 }
 
 .page--work .work--letts {
