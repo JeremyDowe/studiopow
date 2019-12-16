@@ -149,12 +149,7 @@ $(function () {
   }
 
   $('#logo').addClass('invert');
-  $('nav ul li').addClass('invert'); // Window scroll
-
-  var lastScroll = 0;
-  var lastScrollPane = $('.pane--letts').position().top;
-  var last2ScrollPane = $('.pane--moody').position().top;
-  var last3ScrollPane = $('.pane--atar').position().top;
+  $('nav ul li').addClass('invert');
   $(window).scroll(function () {
     // Declare vars
     var offset = 100;
@@ -236,7 +231,10 @@ $(function () {
     if ($('.pane').height() !== this.undefined) {
       $('.pane').each(function () {
         $(this).css('height', $(window).height());
-      }); // work section scroll
+      });
+      var lastScrollPane = $('.pane--letts').position().top;
+      var last2ScrollPane = $('.pane--moody').position().top;
+      var last3ScrollPane = $('.pane--atar').position().top; // work section scroll
 
       var scrollPane = scrolling * 0.00035; //this.console.log(scrollPiece);
 

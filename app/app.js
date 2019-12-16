@@ -32,11 +32,7 @@ $(function(){
     }
     $('#logo').addClass('invert');
     $('nav ul li').addClass('invert');
-    // Window scroll
-    var lastScroll = 0;
-    var lastScrollPane = $('.pane--letts').position().top;
-    var last2ScrollPane = $('.pane--moody').position().top;
-    var last3ScrollPane = $('.pane--atar').position().top;
+
     $(window).scroll(function() {
         // Declare vars
         const offset = 100;
@@ -129,6 +125,9 @@ $(function(){
             $('.pane').each(function(){
                 $(this).css('height', $(window).height());
             });
+            var lastScrollPane = $('.pane--letts').position().top;
+            var last2ScrollPane = $('.pane--moody').position().top;
+            var last3ScrollPane = $('.pane--atar').position().top;
             // work section scroll
             const scrollPane = scrolling * 0.00035;
             //this.console.log(scrollPiece);
