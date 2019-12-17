@@ -130,7 +130,8 @@ $(function(){
             var last3ScrollPane = $('.pane--atar').position().top;
             // work section scroll
             const scrollPane = scrolling * 0.00035;
-            //this.console.log(scrollPiece);
+            const formulaA = (scrollPane/pieAxisScroll*100)/100;
+            const formulaB = (pieAxisScroll/scrollPane*100)/100;
             if (scrolling < lastScrollPane === true) {
                 if ( (scrollPane/pieAxisScroll*100)/100 < 0.25 ) {
                     $('.work--pane').css('transform', 'translateY(' + this.Math.sqrt(paddingScroll*0.25) + 'px)');
@@ -145,13 +146,15 @@ $(function(){
                 $('.work--pane').css('opacity', 1 );
                 $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, 3.1)');
             }
-            if ( (scrollPane/pieAxisScroll*100)/100 > 0.25 && scrolling < last2ScrollPane ){
+            if ( formulaA > 0.5 && scrolling < last2ScrollPane ){
                 $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
-                $('.work--pane').css('opacity', (pieAxisScroll/scrollPane*100)/100 );
+                $('.work--pane').css('opacity', formulaB );
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
             }
-            if ( (scrollPane/pieAxisScroll*100)/100 > 0.25 && scrolling < last3ScrollPane ){
+            if ( formulaA > 0.5 && scrolling < last3ScrollPane ){
                 $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
-                $('.work--pane').css('opacity', (pieAxisScroll/scrollPane*100)/100 );
+                $('.work--pane').css('opacity', formulaB );
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
             }
         }
         return true;

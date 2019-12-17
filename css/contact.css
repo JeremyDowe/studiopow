@@ -48,3 +48,42 @@ body.contact #logo.normal {
 .page__contact .right table td a:hover {
     color: rgba(226,226,226,1);
 }
+
+@media only screen 
+  and (min-width: 375px) 
+  and (max-width: 640px)
+  and (orientation: portrait) {
+    body.contact header {
+        position: relative;
+    }
+    body.contact main {
+        position: absolute;
+        top: 200px;
+        left: 0px;
+    }
+    header #logo {
+        padding-left: 1rem;
+        padding-top: 0.6rem;
+        transform: translateY(-15px);
+    }
+    body.contact header #logo.invert {
+        color: rgb(255,255,255);
+    }
+    header #logo .desktop {
+        display: none;
+    }
+    header nav {
+        padding-right: 0.5rem;
+    }
+    header ul li a {
+        font-size: 0.6rem;
+        padding: 0 0.05rem;
+    }
+    .page__contact .left {
+        display: none;
+    }
+    .page__contact .right {
+        padding: 0 10px 0 40px;
+        grid-area: 1 / 1 / 2 / 3;
+    }
+}

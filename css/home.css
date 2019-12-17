@@ -1,3 +1,6 @@
+.home main {
+    padding-bottom: 8rem;
+}
 .page__part__one {
     display: grid;
     width: -webkit-fill-available;
@@ -25,7 +28,8 @@
 }
 .page__part__three {
     width: -webkit-fill-available;
-    height: 125vh;
+    height: 100%;
+    padding-bottom: 8rem;
 }
 /* Page One Styles */
 .page__part__one {
@@ -410,8 +414,10 @@ aside.right {
   and (min-width: 375px) 
   and (max-width: 640px)
   and (orientation: portrait) {
+    .home main { padding-bottom: 0; }
     header #logo {
-        padding-left: 1.5rem;
+        padding-left: 1rem;
+        padding-top: 0.6rem;
         transform: translateY(-15px);
     }
     header #logo .desktop {
@@ -473,8 +479,9 @@ aside.right {
     }
     .page__part__one .middle .center div.border {
         transform: translate(100, 20);
-        margin-bottom: 10px;
+        margin-bottom: 40px;
         margin-top: 25px;
+        height: 2px;
     }
     .page__part__one .left {
         grid-area: 'left';
@@ -494,7 +501,11 @@ aside.right {
     .scrollD__text {
         display: none;
     }
-    .page__part__two .middle {
-        height: 150%;
-    }   
+    .page__part__two {
+        height: 100%;
+        padding: 10vh 0;
+    }
+    .end__process, .circle__process {
+        display: none;
+    }
 }
