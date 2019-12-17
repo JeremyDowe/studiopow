@@ -1,7 +1,7 @@
 .page--work {
     padding-top: 8.5rem;
     padding-bottom: 8.5rem;
-    background: rgb(36,36,36);
+    background: rgb(200,200,200);
     overflow-x: hidden;
 }
 
@@ -12,11 +12,11 @@
 }
 
 .page--work h2.work--title {
-    font-family: 'WhyteTrail-Medium', 'Work Sans', sans-serif;
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     font-size: 8.5vw;
     padding: 4.5rem 0;
     letter-spacing: -0.12rem;
-    color: rgb(255,255,255);
+    color: rgb(63,63,63);
     position: absolute;
     z-index: 1;
     top: 200px;
@@ -30,7 +30,7 @@
 .page--work .work--pane {
     height: 475px;
     width: 720px;
-    background-color: rgb(55,55,55);
+    background-color: rgb(100,100,100);
     position: absolute;
     right: 100px;
     top: 150px;
@@ -39,20 +39,26 @@
     transition: all .3s ease-in-out;
 }
 
-.page--work .work--letts {
+.w--pane--letts {
     background: url('../assets/img/work_pane_letts.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
+    width: 100%;
+    height: 100%;
 }
 
-.page--work .work--moody {
+.w--pane--moody {
     background: url('../assets/img/work_pane_moody.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
+    width: 100%;
+    height: 100%;    
 }
 
-.page--work .work--atar {
+.w--pane--atar {
     background: url('../assets/img/work_pane_atar.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
+    width: 100%;
+    height: 100%;    
 }

@@ -129,7 +129,7 @@ $(function(){
             var last2ScrollPane = $('.pane--moody').position().top;
             var last3ScrollPane = $('.pane--atar').position().top;
             // work section scroll
-            const scrollPane = scrolling * 0.00035;
+            const scrollPane = (scrolling/windowHeight);
             const formulaA = (scrollPane/pieAxisScroll*100)/100;
             const formulaB = (pieAxisScroll/scrollPane*100)/100;
             if (scrolling < lastScrollPane === true) {
@@ -145,16 +145,38 @@ $(function(){
                 $('.work--pane').css('transform', 'translateY(196px)');
                 $('.work--pane').css('opacity', 1 );
                 $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, 3.1)');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--letts',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
             }
             if ( formulaA > 0.5 && scrolling < last2ScrollPane ){
                 $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
-                $('.work--pane').css('opacity', formulaB );
                 $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--moody',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
             }
             if ( formulaA > 0.5 && scrolling < last3ScrollPane ){
                 $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
-                $('.work--pane').css('opacity', formulaB );
                 $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--atar',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
             }
         }
         return true;
