@@ -28,8 +28,8 @@
 }
 
 .page--work .work--pane {
-    height: 500px;
-    width: 50vw;
+    height: 475px;
+    width: 720px;
     background-color: rgb(55,55,55);
     position: absolute;
     right: 100px;
@@ -40,19 +40,19 @@
 }
 
 .page--work .work--letts {
-    background: url('/work_piece_letts.009f2947.jpg') center center no-repeat;
+    background: url('/work_pane_letts.51668211.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
 }
 
 .page--work .work--moody {
-    background: url('/work_piece_moody.758fa482.jpg') center center no-repeat;
+    background: url('/work_pane_moody.875499a3.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
 }
 
 .page--work .work--atar {
-    background: url('/work_piece_atar.55b06923.jpg') center center no-repeat;
+    background: url('/work_pane_atar.604947fa.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
 }

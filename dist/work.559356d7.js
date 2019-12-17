@@ -189,7 +189,7 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./../assets/img/work_piece_letts.jpg":[["work_piece_letts.009f2947.jpg","assets/img/work_piece_letts.jpg"],"assets/img/work_piece_letts.jpg"],"./../assets/img/work_piece_moody.jpg":[["work_piece_moody.758fa482.jpg","assets/img/work_piece_moody.jpg"],"assets/img/work_piece_moody.jpg"],"./../assets/img/work_piece_atar.jpg":[["work_piece_atar.55b06923.jpg","assets/img/work_piece_atar.jpg"],"assets/img/work_piece_atar.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./../assets/img/work_pane_letts.jpg":[["work_pane_letts.51668211.jpg","assets/img/work_pane_letts.jpg"],"assets/img/work_pane_letts.jpg"],"./../assets/img/work_pane_moody.jpg":[["work_pane_moody.875499a3.jpg","assets/img/work_pane_moody.jpg"],"assets/img/work_pane_moody.jpg"],"./../assets/img/work_pane_atar.jpg":[["work_pane_atar.604947fa.jpg","assets/img/work_pane_atar.jpg"],"assets/img/work_pane_atar.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
