@@ -25,6 +25,7 @@
 .page--work h2.work--title > a {
     text-decoration: none;
     color: rgb(255,255,255);
+    text-shadow: 0 0 6px rgb(36,36,36,0.2);
 }
 
 .page--work .work--pane {
@@ -61,4 +62,46 @@
     opacity: 0;
     width: 100%;
     height: 100%;    
+}
+
+/* Work Backgrounds */
+
+
+body.work--consultant .page__part__one {
+    background-color: rgba(36,36,36,1);
+}
+body.work--consultant .background__wrapper {
+    background-image: url('../assets/img/work-consultant.jpg');
+    background-blend-mode: normal;
+}
+body.work--consultant .page__part__one .fixed {
+    background-image: url('../assets/img/letts-fixed-asset.png');
+    background-position: 155px 60px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    width: 750px;
+    height: 100vh;
+    z-index: 1;
+}
+body.work--artist .page__part__one {
+    background-color: rgba(36,36,36,1);
+}
+body.work--artist .background__wrapper {
+    background-image: url('../assets/img/work-artist.jpg');
+    background-blend-mode: normal;
+}
+body.work--artist .page__part__one .fixed {
+    background-image: url('../assets/img/moody-fixed-asset.png');
+    background-position: 205px 60px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    width: 750px;
+    height: 100vh;
+    z-index: 1;
+}
+body.work--university .background__wrapper {
+    background-image: url('../assets/img/nastuh-abootalebi-yWwob8kwOCk-unsplash.jpg');
 }

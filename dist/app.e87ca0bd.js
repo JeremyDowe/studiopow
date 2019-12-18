@@ -162,14 +162,14 @@ $(function () {
 
     var paddingScroll = height / 3 * scrolling;
     var pieAxisScroll = windowHeight / (this.Math.PI * scrolling);
-    var opacityScroll = windowHeight / (this.Math.PI * scrolling); // scrolling behaviour logo / menu
+    var opacityScroll = windowHeight / this.Math.log(this.Math.PI * scrolling); // scrolling behaviour logo / menu
 
     $('#logo').addClass('normal');
     $('nav ul li').addClass('normal');
 
     if ($('.page__part__one').height() !== this.undefined) {
       var scrollPart2 = $('.page__part__two').position().top;
-      var scrollPart3 = $('.page__part__two').position().top;
+      var scrollPart3 = $('.page__part__three').position().top;
 
       if (scrolling > offset && scrolling > scrollPart2 - offset && scrolling < scrollPart3 - offset) {
         $('#logo').addClass('normal');
@@ -187,12 +187,10 @@ $(function () {
       if (scrolling > offset && scrolling < scrollPart2 + offset) {
         $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.2) + 'px)');
 
-        if (scrolling > scrollPart2 && scrolling < scrollPart2 + offset) {
-          $('.page__part__one').css('opacity', '0');
+        if (scrolling > windowHeight - offset) {
           $('.center').css('opacity', '0');
         } else {
-          $('.page__part__one').css('opacity', opacityScroll);
-          $('.center').css('opacity', opacityScroll);
+          $('.center').css('opacity', '1');
         }
 
         $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
@@ -316,7 +314,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58510" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54555" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

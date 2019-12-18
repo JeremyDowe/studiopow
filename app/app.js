@@ -46,13 +46,13 @@ $(function(){
         // Math recipes
         const paddingScroll = (height / 3) * scrolling;
         const pieAxisScroll = windowHeight/(this.Math.PI*scrolling);
-        const opacityScroll = windowHeight/(this.Math.PI*scrolling);
+        const opacityScroll = windowHeight/this.Math.log(this.Math.PI*scrolling);
         // scrolling behaviour logo / menu
         $('#logo').addClass('normal');
         $('nav ul li').addClass('normal');    
         if ( $('.page__part__one').height() !== this.undefined ) {
-            const scrollPart2 = $('.page__part__two').position().top;   
-            const scrollPart3 = $('.page__part__two').position().top;
+            const scrollPart2 = $('.page__part__two').position().top;
+            const scrollPart3 = $('.page__part__three').position().top;
             if (
                 (scrolling > offset && scrolling > scrollPart2 - offset) && 
                 (scrolling < scrollPart3 - offset)
@@ -73,12 +73,10 @@ $(function(){
                 (scrolling < scrollPart2 + offset)
             ){
                 $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.2) + 'px)');
-                if (scrolling > scrollPart2 && scrolling < scrollPart2 + offset){
-                    $('.page__part__one').css('opacity', '0' );
+                if (scrolling > windowHeight - offset){
                     $('.center').css('opacity', '0' );
                 } else {
-                    $('.page__part__one').css('opacity', opacityScroll );
-                    $('.center').css('opacity', opacityScroll );
+                    $('.center').css('opacity', '1' );
                 }
                 $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
             }

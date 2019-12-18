@@ -25,6 +25,7 @@
 .page--work h2.work--title > a {
     text-decoration: none;
     color: rgb(255,255,255);
+    text-shadow: 0 0 6px rgb(36,36,36,0.2);
 }
 
 .page--work .work--pane {
@@ -63,5 +64,46 @@
     height: 100%;    
 }
 
+/* Work Backgrounds */
+
+
+body.work--consultant .page__part__one {
+    background-color: rgba(36,36,36,1);
+}
+body.work--consultant .background__wrapper {
+    background-image: url('/work-consultant.874b59cf.jpg');
+    background-blend-mode: normal;
+}
+body.work--consultant .page__part__one .fixed {
+    background-image: url('/letts-fixed-asset.d9d2632f.png');
+    background-position: 155px 60px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    width: 750px;
+    height: 100vh;
+    z-index: 1;
+}
+body.work--artist .page__part__one {
+    background-color: rgba(36,36,36,1);
+}
+body.work--artist .background__wrapper {
+    background-image: url('/work-artist.f57aba5a.jpg');
+    background-blend-mode: normal;
+}
+body.work--artist .page__part__one .fixed {
+    background-image: url('/moody-fixed-asset.3c096d9c.png');
+    background-position: 205px 60px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    width: 750px;
+    height: 100vh;
+    z-index: 1;
+}
+body.work--university .background__wrapper {
+    background-image: url('/nastuh-abootalebi-yWwob8kwOCk-unsplash.eabcefab.jpg');
+}
 
 /*# sourceMappingURL=/work.559356d7.css.map */

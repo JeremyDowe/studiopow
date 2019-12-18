@@ -66,16 +66,6 @@
     width: 100%;
     height: 100%;
 }
-/* work backgrounds */
-body.work--letts .background__wrapper {
-    background-image: url('../assets/img/alexander-ruiz-sHAucwW08Fk-unsplash.jpg');
-}
-body.work--moody .background__wrapper {
-    background-image: url('../assets/img/trevor-brown-ifgisB1W8w8-unsplash.jpg');
-}
-body.work--deakin .background__wrapper {
-    background-image: url('../assets/img/nastuh-abootalebi-yWwob8kwOCk-unsplash.jpg');
-}
 .scroll__down {
     position: absolute;
     right: auto;
@@ -160,6 +150,7 @@ body.work--deakin .background__wrapper {
     position: relative;
     transform: translateY(163px);
     z-index: 5;
+    transition: opacity 0.4s ease;
 }
 .page__part__one .left {
     width: 100%;
@@ -318,20 +309,20 @@ aside.right {
     opacity: 1;
 }
 .works__grid .work_01 .display__bg {
-    background: url('../assets/img/work_display_01.jpg') 0 0 no-repeat;
-    background-size: contain;
+    background: url('../assets/img/work-artist.jpg') 0 0 no-repeat;
+    background-size: cover;
     width: 100%;
     height: 100%;
 }
 .works__grid .work_02 .display__bg {
-    background: url('../assets/img/work_display_02.jpg') 0 0 no-repeat;
-    background-size: contain;
+    background: url('../assets/img/work-consultant.jpg') 0 0 no-repeat;
+    background-size: cover;
     width: 100%;
     height: 100%;    
 }
 .works__grid .work_03 .display__bg {
-    background: url('../assets/img/work_display_03.jpg') 0 0 no-repeat;
-    background-size: contain;
+    background: url('../assets/img/work_pane_atar.jpg') 0 0 no-repeat;
+    background-size: cover;
     width: 100%;
     height: 100%;    
 }
