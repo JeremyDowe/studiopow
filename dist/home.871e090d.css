@@ -53,7 +53,7 @@
 }
 .background__wrapper {
     background-color: rgb(36,36,36);
-    background-image: url('../assets/img/image_processing20191209-7997-1e922qe.jpg');
+    background-image: url('/image_processing20191209-7997-1e922qe.b8da16ed.jpg');
     background-blend-mode: screen;
     background-position-x: center;
     background-position-y: 50%;
@@ -88,7 +88,7 @@
     display: -webkit-inline-flex;
     position: absolute;
     bottom: -25px;
-    background: url('../assets/svg/scroll__arrow.svg') center center no-repeat;
+    background: url('/scroll__arrow.cccfdb2f.svg') center center no-repeat;
 }
 .scrollD__text {
     transform: rotate(-90deg);
@@ -193,7 +193,7 @@ aside.right {
     height: 100%;
     display: flex;
     vertical-align: middle;
-    background: url('../assets/svg/end_solution.svg') right center no-repeat;
+    background: url('/end_solution.c28f192a.svg') right center no-repeat;
     background-size: contain;
 }
 .circle__process {
@@ -201,7 +201,7 @@ aside.right {
     height: 100%;
     display: flex;
     vertical-align: middle;
-    background: url('../assets/svg/circle_solutions.svg') center center no-repeat;
+    background: url('/circle_solutions.a75f58cd.svg') center center no-repeat;
     background-size: 60%;
 }
 
@@ -309,19 +309,19 @@ aside.right {
     opacity: 1;
 }
 .works__grid .work_01 .display__bg {
-    background: url('../assets/img/work-artist.jpg') 0 0 no-repeat;
+    background: url('/work-artist.f57aba5a.jpg') 0 0 no-repeat;
     background-size: cover;
     width: 100%;
     height: 100%;
 }
 .works__grid .work_02 .display__bg {
-    background: url('../assets/img/work-consultant.jpg') 0 0 no-repeat;
+    background: url('/work-consultant.874b59cf.jpg') 0 0 no-repeat;
     background-size: cover;
     width: 100%;
     height: 100%;    
 }
 .works__grid .work_03 .display__bg {
-    background: url('../assets/img/work_pane_atar.jpg') 0 0 no-repeat;
+    background: url('/work_pane_atar.604947fa.jpg') 0 0 no-repeat;
     background-size: cover;
     width: 100%;
     height: 100%;    
@@ -514,7 +514,9 @@ aside.right {
         height: 100%;
         display: flex;
         vertical-align: middle;
-        background: url('../assets/svg/circle_solutions_side.svg') center center no-repeat;
+        background: url('/circle_solutions_side.f3838afa.svg') center center no-repeat;
         background-size: 80%;
     }
 }
+
+/*# sourceMappingURL=/home.871e090d.css.map */

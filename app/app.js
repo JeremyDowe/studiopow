@@ -46,7 +46,6 @@ $(function(){
         // Math recipes
         const paddingScroll = (height / 3) * scrolling;
         const pieAxisScroll = windowHeight/(this.Math.PI*scrolling);
-        const opacityScroll = windowHeight/this.Math.log(this.Math.PI*scrolling);
         // scrolling behaviour logo / menu
         $('#logo').addClass('normal');
         $('nav ul li').addClass('normal');    
@@ -158,11 +157,26 @@ $(function(){
                         duration: 1.5,
                         delay: 1.8
                     });
-                /* Logo & Nav Update */    
-                $('#logo').removeClass('normal');
-                $('nav ul li').removeClass('normal');     
-                $('#logo').addClass('invert');
-                $('nav ul li').addClass('invert');
+                /* Logo & Nav Normal */
+                if (scrolling > offset) {
+                    /* Logo & Nav Update */    
+                    if (scrolling > ($('footer').position().top - (offset*4))){
+                        $('#logo').removeClass('invert');
+                        $('nav ul li').removeClass('invert');     
+                        $('#logo').addClass('normal');
+                        $('nav ul li').addClass('normal'); 
+                    } else {
+                        $('#logo').removeClass('normal');
+                        $('nav ul li').removeClass('normal');     
+                        $('#logo').addClass('invert');
+                        $('nav ul li').addClass('invert');
+                    }
+                } else {
+                    $('#logo').removeClass('invert');
+                    $('nav ul li').removeClass('invert');     
+                    $('#logo').addClass('normal');
+                    $('nav ul li').addClass('normal');
+                }
             }
             if ( formulaA > 0.5 && scrolling < last2ScrollPane ){
                 $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
