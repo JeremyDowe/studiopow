@@ -65,7 +65,7 @@ body.work header ul li.normal a span.line {
 }
 
 .w--pane--letts {
-    background: url('../assets/img/work_piece_letts.jpg') center center no-repeat;
+    background: url('../assets/img/work-consultant.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
     width: 100%;
@@ -94,7 +94,7 @@ body.work--consultant .page__part__one {
     background-color: rgba(36,36,36,1);
 }
 body.work--consultant .background__wrapper {
-    background-image: url('../assets/img/work_piece_letts.jpg');
+    background-image: url('../assets/img/work-consultant.jpg');
     background-blend-mode: normal;
 }
 body.work--artist .page__part__one {
@@ -113,6 +113,18 @@ body.work--university .page__part__one .background__wrapper {
 }
 
 /* Work Innerpage Typography */
+
+.page__part__one .middle h1 {
+    font-size: 5.5rem;
+}
+
+.page__part__one .middle h2 {
+    font-size: 5.5rem;
+}
+
+.page__part__one .middle h4 {
+    font-size: 1.8rem;
+}
 
 .page__part__two h3 {
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
