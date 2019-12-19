@@ -258,6 +258,17 @@ $(function () {
           duration: 2,
           delay: 1.2
         });
+        gsap.to('.work--pane--cover', {
+          opacity: 0.5,
+          duration: 1.5,
+          delay: 1.8
+        });
+        /* Logo & Nav Update */
+
+        $('#logo').removeClass('normal');
+        $('nav ul li').removeClass('normal');
+        $('#logo').addClass('invert');
+        $('nav ul li').addClass('invert');
       }
 
       if (formulaA > 0.5 && scrolling < last2ScrollPane) {
