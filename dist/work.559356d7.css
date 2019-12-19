@@ -133,7 +133,18 @@ body.work--university .page__part__one .background__wrapper {
     line-height: 100%;
     font-size: 17px;
     margin: 1rem 0 1rem 15px;
-    padding: 0 30vw 0 30vw;
+    padding: 0 30vw 0 20vw;
+    height: 1rem;
+}
+
+.page__part__five h3 {
+    font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
+    text-transform: uppercase;
+    color: #969696;
+    line-height: 100%;
+    font-size: 17px;
+    margin: 1rem 0 1rem 15px;
+    padding: 0 30vw 0 20vw;
     height: 1rem;
 }
 
@@ -143,7 +154,7 @@ body.work--university .page__part__one .background__wrapper {
     color: #f2f2f2;
     line-height: 100%;
     font-size: 17px;
-    margin: 10rem 0 1rem 15px;
+    margin: 1rem 0 1rem 15px;
     padding: 0 30vw 0 20vw;
     height: 1rem;
 }
@@ -152,15 +163,15 @@ body.work--university .page__part__one .background__wrapper {
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
     text-transform: uppercase;
     color: #969696;
-    margin: 2rem 0 1rem 15px;
-    padding: 0 30vw 0 30vw;
+    margin: 2rem 0 0rem 15px;
+    padding: 0 30vw 0 20vw;
     font-size: 14px;
 }
 
 .page__part__two p {
     font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     margin: 0 15px 0 15px;
-    padding: 0 30vw 0 30vw;
+    padding: 0 30vw 0 20vw;
     line-height: 150%;
     font-size: 150%;
     letter-spacing: -0.02vw;
@@ -175,14 +186,55 @@ body.work--university .page__part__one .background__wrapper {
     letter-spacing: -0.02vw;
 }
 
+.page__part__five p {
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
+    margin: 0 15px 0 15px;
+    padding: 0 30vw 0 20vw;
+    line-height: 150%;
+    font-size: 150%;
+    letter-spacing: -0.02vw;
+}
+
 .page__part__two .project__details p {
     font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     color: rgb(36,36,36);
     margin: 2.3rem 15px;
-    padding: 0 30vw 0 30vw;
+    padding: 0 30vw 0 20vw;
     line-height: 150%;
     font-size: 13px;
+    width: 300px;
     letter-spacing: -0.02vw;
+}
+
+/* Page Parts */
+
+.page__part__two,
+.page__part__three,
+.page__part__four,
+.page__part__five {
+    display: grid;
+    width: -webkit-fill-available;
+    height: fit-content;
+    padding: 10rem 0;
+}
+.page__part__four {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 30px;
+    height: 120vh;
+    padding: 0;
+}
+
+.page__part__four .work__left {
+    background-color: rgb(223,223,223);
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.page__part__four .work__right {
+    background-color: rgb(233,233,233);
+    grid-area: 1 / 2 / 2 / 3;
 }
 
 /*# sourceMappingURL=/work.559356d7.css.map */
