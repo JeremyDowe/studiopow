@@ -89,19 +89,21 @@ $(function(){
                 (scrolling > scrollPart2 - offset)
             )
             {
-                // animate in gsap
-                gsap.to(
-                '.process-tween',
-                { 
-                    y: "-100px",
-                    duration: 1,
-                    opacity: 1,
-                    stagger: {
-                        amount: 1,
-                        from: "screenLeft",
-                        grid: "auto"
-                    }
-                });
+                if ($('.process-tween').height() !== this.undefined) {
+                    // animate in gsap
+                    gsap.to(
+                    '.process-tween',
+                    { 
+                        y: "-100px",
+                        duration: 1,
+                        opacity: 1,
+                        stagger: {
+                            amount: 1,
+                            from: "screenLeft",
+                            grid: "auto"
+                        }
+                    });
+                }
             }
             // scrolling to work section
             if (
@@ -109,13 +111,15 @@ $(function(){
                 (scrolling > scrollPart3 - offset)
             )
             {
-                // animate in gsap
-                gsap.to(
-                '.display__bg',
-                { 
-                    scale: 1.3, 
-                    duration: 1
-                });
+                if ($('.display__bg').height() !== this.undefined) {
+                    // animate in gsap
+                    gsap.to(
+                    '.display__bg',
+                    { 
+                        scale: 1.3, 
+                        duration: 1
+                    });
+                }
             }
         }
         if ($('.pane').height() !== this.undefined){
