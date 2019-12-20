@@ -137,7 +137,7 @@ body.work--university .page__part__one .background__wrapper {
     height: 1rem;
 }
 
-.page__part__five h3 {
+.page__part__six h3 {
     font-family: 'WhyteTrail-Book', 'Work Sans', sans-serif;
     text-transform: uppercase;
     color: #969696;
@@ -186,7 +186,7 @@ body.work--university .page__part__one .background__wrapper {
     letter-spacing: -0.02vw;
 }
 
-.page__part__five p {
+.page__part__six p {
     font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     margin: 0 15px 0 15px;
     padding: 0 30vw 0 20vw;
@@ -211,7 +211,8 @@ body.work--university .page__part__one .background__wrapper {
 .page__part__two,
 .page__part__three,
 .page__part__four,
-.page__part__five {
+.page__part__five,
+.page__part__six {
     display: grid;
     width: -webkit-fill-available;
     height: fit-content;
@@ -228,11 +229,36 @@ body.work--university .page__part__one .background__wrapper {
 }
 
 .page__part__four .work__left {
-    background-color: rgb(223,223,223);
+    background-color: rgb(53,53,53);
     grid-area: 1 / 1 / 2 / 2;
+}
+
+body.work--consultant .page__part__four .work__left .mobile__view__1 {
+    width: 100%;
+    height: 100%;
+    background: url('../assets/img/letts-fixed-asset-1.png') center center no-repeat;
+    background-size: contain;
 }
 
 .page__part__four .work__right {
     background-color: rgb(233,233,233);
     grid-area: 1 / 2 / 2 / 3;
+}
+
+.page__part__five {
+    padding: 0;
+}
+
+body.work--consultant .page__part__four .work__right .mobile__view__2 {
+    width: 100%;
+    height: 100%;
+    background: url('../assets/img/letts-fixed-asset-2.png') center center no-repeat;
+    background-size: contain;
+}
+
+body.work--consultant .page__part__five .desktop__view__1 {
+    width: 100vw;
+    height: 110vh;
+    background: url('../assets/img/letts-fixed-asset-3.jpg') center top no-repeat;
+    background-size: cover;    
 }
