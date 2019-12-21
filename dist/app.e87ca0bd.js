@@ -127,14 +127,8 @@ $(function () {
 
   if ($('.tween').height() !== this.undefined) {
     gsap.to('.tween', {
-      x: "+=100px",
       duration: 1,
-      opacity: 1,
-      stagger: {
-        amount: 1,
-        from: "screenLeft",
-        grid: "auto"
-      }
+      opacity: 1
     });
     gsap.to('.background__wrapper', {
       scale: "1.2",
@@ -184,7 +178,7 @@ $(function () {
 
 
       if (scrolling > offset && scrolling < scrollPart2 + offset) {
-        $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.2) + 'px)');
+        $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.115) + 'px)');
 
         if (scrolling > windowHeight - offset) {
           $('.center').css('opacity', '0');
@@ -198,6 +192,9 @@ $(function () {
       if (scrolling < offset) {
         $('.page__part__one').css('opacity', '1');
         $('.center').css('opacity', '1');
+        $('aside.right').css('opacity', '1');
+      } else {
+        $('aside.right').css('opacity', '0');
       } // scrolling to work section
 
 
@@ -343,7 +340,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50672" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64816" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

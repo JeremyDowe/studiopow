@@ -68,7 +68,7 @@
 }
 .scroll__down {
     position: absolute;
-    right: auto;
+    right: 60px;
     bottom: 120px;
     height: auto;
     font-size: 16px;
@@ -106,7 +106,7 @@
     font-weight: 500;
     padding: 20px 50px 30px 50px;
     margin: 0;
-    transform: translate(-100px, 0px);
+    /*transform: translate(-100px, 0px);*/
     top: 0;
     display: block;
     user-select: none;
@@ -116,7 +116,7 @@
     height: 6px;
     background-color: white;
     display: inline-block;
-    transform: translate(-100px, 10px);
+    transform: translate(0, 10px);
     margin-bottom: 30px;
 }
 .page__part__one .middle h2 {
@@ -127,7 +127,7 @@
     font-weight: 500;
     padding: 0px;
     margin: 0;
-    transform: translate(-100px, 0px);
+    /*transform: translate(-100px, 0px);*/
     top: 0;
     display: block;
     user-select: none;
@@ -140,7 +140,7 @@
     font-weight: 400;
     padding: 30px 0 0 0;
     margin: 0;
-    transform: translate(-100px, 20px);
+    transform: translate(0px, 20px);
     top: 0;
     display: block;
     user-select: none;
@@ -160,9 +160,10 @@ aside.right {
     z-index: 1;
     width: 100%;
     opacity: 0;
-    transform: translate(-110px, 0px);
+    transform: translate(-20px, 0px);
     position: relative;
     overflow: hidden;
+    transition: all .3s ease-in-out;
 }
 /* Page Two Styles */
 .page__part__two .middle .header,
@@ -429,6 +430,8 @@ aside.right {
     }
     .page__part__three {
         height: auto;
+        padding: 0;
+        margin: 0;
         padding-bottom: 8rem;
     }
     .page__part__three .works__grid {
@@ -440,15 +443,29 @@ aside.right {
         'e';
         width: 100%;
     }
+    .page__part__three .works__grid .work__template {
+        height: 100%;
+        vertical-align: top;
+    }
+
+    .page__part__three .works__grid .work__template:nth-child(4) {
+        height: 660px;
+    } 
+
     .page__part__three h4 {
-        left: 25px;
+        left: 27px;
+        bottom: 0;
+        margin: 0;
+        border-collapse: collapse;
+        height: 33px;
+        line-height: 100%;
     }
     .page__part__three .work__template {
         transform: translate();
         width: 320px;
         margin: 0 auto;
     }
-    .page__part__three .works__grid .grid_gap { display: none; }
+    .page__part__three .works__grid .grid_gap { display: none; height: 0; margin: 0; }
     .page__part__three .works__grid .display {
         margin: 0 auto;
         width: -webkit-fill-available;
@@ -461,7 +478,7 @@ aside.right {
     }
     .page__part__one .middle .center {
         transform: translateY(242.029px);
-        margin-top: -10rem;
+        margin-top: -15rem;
     }
     .page__part__one .middle .center h1,
     .page__part__one .middle .center h2 {
@@ -486,14 +503,15 @@ aside.right {
         width: auto;
     }
     .scroll__down {
-        bottom: 50px;
+        right: auto;
+        bottom: 110px;
         margin-left: -10px;
     }
     .scrollD__text {
         display: none;
     }
     .page__part__two {
-        height: 100%;
+        height: auto;
     }
     .page__part__two .middle__header,
     .page__part__two .middle__footer,
