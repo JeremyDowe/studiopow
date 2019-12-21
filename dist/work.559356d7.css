@@ -92,23 +92,29 @@ body.work header ul li.normal a span.line {
 
 body.work--consultant .page__part__one {
     background-color: rgba(36,36,36,1);
+    height: 65vh;
 }
 body.work--consultant .background__wrapper {
     background-image: url('/work-consultant.874b59cf.jpg');
+    background-position: left top;
     background-blend-mode: normal;
 }
 body.work--artist .page__part__one {
     background-color: rgba(36,36,36,1);
+    height: 65vh;
 }
 body.work--artist .background__wrapper {
     background-image: url('/work-artist.f57aba5a.jpg');
+    background-position: left top;
     background-blend-mode: normal;
 }
 body.work--university .page__part__one {
     background-color: rgba(36,36,36,1);
+    height: 65vh;
 }
 body.work--university .page__part__one .background__wrapper {
     background-image: url('/work_pane_atar.604947fa.jpg');
+    background-position: left top;
     background-blend-mode: normal;
 }
 
@@ -240,6 +246,13 @@ body.work--consultant .page__part__four .work__left .mobile__view__1 {
     background-size: contain;
 }
 
+body.work--artist .page__part__four .work__left .mobile__view__1 {
+    width: 100%;
+    height: 100%;
+    background: url('/artist-fixed-asset-1.5a1777bb.png') center center no-repeat;
+    background-size: contain;
+}
+
 .page__part__four .work__right {
     background-color: rgb(233,233,233);
     grid-area: 1 / 2 / 2 / 3;
@@ -247,6 +260,20 @@ body.work--consultant .page__part__four .work__left .mobile__view__1 {
 
 .page__part__five {
     padding: 0;
+}
+
+body.work--consultant .page__part__four .work__right .mobile__view__2 {
+    width: 100%;
+    height: 100%;
+    background: url('/letts-fixed-asset-2.d4fdd6cf.png') center center no-repeat;
+    background-size: cover;
+}
+
+body.work--artist .page__part__four .work__right .mobile__view__2 {
+    width: 100%;
+    height: 100%;
+    background: url('/work-artist.f57aba5a.jpg') center center no-repeat;
+    background-size: cover;
 }
 
 body.work--consultant .page__part__four .work__right .mobile__view__2 {

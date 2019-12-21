@@ -189,7 +189,7 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./../assets/img/work-consultant.jpg":[["work-consultant.874b59cf.jpg","assets/img/work-consultant.jpg"],"assets/img/work-consultant.jpg"],"./../assets/img/work_pane_moody.jpg":[["work_pane_moody.875499a3.jpg","assets/img/work_pane_moody.jpg"],"assets/img/work_pane_moody.jpg"],"./../assets/img/work_pane_atar.jpg":[["work_pane_atar.604947fa.jpg","assets/img/work_pane_atar.jpg"],"assets/img/work_pane_atar.jpg"],"./../assets/img/work-artist.jpg":[["work-artist.f57aba5a.jpg","assets/img/work-artist.jpg"],"assets/img/work-artist.jpg"],"./../assets/img/letts-fixed-asset-1.png":[["letts-fixed-asset-1.9239958c.png","assets/img/letts-fixed-asset-1.png"],"assets/img/letts-fixed-asset-1.png"],"./../assets/img/letts-fixed-asset-2.png":[["letts-fixed-asset-2.d4fdd6cf.png","assets/img/letts-fixed-asset-2.png"],"assets/img/letts-fixed-asset-2.png"],"./../assets/img/letts-fixed-asset-3.jpg":[["letts-fixed-asset-3.06d3ca08.jpg","assets/img/letts-fixed-asset-3.jpg"],"assets/img/letts-fixed-asset-3.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./../assets/img/work-consultant.jpg":[["work-consultant.874b59cf.jpg","assets/img/work-consultant.jpg"],"assets/img/work-consultant.jpg"],"./../assets/img/work_pane_moody.jpg":[["work_pane_moody.875499a3.jpg","assets/img/work_pane_moody.jpg"],"assets/img/work_pane_moody.jpg"],"./../assets/img/work_pane_atar.jpg":[["work_pane_atar.604947fa.jpg","assets/img/work_pane_atar.jpg"],"assets/img/work_pane_atar.jpg"],"./../assets/img/work-artist.jpg":[["work-artist.f57aba5a.jpg","assets/img/work-artist.jpg"],"assets/img/work-artist.jpg"],"./../assets/img/letts-fixed-asset-1.png":[["letts-fixed-asset-1.9239958c.png","assets/img/letts-fixed-asset-1.png"],"assets/img/letts-fixed-asset-1.png"],"./../assets/img/artist-fixed-asset-1.png":[["artist-fixed-asset-1.5a1777bb.png","assets/img/artist-fixed-asset-1.png"],"assets/img/artist-fixed-asset-1.png"],"./../assets/img/letts-fixed-asset-2.png":[["letts-fixed-asset-2.d4fdd6cf.png","assets/img/letts-fixed-asset-2.png"],"assets/img/letts-fixed-asset-2.png"],"./../assets/img/letts-fixed-asset-3.jpg":[["letts-fixed-asset-3.06d3ca08.jpg","assets/img/letts-fixed-asset-3.jpg"],"assets/img/letts-fixed-asset-3.jpg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +217,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54665" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52008" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
