@@ -118,6 +118,14 @@ body.work--university .page__part__one .background__wrapper {
     background-blend-mode: normal;
 }
 
+/* Hide Scroll Down Arrows */
+
+.scrollD__arrow,
+.scrollD__text {
+    display: none;
+    visibility: hidden;
+}
+
 /* Work Innerpage Typography */
 
 .page__part__one .middle h1 {
@@ -288,6 +296,18 @@ body.work--consultant .page__part__five .desktop__view__1 {
     height: 110vh;
     background: url('/letts-fixed-asset-3.06d3ca08.jpg') center top no-repeat;
     background-size: cover;    
+}
+
+@media (min-width: 960px) and (max-width: 1440px) {
+    .page__part__one .middle h1,
+    .page__part__one .middle h2 {
+        font-size: 4rem;
+        padding: 0;
+    }
+    .page__part__one .middle h4 {
+        font-size: 1.2rem;
+        padding: 30px 0 0 0;
+    }
 }
 
 /*# sourceMappingURL=/work.559356d7.css.map */
