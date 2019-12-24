@@ -73,7 +73,7 @@ body.work header ul li.normal a span.line {
 }
 
 .w--pane--moody {
-    background: url('../assets/img/work_pane_moody.jpg') center center no-repeat;
+    background: url('../assets/img/artist-fixed-asset-2.jpg') center center no-repeat;
     background-size: cover;
     opacity: 0;
     width: 100%;
@@ -104,7 +104,7 @@ body.work--artist .page__part__one {
     height: 65vh;
 }
 body.work--artist .background__wrapper {
-    background-image: url('../assets/img/work-artist.jpg');
+    background-image: url('../assets/img/artist-fixed-asset-2.jpg');
     background-position: center center;
     background-blend-mode: normal;
     background-size: 100%;
