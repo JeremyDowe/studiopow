@@ -336,5 +336,13 @@ body.work--university .page__part__five .desktop__view__1 {
         padding: 30px 0 0 0;
     }
 }
+@media only screen 
+  and (min-width: 375px) 
+  and (max-width: 640px) 
+  and (orientation: portrait) {
+    .page__part__four {
+        display: flex;
+    }
+}
 
 /*# sourceMappingURL=/work.559356d7.css.map */
