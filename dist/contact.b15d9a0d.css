@@ -3,7 +3,7 @@ body.contact {
 }
 /* Change the logo color */
 body.contact #logo.normal {
-    color: rgb(255,255,255);
+    color: rgb(36,36,36);
 }
 .page__contact {
     display: grid;
@@ -20,7 +20,7 @@ body.contact #logo.normal {
     grid-area: 1 / 1 / 2 / 2;
     order: 0;
     height: 100%;
-    background: url('/nastuh-abootalebi-eHD8Y1Znfpk-unsplash.60748134.jpg') 0 0 no-repeat;
+    background: url('/cobro-ViopfTBaHSs-unsplash.84ebed74.jpg') 0 0 no-repeat;
     background-size: cover;
 }
 .page__contact .right {
@@ -31,6 +31,13 @@ body.contact #logo.normal {
 .page__contact .right h3 {
     font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
     font-size: 1.5rem;
+    font-weight: 200;
+    margin: 0;
+    padding: 0 0 4rem 0;
+}
+.page__contact .right h4 {
+    font-family: 'WhyteTrail-Light', 'Work Sans', sans-serif;
+    font-size: 0.9rem;
     font-weight: 200;
     margin: 0;
     padding: 0 0 4rem 0;

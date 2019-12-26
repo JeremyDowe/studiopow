@@ -178,7 +178,7 @@ $(function () {
 
 
       if (scrolling > offset && scrolling < scrollPart2 + offset) {
-        $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll * 0.115) + 'px)');
+        $('.center').css('transform', 'translate(20px,' + Math.sqrt(paddingScroll * 0.115) + 'px)');
 
         if (scrolling > windowHeight - offset) {
           $('.center').css('opacity', '0');
@@ -340,7 +340,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52812" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52580" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

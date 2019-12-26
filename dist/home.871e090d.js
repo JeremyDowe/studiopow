@@ -189,7 +189,7 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./../assets/img/brennan-burling-ITtPnM7_oPw-unsplash.jpg":[["brennan-burling-ITtPnM7_oPw-unsplash.6a769c73.jpg","assets/img/brennan-burling-ITtPnM7_oPw-unsplash.jpg"],"assets/img/brennan-burling-ITtPnM7_oPw-unsplash.jpg"],"./../assets/svg/scroll__arrow.svg":[["scroll__arrow.cccfdb2f.svg","assets/svg/scroll__arrow.svg"],"assets/svg/scroll__arrow.svg"],"./../assets/svg/end_solution.svg":[["end_solution.c28f192a.svg","assets/svg/end_solution.svg"],"assets/svg/end_solution.svg"],"./../assets/svg/circle_solutions.svg":[["circle_solutions.a75f58cd.svg","assets/svg/circle_solutions.svg"],"assets/svg/circle_solutions.svg"],"./../assets/img/work-artist.jpg":[["work-artist.f57aba5a.jpg","assets/img/work-artist.jpg"],"assets/img/work-artist.jpg"],"./../assets/img/work-consultant.jpg":[["work-consultant.874b59cf.jpg","assets/img/work-consultant.jpg"],"assets/img/work-consultant.jpg"],"./../assets/img/university-pane-asset.jpg":[["university-pane-asset.662d9e0f.jpg","assets/img/university-pane-asset.jpg"],"assets/img/university-pane-asset.jpg"],"./../assets/svg/circle_solutions_side.svg":[["circle_solutions_side.f3838afa.svg","assets/svg/circle_solutions_side.svg"],"assets/svg/circle_solutions_side.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./../assets/img/jake-melara-8YuGb6rZ2no-unsplash.jpg":[["jake-melara-8YuGb6rZ2no-unsplash.0cba37e8.jpg","assets/img/jake-melara-8YuGb6rZ2no-unsplash.jpg"],"assets/img/jake-melara-8YuGb6rZ2no-unsplash.jpg"],"./../assets/svg/scroll__arrow.svg":[["scroll__arrow.cccfdb2f.svg","assets/svg/scroll__arrow.svg"],"assets/svg/scroll__arrow.svg"],"./../assets/svg/end_solution.svg":[["end_solution.c28f192a.svg","assets/svg/end_solution.svg"],"assets/svg/end_solution.svg"],"./../assets/svg/circle_solutions.svg":[["circle_solutions.a75f58cd.svg","assets/svg/circle_solutions.svg"],"assets/svg/circle_solutions.svg"],"./../assets/img/work-artist.jpg":[["work-artist.f57aba5a.jpg","assets/img/work-artist.jpg"],"assets/img/work-artist.jpg"],"./../assets/img/work-consultant.jpg":[["work-consultant.874b59cf.jpg","assets/img/work-consultant.jpg"],"assets/img/work-consultant.jpg"],"./../assets/img/university-pane-asset.jpg":[["university-pane-asset.662d9e0f.jpg","assets/img/university-pane-asset.jpg"],"assets/img/university-pane-asset.jpg"],"./../assets/svg/circle_solutions_side.svg":[["circle_solutions_side.f3838afa.svg","assets/svg/circle_solutions_side.svg"],"assets/svg/circle_solutions_side.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +217,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52812" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52580" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

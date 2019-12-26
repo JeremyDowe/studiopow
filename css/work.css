@@ -98,6 +98,7 @@ body.work--consultant .background__wrapper {
     background-image: url('../assets/img/work-consultant.jpg');
     background-position: left top;
     background-blend-mode: normal;
+    background-size: cover;
 }
 body.work--artist .page__part__one {
     background-color: rgba(36,36,36,1);
@@ -107,7 +108,7 @@ body.work--artist .background__wrapper {
     background-image: url('../assets/img/artist-fixed-asset-2.jpg');
     background-position: center center;
     background-blend-mode: normal;
-    background-size: 100%;
+    background-size: cover;
 }
 body.work--university .page__part__one {
     background-color: rgba(36,36,36,1);
@@ -117,6 +118,7 @@ body.work--university .page__part__one .background__wrapper {
     background-image: url('../assets/img/university-pane-asset.jpg');
     background-position: left top;
     background-blend-mode: normal;
+    background-size: cover;
 }
 
 /* Hide Scroll Down Arrows */
@@ -315,7 +317,7 @@ body.work--consultant .page__part__five .desktop__view__1 {
 
 @media (min-width: 960px) and (max-width: 1440px) {
     .page__part__one .middle .center {
-        transform: translateY(127.245px);
+        transform: translate(20px, 127.245px);
     }
     .page__part__one .middle h1,
     .page__part__one .middle h2 {

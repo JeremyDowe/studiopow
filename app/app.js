@@ -65,7 +65,7 @@ $(function(){
                 (scrolling > offset) && 
                 (scrolling < scrollPart2 + offset)
             ){
-                $('.center').css('transform', 'translateY(' + Math.sqrt(paddingScroll*0.115) + 'px)');
+                $('.center').css('transform', 'translate(20px,' + Math.sqrt(paddingScroll*0.115) + 'px)');
                 if (scrolling > windowHeight - offset){
                     $('.center').css('opacity', '0' );
                 } else {

@@ -52,9 +52,9 @@
     overflow: hidden;
 }
 .background__wrapper {
-    background-color: rgb(36,36,36);
-    background-image: url('../assets/img/brennan-burling-ITtPnM7_oPw-unsplash.jpg');
-    background-blend-mode: screen;
+    background-color: rgba(236,36,136,0.5);
+    background-image: url('../assets/img/jake-melara-8YuGb6rZ2no-unsplash.jpg');
+    background-blend-mode: saturation;
     background-position-x: center;
     background-position-y: 50%;
     background-repeat: no-repeat;
@@ -104,7 +104,7 @@
     font-size: 6vw;
     letter-spacing: -0.02vw;
     font-weight: 500;
-    padding: 20px 50px 30px 50px;
+    padding: 20px 0px 30px 0px;
     margin: 0;
     /*transform: translate(-100px, 0px);*/
     top: 0;
@@ -146,21 +146,22 @@
     user-select: none;
 }
 .page__part__one .middle .center {
-    text-align: center;
+    text-align: left;
     position: relative;
-    transform: translateY(163px);
+    transform: translate(20px, 163px);
     z-index: 5;
     transition: opacity 0.4s ease;
 }
 .page__part__one .left {
     width: 100%;
+    background-color: rgba(0,0,0,1);
 }
 aside.right {
     grid-area: 'right';
     z-index: 1;
     width: 100%;
     opacity: 0;
-    transform: translate(-20px, 0px);
+    transform: translate(0px, 0px);
     position: relative;
     overflow: hidden;
     transition: all .3s ease-in-out;
