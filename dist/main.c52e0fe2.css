@@ -526,7 +526,7 @@ footer {
     width: -webkit-fill-available;
     background: #d2d2d2;
     padding: 3rem 5rem;
-    margin: 0;
+    margin: 8rem 0 0 0;
 }
 
 footer .left {
@@ -594,6 +594,7 @@ footer .right table td a:hover {
         flex-wrap: wrap;
         width: 100vw;
         padding: 0 0 0 2.5rem;
+        margin: 0;
     }
     footer .left {
         padding: 4rem 0.8rem;
