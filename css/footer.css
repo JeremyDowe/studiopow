@@ -5,6 +5,9 @@ footer {
     width: -webkit-fill-available;
     background: #d2d2d2;
     padding: 3rem 5rem;
+}
+
+body.home footer {
     margin: 8rem 0 0 0;
 }
 
