@@ -65,7 +65,7 @@ $(function(){
                 (scrolling > offset) && 
                 (scrolling < scrollPart2 + offset)
             ){
-                $('.center').css('transform', 'translate(20px,' + Math.sqrt(paddingScroll*0.115) + 'px)');
+                $('body#desktop .center').css('transform', 'translate(20px,' + Math.sqrt(paddingScroll*0.115) + 'px)');
                 if (scrolling > windowHeight - offset){
                     $('.center').css('opacity', '0' );
                 } else {
@@ -74,6 +74,8 @@ $(function(){
                 $('.background__wrapper').css('transform', 'scale(' + scroll + ')');
             }
             if (scrolling < offset) {
+                $('body#mobile .center').css('transform', 'translate(40px,250px)');
+                $('body#desktop .center').css('transform', 'translate(20px,143px)');
                 $('.page__part__one').css('opacity', '1');
                 $('.center').css('opacity', '1' );
                 $('aside.right').css('opacity', '1' );
@@ -205,5 +207,17 @@ $(function(){
             }
         }
         return true;
+     });
+     // Mobile > Desktop Helper
+     if($(window).outerWidth() > 640){
+         $('body').attr('id','desktop');
+     }
+     $(window).on('resize',function(){
+         this.console.log('updated window size ', $(window).outerWidth());
+         if($(window).outerWidth() <= 640){
+             $('body').attr('id','mobile');
+         } else {
+             $('body').attr('id','desktop');
+         }
      });
 });

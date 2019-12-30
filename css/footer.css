@@ -66,13 +66,13 @@ footer .right table td a:hover {
 
 @media only screen 
   and (min-width: 375px) 
-  and (max-width: 640px) 
+  and (max-width: 960px) 
   and (orientation: portrait) {
     footer {
         display: flex;
         flex-wrap: wrap;
-        width: -webkit-fill-available;
-        padding: 0;
+        width: 100vw;
+        padding: 0 0 0 2.5rem;
     }
     footer .left {
         padding: 4rem 0.8rem;
@@ -80,6 +80,7 @@ footer .right table td a:hover {
     footer .right {
         padding: 0 0.8rem;
         height: 320px;
+        width: 100%;
     }
     footer .footer {
         padding: 1rem 0.8rem;
@@ -87,5 +88,12 @@ footer .right table td a:hover {
     footer .footer .allrights {
         padding: 1rem 0;
         width: 100%;
+    }
+}
+@media only screen 
+  and (min-width: 800px) 
+  and (max-width: 960px) {
+    footer {
+        padding: 0;
     }
 }

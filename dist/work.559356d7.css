@@ -131,6 +131,13 @@ body.work--university .page__part__one .background__wrapper {
 
 /* Work Innerpage Typography */
 
+body#desktop .page__part__one .middle .center {
+    transform: translate(20px,143px);
+}
+body#mobile .page__part__one .middle .center {
+    transform: translate(40px,250px);
+}
+
 .page__part__one .middle h1 {
     font-size: 5.5rem;
 }
@@ -337,12 +344,51 @@ body.work--university .page__part__five .desktop__view__1 {
     }
 }
 @media only screen 
-  and (min-width: 375px) 
-  and (max-width: 640px) 
+  and (min-width: 0px) 
+  and (max-width: 375px) 
   and (orientation: portrait) {
-    .page__part__four {
-        display: flex;
+    body.work--consultant .page__part__one,
+    body.work--consultant .page__part__two,
+    body.work--consultant .page__part__three,
+    body.work--consultant .page__part__four,
+    body.work--consultant .page__part__five,
+    body.work--consultant footer {
+        height: 100vh;
+        width: 375px;
+        overflow: hidden;
     }
+    .page__part__one .center {
+        width: 375px;
+        height: 50vh;
+        overflow: hidden;
+    }
+    .page__part__four {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(2, 1fr);
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+    }
+    .page__part__four .work__left {
+        grid-area: 1 / 1 / 2 / 2;
+        height: 100%;
+    }
+    .page__part__four .work__right {
+        grid-area: 2 / 1 / 3 / 2;
+        height: 100%;
+    }
+    body.work--consultant .page__part__five {
+        height: -webkit-fill-available;
+        height: 50vh;
+    }
+    body.work--consultant .page__part__five .desktop__view__1 {
+        background-size: contain;
+        background-position: center center;
+        width: 100vw;
+        height: 50vh;
+        background-color: #CBC2B9;
+    }
+
 }
 
 /*# sourceMappingURL=/work.559356d7.css.map */
