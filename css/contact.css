@@ -79,13 +79,6 @@ body.contact #logo.normal {
     header #logo .desktop {
         display: none;
     }
-    header nav {
-        padding-right: 0.5rem;
-    }
-    header ul li a {
-        font-size: 0.6rem;
-        padding: 0 0.05rem;
-    }
     .page__contact .left {
         display: none;
     }

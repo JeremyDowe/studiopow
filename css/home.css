@@ -52,7 +52,7 @@
     overflow: hidden;
 }
 .background__wrapper {
-    background-color: rgba(236,36,136,0.5);
+    background-color: rgba(210,210,210,0.5);
     background-image: url('../assets/img/jake-melara-8YuGb6rZ2no-unsplash.jpg');
     background-blend-mode: saturation;
     background-position-x: center;
