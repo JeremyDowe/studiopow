@@ -11,6 +11,7 @@
     "dev": "parcel index.html"
   },
   "dependencies": {
+    "carbon-components": "^10.9.0",
     "gsap": "^3.0.1",
     "import-jquery": "^1.0.1",
     "jquery": "^3.4.1",
