@@ -20,8 +20,9 @@ body.contact #logo.normal {
     grid-area: 1 / 1 / 2 / 2;
     order: 0;
     height: 100%;
-    background: url('/contactpage.257eaeed.jpg') 0 0 no-repeat;
+    background: url('/podcast-art-instagram-angle-grid.711c35e2.jpg') 0 0 no-repeat;
     background-size: cover;
+    opacity: 0.2;
 }
 .page__contact .right {
     grid-area: 1 / 2 / 2 / 3;

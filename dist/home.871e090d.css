@@ -45,13 +45,14 @@
 .holder {
     width: 100%;
     height: 110vh;
+    opacity: 0.4;
     position: absolute;
     overflow: hidden;
 }
 .background__wrapper {
-    background-color: rgba(210,210,210,0.5);
-    background-image: url('/jake-melara-8YuGb6rZ2no-unsplash.0cba37e8.jpg');
-    background-blend-mode: saturation;
+    background-color: rgba(210,210,210,0.1);
+    background-image: url('/podcast-art-instagram-angle-grid.711c35e2.jpg');
+    background-blend-mode: multiply;
     background-position-x: center;
     background-position-y: 50%;
     background-repeat: no-repeat;
