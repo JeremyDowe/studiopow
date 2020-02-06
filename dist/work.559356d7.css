@@ -4,7 +4,7 @@ body#mobile header #logo.invert,
 body#desktop header #logo.invert,
 body#mobile header #logo.normal,
 body#desktop header #logo.normal {
-    color: rgb(36,36,36);
+    color: rgb(255, 255, 255);
 }
 body.work header #logo.normal {
     color: rgb(36,36,36);
@@ -322,7 +322,7 @@ body.work--university .page__part__four .work__left .mobile__view__1 {
 body.work--sportsapp .page__part__four .work__left .mobile__view__1 {
     width: 100%;
     height: 100%;
-    background: #FFFFFF url('/sports-app-pane.863dd958.png') center center no-repeat;
+    background: #FFFFFF url('/sports-app-portrait-2.7a75739f.png') center center no-repeat;
     background-size: contain;
 }
 
@@ -387,7 +387,7 @@ body.work--university .page__part__five .desktop__view__1 {
 body.work--sportsapp .page__part__five .desktop__view__1 {
     width: 100vw;
     height: 110vh;
-    background: url('/sports-app-landscape.d4459c2f.png') center top no-repeat;
+    background: url('/sports-app-wide.02366b48.png') center top no-repeat;
     background-size: cover;    
 }
 
