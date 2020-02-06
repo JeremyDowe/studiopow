@@ -235,9 +235,7 @@ $(function () {
       var lastScrollPane = $('.pane--letts').position().top;
       var last2ScrollPane = $('.pane--moody').position().top;
       var last3ScrollPane = $('.pane--atar').position().top;
-      var last4ScrollPane = $('.pane--sports').position().top;
-      var last5ScrollPane = $('.pane--safety').position().top;
-      var last6ScrollPane = $('.pane--infographic').position().top; // work section scroll
+      var last4ScrollPane = $('.pane--sports').position().top; // work section scroll
 
       var scrollPane = scrolling / windowHeight;
       var formulaA = scrollPane / pieAxisScroll * 100 / 100;
@@ -323,28 +321,6 @@ $(function () {
           delay: 1.2
         });
       }
-
-      if (formulaA > 0.5 && scrolling < last5ScrollPane) {
-        $('.work--pane').css('transform', 'translateY(' + pieAxisScroll * 0.25 + 'px)');
-        $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')'); // animate in gsap
-
-        gsap.to('.w--pane--safety', {
-          opacity: 1,
-          duration: 2,
-          delay: 1.2
-        });
-      }
-
-      if (formulaA > 0.5 && scrolling < last6ScrollPane) {
-        $('.work--pane').css('transform', 'translateY(' + pieAxisScroll * 0.25 + 'px)');
-        $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')'); // animate in gsap
-
-        gsap.to('.w--pane--infographic', {
-          opacity: 1,
-          duration: 2,
-          delay: 1.2
-        });
-      }
     }
 
     return true;
@@ -392,7 +368,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58700" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50523" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
