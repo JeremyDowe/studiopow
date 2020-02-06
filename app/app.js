@@ -128,6 +128,9 @@ $(function(){
             var lastScrollPane = $('.pane--letts').position().top;
             var last2ScrollPane = $('.pane--moody').position().top;
             var last3ScrollPane = $('.pane--atar').position().top;
+            var last4ScrollPane = $('.pane--sports').position().top;
+            var last5ScrollPane = $('.pane--safety').position().top;
+            var last6ScrollPane = $('.pane--infographic').position().top;
             // work section scroll
             const scrollPane = (scrolling/windowHeight);
             const formulaA = (scrollPane/pieAxisScroll*100)/100;
@@ -199,6 +202,42 @@ $(function(){
                 // animate in gsap
                 gsap.to(
                     '.w--pane--atar',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
+            }
+            if ( formulaA > 0.5 && scrolling < last4ScrollPane ){
+                $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--sports',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
+            }
+            if ( formulaA > 0.5 && scrolling < last5ScrollPane ){
+                $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--safety',
+                    { 
+                        opacity: 1, 
+                        duration: 2,
+                        delay: 1.2
+                    });
+            }
+            if ( formulaA > 0.5 && scrolling < last6ScrollPane ){
+                $('.work--pane').css('transform', 'translateY(' + (pieAxisScroll*0.25) + 'px)');
+                $('h2.work--title').css('transform', 'matrix( 1, 0, 0, 1, 0, ' + formulaB + ')');
+                // animate in gsap
+                gsap.to(
+                    '.w--pane--infographic',
                     { 
                         opacity: 1, 
                         duration: 2,

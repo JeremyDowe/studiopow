@@ -95,6 +95,30 @@ body.work header ul li.normal a span.line {
     height: 100%;    
 }
 
+.w--pane--sports {
+    background: url('/sports-app-pane.863dd958.png') center center no-repeat;
+    background-size: cover;
+    opacity: 0;
+    width: 100%;
+    height: 100%;    
+}
+
+.w--pane--safety {
+    background: url('/university-mobile-asset-3.050de8d6.jpg') center center no-repeat;
+    background-size: cover;
+    opacity: 0;
+    width: 100%;
+    height: 100%;    
+}
+
+.w--pane--infographic {
+    background: url('/university-mobile-asset-3.050de8d6.jpg') center center no-repeat;
+    background-size: cover;
+    opacity: 0;
+    width: 100%;
+    height: 100%;    
+}
+
 /* Work Backgrounds */
 
 body.work--consultant .page__part__one {
