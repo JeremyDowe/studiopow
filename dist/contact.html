@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/main.c52e0fe2.css">
     <link rel="stylesheet" type="text/css" href="/home.871e090d.css">
     <link rel="stylesheet" type="text/css" href="/contact.b15d9a0d.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="/contact.b15d9a0d.js"></script></head>
 <body class="contact">
@@ -30,22 +31,17 @@
                 <div class="background-image"></div>
             </section>
             <section class="right">
-                <h3>Let's create something together</h3>
-                <h3>Contact us</h3>
-                <h4>+61 (0)419 907 148<br><br><br><a href="https://www.linkedin.com/in/jeremy-dowe-b96a77189" style="color: white;text-decoration:  none;" tabindex="4">Message on LinkedIn</a></h4>
-                <p>&nbsp;</p>
-                <table cellpadding="0" cellspacing="0">
-                    <tbody>
-                        <tr>
-                            <td><a href="https://www.instagram.com/wearepow.co/" tabindex="5">INSTAGRAM</a></td>
-                            <td><a href="https://www.linkedin.com/in/jeremy-dowe-b96a77189" tabindex="6">LINKEDIN</a></td>
-                        </tr>
-                        <tr>
-                            <td><a href="https://dribbble.com/wearepow" tabindex="7">DRIBBBLE</a></td>
-                            <td><a href="https://www.behance.net/jeremydowe" tabindex="8">BEHANCE</a></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h2>Application of Interest</h2>
+                <form name="contact" method="POST" class="pure-form pure-form-stacked" data-netlify="true">
+                    <fieldset>
+                      <label for="firstname">First Name: <input id="firstname" type="text" placeholder="Enter your first name." name="firstname"></label>
+                      <label>Last Name: <input id="lastname" type="text" placeholder="Enter your last name." name="lastname"></label>
+                      <label>Your Number inc. Int. Area Code: <input type="number" placeholder="Enter your phone number." name="phone"></label>
+                      <label>Your Email: <input id="email" type="email" placeholder="Enter your email address." name="email"></label>
+                      <label>Why are you contacting StudioPow? <textarea name="message"></textarea></label>
+                      <button type="submit" class="pure-button pure-button-primary">Request A Quote</button>
+                    </fieldset>
+                </form>
             </section>
         </section>
     </main>   
