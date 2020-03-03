@@ -88,6 +88,16 @@ body.contact #logo.normal {
         grid-area: 1 / 1 / 2 / 3;
     }
 }
-
+.page__contact .right h3.expressionTitle {
+    margin-bottom: 20px;
+    padding-bottom: 0px;
+}
+form input, form textarea {
+    color: #222111;
+    width: 450px;
+}
+form button {
+    width: 450px;
+}
 
 /*# sourceMappingURL=/contact.b15d9a0d.css.map */
